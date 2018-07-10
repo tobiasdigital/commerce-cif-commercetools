@@ -1,0 +1,30 @@
+{
+  "name": "@adobe/commerce-cif-commercetools-test",
+  "version": "0.1.0",
+  "description": "Adobe Commerce Integration Framework (CIF) Commercetools Integration Test Project",
+  "author": "Adobe Systems Inc.",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/adobe/commerce-cif-commercetools.git"
+  },
+  "dependencies": {
+    "@adobe/commerce-cif-common": "0.1.15",
+    "@adobe/commerce-cif-model": "0.1.119",
+    "@commercetools/api-request-builder": "1.7.0",
+    "@commercetools/sdk-client": "1.4.1",
+    "@commercetools/sdk-middleware-auth": "3.1.0",
+    "@commercetools/sdk-middleware-http": "2.1.1",
+    "@commercetools/sdk-middleware-logger": "1.0.0"
+  },
+  "devDependencies": {
+    "eslint": "3.19.0",
+    "eslint-plugin-header": "1.2.0"
+  },
+  "eslintConfig": {
+    "extends": "../.eslintrc.js"
+  },
+  "scripts": {
+    "lint": "$(npm bin)/eslint -f table --ignore-path ../.eslintignore ."
+  }
+}
