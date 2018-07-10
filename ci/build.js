@@ -39,7 +39,7 @@ if ("test-it" in pkg.scripts) {
 
     let branch = process.env.CIRCLE_BRANCH.replace(/[\W_]+/g, "");
     let buildNum = process.env.CIRCLE_BUILD_NUM.replace(/[\W_]+/g, "");
-    process.env.OW_PACKAGE_SUFFIX = `common-${branch}-${buildNum}`;
+    process.env.OW_PACKAGE_SUFFIX = `ct-${branch}-${buildNum}`;
 
     try {
         ci.withWskCredentials(process.env.WSK_API_HOST, process.env.CORE_WSK_NAMESPACE, process.env.CORE_WSK_AUTH_STRING, () => {
