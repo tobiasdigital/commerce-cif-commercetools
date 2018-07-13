@@ -22,11 +22,11 @@ const samplecart = require('../resources/sample-cart');
 /**
  * Unit tests for postCoupons action.
  */
-describe('commercetools postCoupons', () => {
+describe('commercetools postCoupon', () => {
     describe('Unit Tests', () => {
 
         // Add action helpers to `.this` context
-        setup(this, __dirname, 'postCoupons');
+        setup(this, __dirname, 'postCoupon');
 
         it('returns an error if the cart id is missing', () => {
             return this.execute()

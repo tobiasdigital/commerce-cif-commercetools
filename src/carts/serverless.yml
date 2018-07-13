@@ -80,6 +80,6 @@ functions:
     name: ${self:custom.ow-package}/deletePaymentService
     handler: deletePayment.main
 
-  postCouponsService:
-    name: ${self:custom.ow-package}/postCouponsService
-    handler: postCoupons.main
+  postCouponService:
+    name: ${self:custom.ow-package}/postCouponService
+    handler: postCoupon.main

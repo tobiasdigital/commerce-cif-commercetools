@@ -165,10 +165,10 @@ functions:
     annotations:
       web-export: true
 
-  postCoupons:
-    name: ${self:custom.customer-package}/postCoupons
+  postCoupon:
+    name: ${self:custom.customer-package}/postCoupon
     sequence:
-      - ${self:custom.carts-actions}/postCouponsService
+      - ${self:custom.carts-actions}/postCouponService
       - ${self:custom.common-actions}/webActionTransformer
     annotations:
       web-export: true

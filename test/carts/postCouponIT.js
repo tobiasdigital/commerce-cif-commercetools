@@ -24,7 +24,7 @@ const expect = chai.expect;
 chai.use(chaiHttp);
 
 
-describe('commercetools postCoupons', function () {
+describe('commercetools postCoupon', function () {
 
     describe('Integration tests', function () {
 
@@ -66,7 +66,7 @@ describe('commercetools postCoupons', function () {
 
         it('returns 400 for adding a coupon to an non existing cart', function () {
             return chai.request(env.openwhiskEndpoint)
-                       .post(env.cartsPackage + 'postCoupons')
+                       .post(env.cartsPackage + 'postCoupon')
                        .query({
                            id: 'non-existing-cart-id',
                            code: 'HW35'
@@ -78,7 +78,7 @@ describe('commercetools postCoupons', function () {
 
         it('returns 400 for a missing coupon code', function () {
             return chai.request(env.openwhiskEndpoint)
-                       .post(env.cartsPackage + 'postCoupons')
+                       .post(env.cartsPackage + 'postCoupon')
                        .query({
                            id: cartId
                        })
@@ -89,7 +89,7 @@ describe('commercetools postCoupons', function () {
 
         it('returns 400 for an invalid coupon code', function () {
             return chai.request(env.openwhiskEndpoint)
-                       .post(env.cartsPackage + 'postCoupons')
+                       .post(env.cartsPackage + 'postCoupon')
                        .query({
                            id: cartId,
                            code: 'non-existing-coupon-code'
@@ -105,7 +105,7 @@ describe('commercetools postCoupons', function () {
                 code: 'HW35'
             };
             return chai.request(env.openwhiskEndpoint)
-                       .post(env.cartsPackage + 'postCoupons')
+                       .post(env.cartsPackage + 'postCoupon')
                        .query(args)
                        .then(function(res) {
                            expect(res).to.be.json;

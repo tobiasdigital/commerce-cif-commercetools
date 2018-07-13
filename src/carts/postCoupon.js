@@ -37,7 +37,7 @@ const ERROR_TYPE = require('./constants').ERROR_TYPE;
  *
  * @return  {Promise}                          the cart with the coupon applied
  */
-function postCoupons(args) {
+function postCoupon(args) {
 
     // Validate arguments
     const validator = new InputValidator(args, ERROR_TYPE)
@@ -64,4 +64,4 @@ function postCoupons(args) {
         .postCartData(args.id, data, args.customerId);
 }
 
-module.exports.main = CTPerformanceMeasurement.decorateActionForSequence(postCoupons);
+module.exports.main = CTPerformanceMeasurement.decorateActionForSequence(postCoupon);
