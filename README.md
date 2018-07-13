@@ -4,7 +4,7 @@
 
 ## Introduction
 
-The CIF on Cloud services architecture is based on [OpenWhisk](https://openwhisk.apache.org) & [Adobe I/O Runtime](https://www.adobe.io/apis/cloudplatform/runtime.html). The main building blocks of the new commerce services are serverless functions (OpenWhisk actions). These actions run on Adobe I/O Runtime inside an isolated container, stateless and serverless interacting with the commerce backend system or other endpoints via their APIs. 
+The CIF on Cloud services architecture is based on [Apache OpenWhisk](https://openwhisk.apache.org) & [Adobe I/O Runtime](https://www.adobe.io/apis/cloudplatform/runtime.html). The main building blocks of the new commerce services are serverless functions (OpenWhisk actions). These actions run on Adobe I/O Runtime inside an isolated container, stateless and serverless interacting with the commerce backend system or other endpoints via their APIs. 
 
 This project contains the OpenWhisk actions implementation for [commercetools](https://commercetools.com).
 
@@ -30,14 +30,14 @@ The project also has dependencies/relationships to the following sub projects:
 
 |  Project | Description |
 | ------------- | ------------- |
-| [commerce-ccif-api](../commerce-cif-api) | API definition of the CIF: Swagger File, Java API definition, Java Model, JavaScript Model  |
-| [commerce-ccif-common](../commerce-cif-common) | Common Code to any commerce provider for OW Java Script API: common actions, validators, exceptions. |
+| [commerce-cif-api](https://github.com/adobe/commerce-cif-api) | API definition of the CIF: Swagger File, Java API definition, Java Model, JavaScript Model  |
+| [commerce-cif-common](https://github.com/adobe/commerce-cif-common) | Common code for CIF implementations: common actions, validators, exceptions. |
 
 ### Tools
 
 To get started with CIF on Cloud, first make sure you have the following tools installed:
-* Node 7.x
-* NPM 4.x
+* Node 7.x or 8.x
+* NPM 4.x or 5.x
 * [OpenWhisk CLI](https://github.com/apache/incubator-openwhisk-cli/releases)
 
 OpenWhisk CLI must be available in your systems PATH and set up correctly to either use a local OpenWhisk installation or an Adobe I/O account. Try `wsk --help` to make sure it is working.
@@ -66,8 +66,8 @@ to create all the shared packages and deploy all the actions in the `provider` n
 Note that `lerna run deploy-package` will simply call `npm run deploy-package` in all the subfolders under `src`.
 
 For each microservice domain like `products`, running the `deploy-package` script will create 2 shared packages in the provider namespace like for example:
-* `/cif-core/commercetools-products-actions@0.1.10` (at the time of writing this doc)
-* `/cif-core/commercetools-products-actions@latest`
+* `/cif-core/commerce-cif-commercetools-product@0.0.1` (at the time of writing this doc)
+* `/cif-core/commerce-cif-commercetools-product@latest`
 
 The 1st package extracts the version number from the `package.json` file of the microservice, for example from [src/products/package.json](src/products/package.json) for the [products](src/products) microservice.
 
@@ -95,7 +95,7 @@ If you change the code of an existing action, you don't have to use `lerna` for 
 The OpenWhisk actions can be deployed using [serverless](https://serverless.com/framework/docs/providers/openwhisk/) framework.
 Actions and sequences are declared in the `serverless.yml` file of each business domain class located under ./src. 
 
-To deploy all actions, you can call `npm run deploy`, and to remove all actions just use `npm run remove`. 
+To deploy all actions in one of the `./src` folder, you can call `npm run deploy`, and to remove all actions just use `npm run remove`. 
 For reference, during the deployment, actions are zipped and stored in the `.serverless` directory.
 
 It is also possible to use `serverless` directly to deploy a single action. First navigate to the action folder (i.e `./src/carts`) and execute `$ serverless deploy function -f NAME` (with `NAME` referring to the name of a function declared in `serverless.yml`). 
@@ -118,7 +118,7 @@ The same command is also available for each individual package. Running individu
 ```
 $ NODE_TLS_REJECT_UNAUTHORIZED=0 OW_ENDPOINT='https://hostname/api/v1/web/ccif-customer' npm run test-it
 ```
-System environment variables, like OW_ENDPOINT can be adapted to use a custom OW environment or namespace.
+System environment variables, like OW_ENDPOINT can be adapted to use a custom OpenWhisk environment or namespace.
 
 ## Logging
 
