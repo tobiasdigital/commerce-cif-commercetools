@@ -18,7 +18,8 @@ const InputValidator = require('@adobe/commerce-cif-common/input-validator');
 const CommerceToolsCart = require('./CommerceToolsCart');
 const CTPerformanceMeasurement = require('@adobe/commerce-cif-commercetools-common/performance-measurement.js');
 const createClient = require('@commercetools/sdk-client').createClient;
-const cartMapper = require('./CartMapper');
+const CartMapper = require('./CartMapper');
+const LanguageParser = require('@adobe/commerce-cif-commercetools-common/LanguageParser');
 const ERROR_TYPE = require('./constants').ERROR_TYPE;
 
 /**
@@ -48,7 +49,10 @@ function postShippingMethod(args) {
         return validator.buildErrorResponse();
     }
 
-    const cart = new CommerceToolsCart(args, createClient, cartMapper.mapCart);
+    let languageParser = new LanguageParser(args);
+    let cartMapper = new CartMapper(languageParser);
+
+    const cart = new CommerceToolsCart(args, createClient, cartMapper.mapCart.bind(cartMapper));
     // cart data for cart update action
     const data = {
         actions: [{

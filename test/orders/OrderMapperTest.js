@@ -17,14 +17,13 @@
 const assert = require('chai').assert;
 const sampleorder = require('../resources/sample-order');
 const utils = require('../lib/utils');
+const OrderMapper = require('../../src/orders/OrderMapper');
 
 describe('commercetools OrderMapper', () => {
 
-    let action = utils.getPathForAction(__dirname, 'OrderMapper');
-    let orderMapper = require(action);
-
     describe('Unit tests', () => {
         let orderData = null;
+        let orderMapper = new OrderMapper();
 
         beforeEach(() => {
             // clone original sample data before each test

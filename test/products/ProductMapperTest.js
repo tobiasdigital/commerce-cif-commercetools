@@ -18,22 +18,28 @@ const assert = require('chai').assert;
 const sampleProduct1 = require('../resources/sample-product-object-mapper');
 const sampleProductSearch = require('../resources/sample-product-search');
 const MissingProperty = require('@adobe/commerce-cif-common').MissingPropertyException;
-const utils = require('../lib/utils');
+const LanguageParser = require('../../src/common/LanguageParser');
+const ProductMapper = require('../../src/products/ProductMapper');
 
 describe('commercetools ProductMapper', () => {
 
-    let action = utils.getPathForAction(__dirname, 'ProductMapper');
-    let productMapper = require(action);
     let simpleConstraints = ['None', 'SameForAll'];
 
     describe('Unit tests', () => {
         let productData = undefined;
+        let args = {
+            __ow_headers: {
+                'accept-language': 'en-US'
+            }
+        };
+        let languageParser = new LanguageParser(args);
+        let productMapper = new ProductMapper(languageParser);
 
         beforeEach(() => {
             productData = JSON.parse(JSON.stringify(sampleProduct1)); // clone original sample data before each test
         });
 
-        it('prices', () => {
+        it('maps prices', () => {
             let mappedPrices = productMapper._mapPrices(sampleProduct1.body.masterVariant.prices);
             assert.isDefined(mappedPrices);
             assert.isArray(mappedPrices);
@@ -47,7 +53,7 @@ describe('commercetools ProductMapper', () => {
             assert.isUndefined(mappedPrices[0].country);
         });
 
-        it('assets', () => {
+        it('maps assets', () => {
             let mappedAssets = productMapper._mapImages(sampleProduct1.body.masterVariant.images);
             assert.isDefined(mappedAssets);
             assert.isArray(mappedAssets);
@@ -58,42 +64,41 @@ describe('commercetools ProductMapper', () => {
             });
         });
 
-        it('product', () => {
-            let mappedProduct = productMapper.mapProduct(productData);
+        it('maps a product', () => {
+            let mappedProduct = productMapper.mapProduct(productData, args);
             assert.strictEqual(mappedProduct.id, productData.body.id);
             assert.strictEqual(mappedProduct.masterVariantId, productData.body.id + '-' + productData.body.masterVariant.id);
-            assert.strictEqual(mappedProduct.name, productData.body.name);
-            assert.strictEqual(mappedProduct.description, productData.body.description);
+            assert.strictEqual(mappedProduct.name, productData.body.name.en);
+            assert.strictEqual(mappedProduct.description, productData.body.description.en);
             assert.strictEqual(mappedProduct.createdDate, productData.body.createdAt);
             assert.strictEqual(mappedProduct.lastModifiedDate, productData.body.lastModifiedAt);
             assert.lengthOf(mappedProduct.variants, productData.body.variants.length + 1);
             assert.lengthOf(mappedProduct.categories, productData.body.categories.length);
         });
 
-        it('invalid product id', () => {
+        it('throws an exception for an invalid product id', () => {
             delete productData.body.id;
-            assert.throws(() => productMapper.mapProduct(productData), MissingProperty);
+            assert.throws(() => productMapper.mapProduct(productData, args), MissingProperty);
         });
 
-        it('invalid product master variant', () => {
+        it('throws an exception for an invalid product master variant', () => {
             delete productData.body.masterVariant;
-            assert.throws(() => productMapper.mapProduct(productData), MissingProperty);
+            assert.throws(() => productMapper.mapProduct(productData, args), MissingProperty);
         });
 
-        it('invalid product master variant', () => {
+        it('throws an exception for an invalid product master variant id', () => {
             delete productData.body.masterVariant.id;
-            assert.throws(() => productMapper.mapProduct(productData), MissingProperty);
+            assert.throws(() => productMapper.mapProduct(productData, args), MissingProperty);
         });
 
-
-        it('product variant', () => {
-            let mappedProduct = productMapper.mapProduct(productData);
+        it('maps a product variant', () => {
+            let mappedProduct = productMapper.mapProduct(productData, args);
             let mappedVariant = mappedProduct.variants.filter(variant => variant.id == mappedProduct.masterVariantId)[0];
 
             assert.strictEqual(mappedVariant.id, productData.body.id + '-' + productData.body.masterVariant.id);
             assert.strictEqual(mappedVariant.sku, productData.body.masterVariant.sku);
-            assert.strictEqual(mappedVariant.name, productData.body.masterVariant.name);
-            assert.strictEqual(mappedVariant.description, productData.body.masterVariant.description);
+            assert.strictEqual(mappedVariant.name, (productData.body.masterVariant.name || {}).en);
+            assert.strictEqual(mappedVariant.description, (productData.body.masterVariant.description || {}).en);
             assert.lengthOf(mappedVariant.prices, productData.body.masterVariant.prices.length);
 
             assert.lengthOf(mappedVariant.assets, productData.body.masterVariant.images.length);   
@@ -103,8 +108,8 @@ describe('commercetools ProductMapper', () => {
             assert.lengthOf(mappedVariant.attributes.filter(attr => attr.variantAttribute), length);
         });
 
-        it('product variant attributes', () => {
-            let mappedProduct = productMapper.mapProduct(productData);
+        it('maps product variant attributes', () => {
+            let mappedProduct = productMapper.mapProduct(productData, args);
             mappedProduct.variants.forEach(variant => {
                 variant.attributes.forEach(attr => {
                     assert.hasAnyKeys(attr, ['id', 'value', 'name']);
@@ -117,8 +122,8 @@ describe('commercetools ProductMapper', () => {
             })
         });
 
-        it('product search with query facets', () => {
-            let mappedProduct = productMapper.mapPagedProductResponse(sampleProductSearch);
+        it('maps a product search with query facets', () => {
+            let mappedProduct = productMapper.mapPagedProductResponse(sampleProductSearch, args);
             let sampleFacets = sampleProductSearch.body.facets;
             assert.isDefined(mappedProduct);
             assert.isDefined(mappedProduct.facets);
@@ -147,11 +152,11 @@ describe('commercetools ProductMapper', () => {
             });
         });
 
-        it('product search with query and selected facets', () => {
+        it('maps a product search with query and selected facets', () => {
             let selectedFacets = {
-                'selectedFacets': 'variants.attributes.color.en:purple|variants.prices.value.centAmount:range (5000 to 15000)'
+                selectedFacets: 'variants.attributes.color.en:purple|variants.prices.value.centAmount:range (5000 to 15000)'
             };
-            let mappedProduct = productMapper.mapPagedProductResponse(sampleProductSearch, selectedFacets);
+            let mappedProduct = productMapper.mapPagedProductResponse(sampleProductSearch, Object.assign({}, selectedFacets, args));
             let sampleFacets = sampleProductSearch.body.facets;
             assert.isDefined(mappedProduct);
             assert.isDefined(mappedProduct.facets);
@@ -176,8 +181,8 @@ describe('commercetools ProductMapper', () => {
             });
         });
 
-        it('product search facets based on attributes', () => {
-            let mappedFacets = productMapper.getProductFacets(sampleProductSearch);
+        it('maps a product search facets based on attributes', () => {
+            let mappedFacets = productMapper.getProductFacets(sampleProductSearch, args);
             let sampleAttributes = sampleProductSearch.body.results[0].productType.obj.attributes;
             assert.isDefined(mappedFacets);
             assert.strictEqual(mappedFacets.length, 7);
@@ -185,7 +190,7 @@ describe('commercetools ProductMapper', () => {
             sampleAttributes.forEach(sampleFacet => {
                 mappedFacets.forEach(mappedFacet => {
                     if (`variants.attributes.${sampleFacet.name}.en` === mappedFacet.name) {
-                        assert.strictEqual(sampleFacet.label.en, mappedFacet.label.en);
+                        assert.strictEqual(mappedFacet.label, sampleFacet.label.en);
                         return;
                     }
                 });

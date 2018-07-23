@@ -38,6 +38,7 @@ describe('commercetools searchProducts', function() {
         it('returns a 500 error if parameters are missing', function() {
             return chai.request(env.openwhiskEndpoint)
                 .get(env.productsPackage + 'searchProducts')
+                .set('Accept-Language', 'en-US')
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
                 });
@@ -50,6 +51,7 @@ describe('commercetools searchProducts', function() {
                 .query({
                     filter: `categories.id:"${categoryId}"`
                 })
+                .set('Accept-Language', 'en-US')
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
@@ -71,6 +73,7 @@ describe('commercetools searchProducts', function() {
                 .query({
                     filter: `categories.id:subtree("${subtree}")`
                 })
+                .set('Accept-Language', 'en-US')
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
@@ -92,6 +95,7 @@ describe('commercetools searchProducts', function() {
                 .query({
                     filter: `variants.sku:"${sku}"`
                 })
+                .set('Accept-Language', 'en-US')
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
@@ -100,7 +104,7 @@ describe('commercetools searchProducts', function() {
                     // Verify structure
                     const product = res.body.results[0];
                     expect(product).to.have.own.property('name');
-                    expect(product.name.en).to.equal('El Gordo Down Jacket');
+                    expect(product.name).to.equal('El Gordo Down Jacket');
                     expect(product).to.have.own.property('masterVariantId');
                     expect(product).to.have.own.property('description');
                     expect(product).to.have.own.property('id');
@@ -110,8 +114,8 @@ describe('commercetools searchProducts', function() {
 
                     // Find variant with requested sku
                     let found = false;
-                    for(let variant of product.variants) {
-                        if(variant.sku === sku) found = true;
+                    for (let variant of product.variants) {
+                        if (variant.sku === sku) found = true;
                     }
                     expect(found).to.be.true;
                 })
@@ -127,6 +131,7 @@ describe('commercetools searchProducts', function() {
                 .query({
                     text: searchTerm
                 })
+                .set('Accept-Language', 'en-US')
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
@@ -145,9 +150,10 @@ describe('commercetools searchProducts', function() {
                 .get(env.productsPackage + 'searchProducts')
                 .query({
                     filter: `categories.id:"${categoryId}"`,
-                    sort: 'name.en.desc',
+                    sort: 'name.desc',
                     limit: 5
                 })
+                .set('Accept-Language', 'en-US')
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
@@ -155,7 +161,7 @@ describe('commercetools searchProducts', function() {
                     expect(res.body.results).to.have.lengthOf(5);
 
                     // Verfiy sorting
-                    const names = res.body.results.map(r => r.name.en);
+                    const names = res.body.results.map(r => r.name);
                     expect(names).to.have.ordered.members(names.sort().reverse());
                 })
                 .catch(function(err) {
@@ -171,6 +177,7 @@ describe('commercetools searchProducts', function() {
                     filter: `categories.id:"${categoryId}"`,
                     sort: 'abc.asc'
                 })
+                .set('Accept-Language', 'en-US')
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
                 });
@@ -185,6 +192,7 @@ describe('commercetools searchProducts', function() {
                     limit: 10,
                     offset: 20
                 })
+                .set('Accept-Language', 'en-US')
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
@@ -206,6 +214,7 @@ describe('commercetools searchProducts', function() {
                     filter: `categories.id:subtree("${subtree}")`,
                     limit: -1
                 })
+                .set('Accept-Language', 'en-US')
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
                 });
@@ -217,7 +226,9 @@ describe('commercetools searchProducts', function() {
                 .query({
                     text: 'jacket',
                     queryFacets: 'variants.attributes'
-                }).then(res => {
+                })
+                .set('Accept-Language', 'en-US')
+                .then(res => {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
                     expect(res.body.facets).to.have.lengthOf(1);
@@ -225,13 +236,15 @@ describe('commercetools searchProducts', function() {
                 });
         });
 
-        it('returns auto discoverd facets ', function() {
+        it('returns auto discovered facets ', function() {
             return chai.request(env.openwhiskEndpoint)
                 .get(env.productsPackage + 'searchProducts')
                 .query({
                     text: 'jacket',
                     queryFacets: 'auto'
-                }).then(res => {
+                })
+                .set('Accept-Language', 'en-US')
+                .then(res => {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
                     expect(res.body.facets).to.have.lengthOf(7);
@@ -244,7 +257,9 @@ describe('commercetools searchProducts', function() {
                 .query({
                     text: 'jacket',
                     queryFacets: 'variants.attributes.color.en|variants.attributes.size.en'
-                }).then(res => {
+                })
+                .set('Accept-Language', 'en-US')
+                .then(res => {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
                     expect(res.body.facets).to.have.lengthOf(2);
@@ -261,7 +276,9 @@ describe('commercetools searchProducts', function() {
                     queryFacets: 'variants.attributes.color.en|variants.attributes.size.en',
                     selectedFacets: 'variants.attributes.color.en',
                     productTypeId: '87238665-3388-4cf7-8a3f-bc3dd63724f4'
-                }).catch(err => {
+                })
+                .set('Accept-Language', 'en-US')
+                .catch(err => {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
                 });
         });
@@ -274,7 +291,9 @@ describe('commercetools searchProducts', function() {
                     queryFacets: 'variants.attributes.color.en|variants.attributes.size.en',
                     selectedFacets: 'variants.attributes.color.en:"red"',
                     productTypeId: '87238665-3388-4cf7-8a3f-bc3dd63724f4'
-                }).then(res => {
+                })
+                .set('Accept-Language', 'en-US')
+                .then(res => {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
                     expect(res.body.count).to.equal(1);

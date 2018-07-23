@@ -15,12 +15,9 @@
 'use strict';
 
 const expect = require('chai').expect;
-const utils = require('../lib/utils');
+const PaymentMapper = require('../../src/carts/PaymentMapper');
 
-describe('commercetools CartMapper', () => {
-
-    let action = utils.getPathForAction(__dirname, 'PaymentMapper');
-    let PaymentMapper = require(action);
+describe('commercetools PaymentMapper', () => {
 
     let ccifPayment = {
         token: '1234',
@@ -35,9 +32,11 @@ describe('commercetools CartMapper', () => {
     
     describe('Unit tests', () => {
         
+        let paymentMapper = new PaymentMapper();
+
         it('PaymentMapper should properly map CCIF and CT objects reversibly', () => {
-            let ctPayment = PaymentMapper.mapPaymentDraft(ccifPayment);
-            let payment = PaymentMapper._mapPayment(ctPayment);
+            let ctPayment = paymentMapper.mapPaymentDraft(ccifPayment);
+            let payment = paymentMapper._mapPayment(ctPayment);
             
             // stringify and parse to remove undefined fields
             payment = JSON.parse(JSON.stringify(payment));

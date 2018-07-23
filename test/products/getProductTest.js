@@ -27,8 +27,12 @@ describe('commercetools getProduct', () => {
         setup(this, __dirname, 'getProduct');
 
         it('Test getProduct with product id', () => {
-            let args = {};
-            args.id = '526dc571-104f-40fb-b761-71781a97910b';
+            let args = {
+                id: '526dc571-104f-40fb-b761-71781a97910b',
+                __ow_headers: {
+                    'accept-language': 'en-US'
+                }
+            };
             const expectedArgs = [{
                 uri: `/${config.CT_PROJECTKEY}/product-projections/526dc571-104f-40fb-b761-71781a97910b?staged=false&expand=productType`,
                 method: 'GET',
@@ -58,8 +62,12 @@ describe('commercetools getProduct', () => {
         });
 
         it('Test getProduct with product variant id', () => {
-            let args = {};
-            args.id = '526dc571-104f-40fb-b761-71781a97910b-2';
+            let args = {
+                id: '526dc571-104f-40fb-b761-71781a97910b-2',
+                __ow_headers: {
+                    'accept-language': 'en-US'
+                }
+            };
             let productId = args.id.substring(0, args.id.lastIndexOf('-'));
             const expectedArgs = [{
                 uri: `/${config.CT_PROJECTKEY}/product-projections/526dc571-104f-40fb-b761-71781a97910b?staged=false&expand=productType`,
@@ -90,8 +98,9 @@ describe('commercetools getProduct', () => {
         });
 
         it('Test product not found with backend message', () => {
-            let args = {};
-            args.id = '526dc571-104f-XXXX-b761-71781a97910b';
+            let args = {
+                id: '526dc571-104f-XXXX-b761-71781a97910b'
+            };
             let errorMsg = 'The Resource with ID \'526dc571-104f-XXXX-b761-71781a97910b\' was not found.';
             return this.prepareReject({code: 404, body: {message: errorMsg}}).execute(args).then(result => {
                 assert.strictEqual(result.response.error.name, 'CommerceServiceResourceNotFoundError');
@@ -100,8 +109,9 @@ describe('commercetools getProduct', () => {
         });
 
         it('Test product not found with default message', () => {
-            let args = {};
-            args.id = '526dc571-104f-XXXX-b761-71781a97910b';
+            let args = {
+                id: '526dc571-104f-XXXX-b761-71781a97910b'
+            };
             return this.prepareReject({code: 404}).execute(args).then(result => {
                 assert.strictEqual(result.response.error.name, 'CommerceServiceResourceNotFoundError');
                 assert.strictEqual(result.response.error.message, 'CommerceTools resource not found');

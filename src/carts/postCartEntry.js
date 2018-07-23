@@ -18,7 +18,8 @@ const CTPerformanceMeasurement = require('@adobe/commerce-cif-commercetools-comm
 const InputValidator = require('@adobe/commerce-cif-common/input-validator');
 const CommerceToolsCart = require('./CommerceToolsCart');
 const createClient = require('@commercetools/sdk-client').createClient;
-const cartMapper = require('./CartMapper');
+const CartMapper = require('./CartMapper');
+const LanguageParser = require('@adobe/commerce-cif-commercetools-common/LanguageParser');
 const ERROR_TYPE = require('./constants').ERROR_TYPE;
 
 /**
@@ -37,7 +38,6 @@ const ERROR_TYPE = require('./constants').ERROR_TYPE;
  * @param   {string} args.customerId           an optional customer id to either create a customer cart or check that cart operations are permitted
  */
 function postCartEntry(args) {
-
     const validator = new InputValidator(args, ERROR_TYPE);
     const id = args.id;
     const currency = args.currency || 'USD';
@@ -45,7 +45,10 @@ function postCartEntry(args) {
     let productId = null;
     let variantId = null;
 
-    const cart = new CommerceToolsCart(args, createClient, cartMapper.mapCart);
+    let languageParser = new LanguageParser(args);
+    let cartMapper = new CartMapper(languageParser);
+
+    const cart = new CommerceToolsCart(args, createClient, cartMapper.mapCart.bind(cartMapper));
 
     const ActionStateEnum = {
         NEW_EMPTY_CART: 0,

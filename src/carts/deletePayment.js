@@ -18,8 +18,9 @@ const CTPerformanceMeasurement = require('@adobe/commerce-cif-commercetools-comm
 const InputValidator = require('@adobe/commerce-cif-common/input-validator');
 const CommerceToolsCartPayment = require('./CommerceToolsCartPayment');
 const createClient = require('@commercetools/sdk-client').createClient;
-const cartMapper = require('./CartMapper');
-const paymentMapper = require('./PaymentMapper');
+const LanguageParser = require('@adobe/commerce-cif-commercetools-common/LanguageParser');
+const CartMapper = require('./CartMapper');
+const PaymentMapper = require('./PaymentMapper');
 const ERROR_TYPE = require('./constants').ERROR_TYPE;
 
 /**
@@ -44,7 +45,12 @@ function deletePayment(args) {
     if (validator.error) {
         return validator.buildErrorResponse();
     }
-    let cartPaymentClient = new CommerceToolsCartPayment(args, createClient, cartMapper.mapCart, paymentMapper.mapPayment, paymentMapper.mapPaymentDraft);
+
+    let languageParser = new LanguageParser(args);
+    let cartMapper = new CartMapper(languageParser);
+    let paymentMapper = new PaymentMapper();
+
+    let cartPaymentClient = new CommerceToolsCartPayment(args, createClient, cartMapper.mapCart.bind(cartMapper), paymentMapper.mapPayment.bind(paymentMapper), paymentMapper.mapPaymentDraft.bind(paymentMapper));
     return cartPaymentClient.deletePayment(args.id, args.customerId);
 }
 

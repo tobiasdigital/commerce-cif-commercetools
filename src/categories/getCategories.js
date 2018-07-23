@@ -17,7 +17,8 @@
 const createClient = require('@commercetools/sdk-client').createClient;
 const CTPerformanceMeasurement = require('@adobe/commerce-cif-commercetools-common/performance-measurement.js');
 const CommerceToolsCategory = require('./CommerceToolsCategory');
-const categoryMapper = require('./CategoryMapper');
+const CategoryMapper = require('./CategoryMapper');
+const LanguageParser = require('@adobe/commerce-cif-commercetools-common/LanguageParser');
 
 /**
  * This action returns the entire category structure, a given category, or a subset of the categories depending on pagination.
@@ -46,7 +47,10 @@ function getCategories(args) {
     let type = args.type || 'flat';
     let sorts = args.sort ? args.sort.split('|') : [];
 
-    const categories = new CommerceToolsCategory(args, createClient, args.id ? categoryMapper.mapCategory : categoryMapper.mapPagedCategoryResponse);
+    let languageParser = new LanguageParser(args);
+    let categoryMapper = new CategoryMapper(languageParser)
+
+    const categories = new CommerceToolsCategory(args, createClient, args.id ? categoryMapper.mapCategory.bind(categoryMapper) : categoryMapper.mapPagedCategoryResponse.bind(categoryMapper));
     if (id) {
         categories.byId(id);
     }
@@ -55,18 +59,27 @@ function getCategories(args) {
         categories.page(offset > 0 ? ((offset / limit) + 1) : 1);
     }
 
-    // sort orders
-    for (let s in sorts) {
-        let sort = sorts[s];
-        if (sort.endsWith('.asc')) {
-            categories.sort(sort.slice(0, -4), true);
-        } else if (sort.endsWith('.desc')) {
-            categories.sort(sort.slice(0, -5), false);
+    sorts.forEach(sortString => {
+        let direction;
+        let field;
+
+        if (sortString.endsWith('.desc')) {
+            direction = false;
         } else {
-            categories.sort(sort, true);
+            direction = true;
         }
-    }
-    
+
+        let index = sortString.indexOf('.');
+        field = index === -1 ? sortString : sortString.substring(0, index);
+
+        // Add localization for name and description fields
+        if (field.startsWith("name") || field.startsWith("description")) {
+            field += `.${languageParser.getFirstLanguage()}`
+        }
+
+        categories.sort(field, direction);
+    });
+
     return categories.getCategories(type, depth);
 }
 

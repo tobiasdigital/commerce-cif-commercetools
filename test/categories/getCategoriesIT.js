@@ -46,6 +46,7 @@ describe('commercetools getCategories', function() {
                 .query({
                     type: 'tree'
                 })
+                .set('Accept-Language', 'en-US')
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
@@ -71,6 +72,7 @@ describe('commercetools getCategories', function() {
                 .query({
                     type: 'flat'
                 })
+                .set('Accept-Language', 'en-US')
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
@@ -87,7 +89,6 @@ describe('commercetools getCategories', function() {
                 });
         });
 
-
         it('returns a single category', function() {
             const categoryId = '693b0fc5-7283-4673-a362-589d37fb7b73';
             return chai.request(env.openwhiskEndpoint)
@@ -95,6 +96,7 @@ describe('commercetools getCategories', function() {
                 .query({
                     id: categoryId
                 })
+                .set('Accept-Language', 'en-US')
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
@@ -102,7 +104,7 @@ describe('commercetools getCategories', function() {
                     // Verify structure
                     const category = res.body;
                     expect(category).to.have.own.property('name');
-                    expect(category.name.en).to.equal('Men');
+                    expect(category.name).to.equal('Men');
                     expect(category).to.have.own.property('description');
                     expect(category).to.have.own.property('id');
                     expect(category).to.have.own.property('lastModifiedDate');
@@ -120,6 +122,7 @@ describe('commercetools getCategories', function() {
                     type: 'tree',
                     depth: 0
                 })
+                .set('Accept-Language', 'en-US')
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
@@ -147,6 +150,7 @@ describe('commercetools getCategories', function() {
                     type: 'flat',
                     depth: 0
                 })
+                .set('Accept-Language', 'en-US')
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
@@ -172,8 +176,9 @@ describe('commercetools getCategories', function() {
                 .get(env.categoriesPackage + 'getCategories')
                 .query({
                     type: 'tree',
-                    sort: 'name.en.desc'
+                    sort: 'name.desc'
                 })
+                .set('Accept-Language', 'en-US')
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
@@ -192,8 +197,9 @@ describe('commercetools getCategories', function() {
                 .get(env.categoriesPackage + 'getCategories')
                 .query({
                     type: 'tree',
-                    sort: 'name.en.desc'
+                    sort: 'name.desc'
                 })
+                .set('Accept-Language', 'en-US')
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
@@ -214,8 +220,9 @@ describe('commercetools getCategories', function() {
                 .get(env.categoriesPackage + 'getCategories')
                 .query({
                     type: 'flat',
-                    sort: 'name.en.desc'
+                    sort: 'name.desc'
                 })
+                .set('Accept-Language', 'en-US')
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
@@ -240,7 +247,6 @@ describe('commercetools getCategories', function() {
                 });
         });
 
-
         it('returns a subset of categories in tree structure as defined by paging parameters', function() {
             return chai.request(env.openwhiskEndpoint)
                 .get(env.categoriesPackage + 'getCategories')
@@ -249,6 +255,7 @@ describe('commercetools getCategories', function() {
                     limit: 5,
                     offset: 10
                 })
+                .set('Accept-Language', 'en-US')
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
@@ -270,6 +277,7 @@ describe('commercetools getCategories', function() {
                     limit: 7,
                     offset: 14
                 })
+                .set('Accept-Language', 'en-US')
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);

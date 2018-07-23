@@ -30,41 +30,41 @@ class ShippingMethodMapper {
      * @param ctShippingMethods     JSON array of commercetools shipping methods.
      * @returns {ShippingMethod}    An array of CCIF shipping methods.
      */
-    static mapShippingMethods(result) {
+    mapShippingMethods(result) {
         if (result.body.results) { // we have a paged result set
             let pr = new PagedResponse();
             pr.offset = result.body.offset;
             pr.count = result.body.count;
             pr.total = result.body.total;
-            pr.results = ShippingMethodMapper._mapShippingMethods(result.body.results);
+            pr.results = this._mapShippingMethods(result.body.results);
             return pr;
         } else { // we have a simple array only
-            return ShippingMethodMapper._mapShippingMethods(result.body);
+            return this._mapShippingMethods(result.body);
         }
     }
 
     /**
      * @private
      */
-    static _mapShippingMethods(ctShippingMethods) {
-        return ctShippingMethods.map(ctShippingMethod => ShippingMethodMapper._mapShippingMethod(ctShippingMethod));
+    _mapShippingMethods(ctShippingMethods) {
+        return ctShippingMethods.map(ctShippingMethod => this._mapShippingMethod(ctShippingMethod));
     }
 
     /**
      * @private
      */
-    static _mapShippingMethod(ctShippingMethod) {
+    _mapShippingMethod(ctShippingMethod) {
         let shippingMethod = new ShippingMethod(ctShippingMethod.id);
         shippingMethod.name = ctShippingMethod.name;
         shippingMethod.description = ctShippingMethod.description;
-        shippingMethod.price = ShippingMethodMapper._mapShippingMethodPrice(ctShippingMethod.zoneRates);
+        shippingMethod.price = this._mapShippingMethodPrice(ctShippingMethod.zoneRates);
         return shippingMethod;
     }
 
     /**
      * @private
      */
-    static _mapShippingMethodPrice(ctZoneRates) {
+    _mapShippingMethodPrice(ctZoneRates) {
         // we only support one price per shipping method, therefor we try to find the first zone rate with at
         // matching price (isMatching == true), otherwise picking the first price
         let matchingZoneRates = ctZoneRates.filter(

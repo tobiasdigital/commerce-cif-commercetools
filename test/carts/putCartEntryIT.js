@@ -49,6 +49,7 @@ describe('commercetools putCartEntry', function() {
                     quantity: 2,
                     productVariantId: productVariantId
                 })
+                .set('Accept-Language', 'en-US')
                 .then(function(res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
@@ -78,6 +79,7 @@ describe('commercetools putCartEntry', function() {
                     id: cartId,
                     cartEntryId: cartEntryId
                 })
+                .set('Accept-Language', 'en-US')
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
@@ -111,7 +113,8 @@ describe('commercetools putCartEntry', function() {
                     id: cartId,
                     cartEntryId: cartEntryId
                 })
-                 .then(function (res) {
+                .set('Accept-Language', 'en-US')
+                .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
 
@@ -130,6 +133,7 @@ describe('commercetools putCartEntry', function() {
                     id: cartId,
                     cartEntryId: cartEntryId
                 })
+                .set('Accept-Language', 'en-US')
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
                 });
@@ -143,6 +147,7 @@ describe('commercetools putCartEntry', function() {
                     id: cartId,
                     cartEntryId: 'does-not-exist'
                 })
+                .set('Accept-Language', 'en-US')
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
                 });
@@ -156,6 +161,7 @@ describe('commercetools putCartEntry', function() {
                     id: 'does-not-exist',
                     cartEntryId: cartEntryId
                 })
+                .set('Accept-Language', 'en-US')
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.NOT_FOUND);
                 });
@@ -164,6 +170,7 @@ describe('commercetools putCartEntry', function() {
         it('returns a 400 error for missing parameters', function() {
             return chai.request(env.openwhiskEndpoint)
                 .post(env.cartsPackage + 'putCartEntry')
+                .set('Accept-Language', 'en-US')
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
                 });

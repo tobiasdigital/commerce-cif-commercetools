@@ -48,6 +48,7 @@ describe('commercetools postCartEntry', function() {
                     quantity: 3,
                     productVariantId: productVariantId
                 })
+                .set('Accept-Language', 'en-US')
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
@@ -72,6 +73,7 @@ describe('commercetools postCartEntry', function() {
                 .query({
                     currency: 'EUR'
                 })
+                .set('Accept-Language', 'en-US')
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
@@ -98,6 +100,7 @@ describe('commercetools postCartEntry', function() {
                     id: cartId,
                     productVariantId: productVariantIdSecond
                 })
+                .set('Accept-Language', 'en-US')
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
@@ -136,6 +139,7 @@ describe('commercetools postCartEntry', function() {
                     quantity: 2,
                     productVariantId: productVariantId
                 })
+                .set('Accept-Language', 'en-US')
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
@@ -170,6 +174,7 @@ describe('commercetools postCartEntry', function() {
                 .query({
                     currency: 'EURO'
                 })
+                .set('Accept-Language', 'en-US')
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
                 });
@@ -183,6 +188,7 @@ describe('commercetools postCartEntry', function() {
                     id: cartId,
                     productVariantId: productVariantIdSecond
                 })
+                .set('Accept-Language', 'en-US')
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
                 });
@@ -196,6 +202,7 @@ describe('commercetools postCartEntry', function() {
                     id: cartId,
                     productVariantId: '526dc571-104f-40fb-b761-71781a97910b'
                 })
+                .set('Accept-Language', 'en-US')
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
                 });
@@ -209,6 +216,7 @@ describe('commercetools postCartEntry', function() {
                     id: cartId,
                     productVariantId: 'does-not-exist'
                 })
+                .set('Accept-Language', 'en-US')
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
                 });
@@ -222,6 +230,7 @@ describe('commercetools postCartEntry', function() {
                     id: 'does-not-exist',
                     productVariantId: productVariantId
                 })
+                .set('Accept-Language', 'en-US')
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.NOT_FOUND);
                 });
@@ -230,6 +239,7 @@ describe('commercetools postCartEntry', function() {
         it('returns a 400 error for missing parameters', function() {
             return chai.request(env.openwhiskEndpoint)
                 .post(env.cartsPackage + 'postCartEntry')
+                .set('Accept-Language', 'en-US')
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
                 });

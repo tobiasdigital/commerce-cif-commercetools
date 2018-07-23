@@ -18,8 +18,10 @@ const createClient = require('@commercetools/sdk-client').createClient;
 const CTPerformanceMeasurement = require('@adobe/commerce-cif-commercetools-common/performance-measurement.js');
 const InputValidator = require('@adobe/commerce-cif-common/input-validator');
 const CommerceToolsProduct = require('./CommerceToolsProduct');
-const productMapper = require('./ProductMapper');
+const ProductMapper = require('./ProductMapper');
 const ERROR_TYPE = require('./constants').ERROR_TYPE;
+const LanguageParser = require('@adobe/commerce-cif-commercetools-common/LanguageParser');
+
 /**
  * This action retrieves commerceTools product data by the internal product id or sku.
  *
@@ -50,7 +52,10 @@ function getProduct(args) {
         id = id.substring(0, 36);
     }
 
-    const commerceToolsProduct = new CommerceToolsProduct(args, createClient, productMapper.mapProduct);
+    let languageParser = new LanguageParser(args);
+    let productMapper = new ProductMapper(languageParser);
+
+    const commerceToolsProduct = new CommerceToolsProduct(args, createClient, productMapper.mapProduct.bind(productMapper));
 
     // expand productType is needed to retrieve the attribute product attribute definitions and axis map
     return commerceToolsProduct

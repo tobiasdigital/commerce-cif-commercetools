@@ -50,7 +50,10 @@ describe('commercetools postShippingMethod', () => {
         it('POST /cart/{id}/shippingmethod HTTP 200 ', () => {
             const args = {
                 id: '12345-7',
-                shippingMethodId: '6f0b3638-73a5-4d80-8455-081d3e9f98bb'
+                shippingMethodId: '6f0b3638-73a5-4d80-8455-081d3e9f98bb',
+                __ow_headers: {
+                    'accept-language': 'en-US'
+                }
             };
             const expectedArgs = [{
                 uri: encodeURI(

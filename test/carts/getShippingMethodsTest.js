@@ -39,7 +39,13 @@ describe('commercetools getShippingMethods for a cart', () => {
                 headers: undefined,
                 method: 'GET'
             };
-            return this.prepareResolve(sampleShippingMethodsList, expectedArgs).execute({'id': 'dummy-1'})
+            let args = {
+                id: 'dummy-1',
+                __ow_headers: {
+                    'accept-language': 'en-US'
+                }
+            }
+            return this.prepareResolve(sampleShippingMethodsList, expectedArgs).execute(args)
                        .then(result => {
                            assert.isDefined(result.response);
                            assert.isDefined(result.response.body);

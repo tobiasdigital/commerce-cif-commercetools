@@ -27,7 +27,6 @@ module.exports = {
                     for (let i = 0, length = cookies.length; i < length; i++) {
                         let parts = cookies[i].trim().split('=');
                         if (parts[0].trim() === CCS_CT_TOKEN) {
-                            console.log('CommerceTools Client token extracted from cookie.');
                             request['headers'] = request['headers'] || {};
                             request.headers['Authorization'] = 'Bearer ' + parts[1];
                             request.tokenExtracted = true;

@@ -17,8 +17,8 @@
 const CTPerformanceMeasurement = require('@adobe/commerce-cif-commercetools-common/performance-measurement.js');
 const CommerceToolsAddressHelper = require('./CommerceToolsAddressHelper');
 const createClient = require('@commercetools/sdk-client').createClient;
-const cartMapper = require('./CartMapper');
-
+const CartMapper = require('./CartMapper');
+const LanguageParser = require('@adobe/commerce-cif-commercetools-common/LanguageParser');
 
 /**
  * This action sets a cart billing address.
@@ -37,9 +37,10 @@ const cartMapper = require('./CartMapper');
  */
 
 function postBillingAddress(args) {
+    let languageParser = new LanguageParser(args);
+    let cartMapper = new CartMapper(languageParser);
 
-   return CommerceToolsAddressHelper.postBillingAddress(createClient, args, cartMapper.mapCart);
-
+    return CommerceToolsAddressHelper.postBillingAddress(createClient, args, cartMapper.mapCart.bind(cartMapper));
 }
 
 module.exports.main = CTPerformanceMeasurement.decorateActionForSequence(postBillingAddress);

@@ -36,6 +36,18 @@ const ProductMapper = require('@adobe/commerce-cif-commercetools-product/Product
  */
 class CartMapper {
 
+    /**
+     * Constructor.
+     * 
+     * @param {LanguageParser} languageParser LanguageParser reference
+     */
+    constructor(languageParser) {
+        this.languageParser = languageParser;
+        this.productMapper = new ProductMapper(languageParser);
+        this.couponMapper = new CouponMapper(languageParser);
+        this.paymentMapper = new PaymentMapper();
+    }
+
     static get GIFT_LINE_ITEM() {
         return 'GiftLineItem';
     }
@@ -46,24 +58,25 @@ class CartMapper {
      * @param ctCart            JSON containing cart information as returned by CommerceTools.
      * @returns {Cart}          CCIF Cart representation.
      */
-    static mapCart(ctCart) {
+    mapCart(ctCart) {
         if (!ctCart || !ctCart.body) {
             throw new MissingPropertyException('invalid cart response received from commerce tools');
         }
         if (!ctCart.body.id) {
             throw new MissingPropertyException('id missing for commercetools cart');
         }
-        return CartMapper._mapCart(ctCart.body);
+
+        return this._mapCart(ctCart.body);
     }
 
 
     /**
      * @protected
      */
-    static _mapCart(ctCart) {
+    _mapCart(ctCart) {
         let cartEntries = [];
         if (ctCart.lineItems && ctCart.lineItems.length > 0) {
-            cartEntries = CartMapper._mapCartEntries(ctCart.lineItems);
+            cartEntries = this._mapCartEntries(ctCart.lineItems);
         }
         const ccifIf = CcifIdentifier.buildCcifIdentifier(ctCart.id, ctCart.version);
         let cart = new Cart(cartEntries, ccifIf);
@@ -78,41 +91,41 @@ class CartMapper {
         cart.lastModifiedDate = ctCart.lastModifiedAt;
         cart.customerId = ctCart.customerId;
         if (ctCart.shippingAddress) {
-            cart.shippingAddress = CartMapper._mapAddress(ctCart.shippingAddress);
+            cart.shippingAddress = this._mapAddress(ctCart.shippingAddress);
         }
         if (ctCart.billingAddress) {
-            cart.billingAddress = CartMapper._mapAddress(ctCart.billingAddress);
+            cart.billingAddress = this._mapAddress(ctCart.billingAddress);
         }
         if (ctCart.discountCodes) {
-            cart.coupons = CartMapper._mapCoupons(ctCart.discountCodes);
+            cart.coupons = this._mapCoupons(ctCart.discountCodes);
         }
         //shipping discount is added to the cart discounts.
         if (ctCart.shippingInfo) {
-            cart.shippingInfo = CartMapper._mapShippingInfo(ctCart.shippingInfo);
+            cart.shippingInfo = this._mapShippingInfo(ctCart.shippingInfo);
             if (ctCart.shippingInfo.discountedPrice) {
-                CartMapper._addCartDiscounts(cart, ctCart.shippingInfo.discountedPrice.includedDiscounts,
+                this._addCartDiscounts(cart, ctCart.shippingInfo.discountedPrice.includedDiscounts,
                                              DiscountType.SHIPPING);
             }
         }
         if (ctCart.paymentInfo && ctCart.paymentInfo.payments) {
-            cart.payment = CartMapper._mapPayments(ctCart.paymentInfo.payments);
+            cart.payment = this._mapPayments(ctCart.paymentInfo.payments);
         }
         if (ctCart.taxedPrice) {
-            cart.cartTaxInfo = CartMapper._mapCartTaxInfo(ctCart.taxedPrice);
+            cart.cartTaxInfo = this._mapCartTaxInfo(ctCart.taxedPrice);
             if (ctCart.lineItems && ctCart.lineItems.length > 0) {
                 if (ctCart.lineItems[0].taxRate) {
                     cart.taxIncludedInPrices = ctCart.lineItems[0].taxRate.includedInPrice;
                 }
             }
         }
-        CartMapper._calculateTotalProductPrice(cart, ctCart); // MUST be called after shippingInfo is added to the cart
+        this._calculateTotalProductPrice(cart, ctCart); // MUST be called after shippingInfo is added to the cart
         return cart;
     }
 
     /**
      * @private
      */
-    static _calculateTotalProductPrice(cart, ctCart) {
+    _calculateTotalProductPrice(cart, ctCart) {
         cart.totalProductPrice = new Price(ctCart.totalPrice.centAmount, ctCart.totalPrice.currencyCode);
         if (cart.shippingInfo) {
             if (cart.shippingInfo.discountedPrice) {
@@ -126,15 +139,15 @@ class CartMapper {
     /**
      * @private
      */
-    static _mapCartEntries(lineItems) {
+    _mapCartEntries(lineItems) {
         return lineItems.map(lineItem => {
-            const productVariant = ProductMapper.mapProductVariant(lineItem);
+            const productVariant = this.productMapper.mapProductVariant(lineItem);
             const cartEntry = new CartEntry(lineItem.id, productVariant, lineItem.quantity);
             cartEntry.unitPrice = new Price(lineItem.price.value.centAmount, lineItem.price.value.currencyCode);
             cartEntry.type = (lineItem.lineItemMode ===  CartMapper.GIFT_LINE_ITEM ? CartEntryType.PROMOTION : CartEntryType.REGULAR);
             if (lineItem.discountedPricePerQuantity && lineItem.discountedPricePerQuantity.length > 0) {
 
-                cartEntry.discounts = CartMapper._mapCartEntryDiscounts(lineItem.discountedPricePerQuantity);
+                cartEntry.discounts = this._mapCartEntryDiscounts(lineItem.discountedPricePerQuantity);
                 cartEntry.discountedCartEntryPrice =
                     new Price(lineItem.totalPrice.centAmount, lineItem.totalPrice.currencyCode);
             }
@@ -143,7 +156,7 @@ class CartMapper {
                 new Price(lineItem.price.value.centAmount * lineItem.quantity, lineItem.totalPrice.currencyCode);
 
             if (lineItem.taxedPrice && lineItem.taxRate) {
-                cartEntry.cartEntryTaxInfo = CartMapper._mapItemTaxInfo(lineItem.taxedPrice, lineItem.taxRate);
+                cartEntry.cartEntryTaxInfo = this._mapItemTaxInfo(lineItem.taxedPrice, lineItem.taxRate);
             }
 
             return cartEntry;
@@ -156,7 +169,7 @@ class CartMapper {
      * @return {Discount[]}
      * @private
      */
-    static _mapCartEntryDiscounts(discountedPricePerQuantityArray) {
+    _mapCartEntryDiscounts(discountedPricePerQuantityArray) {
         const map = new Map();
 
         discountedPricePerQuantityArray.forEach(discountedPricePerQuantity => {
@@ -165,7 +178,7 @@ class CartMapper {
             discountedPricePerQuantity.discountedPrice.includedDiscounts.forEach(includedDiscount => {
                 let id = includedDiscount.discount.id;
                 if (!map.has(id)) {
-                    const discount = CartMapper._mapDiscount(includedDiscount, DiscountType.CART_ENTRY);
+                    const discount = this._mapDiscount(includedDiscount, DiscountType.CART_ENTRY);
                     discount.discountedAmount.centAmount = 0;
                     map.set(id, discount);
                 }
@@ -177,23 +190,23 @@ class CartMapper {
     }
 
     /**
-     * @param includedDiscount Value of included discount from CommerceTools. See
-     *     https://dev.commercetools.com/http-api-projects-carts.html#discountedlineitemportion
-     * @param {string} type The CCIF type of discount
+     * @param includedDiscount          Value of included discount from CommerceTools. See
+     *                                  https://dev.commercetools.com/http-api-projects-carts.html#discountedlineitemportion
+     * @param {string} type             The CCIF type of discount
      * @returns {Discount}
      * @private
      */
-    static _mapDiscount(includedDiscount, type) {
+    _mapDiscount(includedDiscount, type) {
         const price = new Price(includedDiscount.discountedAmount.centAmount,
                                 includedDiscount.discountedAmount.currencyCode);
         const discount = new Discount(price, includedDiscount.discount.id, type);
 
         if (includedDiscount.discount.obj) {
             if (includedDiscount.discount.obj.name) {
-                discount.name = includedDiscount.discount.obj.name;
+                discount.name = this.languageParser.pickLanguage(includedDiscount.discount.obj.name);
             }
             if (includedDiscount.discount.obj.description) {
-                discount.message = includedDiscount.discount.obj.description;
+                discount.message = this.languageParser.pickLanguage(includedDiscount.discount.obj.description);
             }
         }
 
@@ -206,7 +219,7 @@ class CartMapper {
      * @return {Address}    CCIF Address
      * @private
      */
-    static _mapAddress(ctAddress) {
+    _mapAddress(ctAddress) {
         const address = new Address();
         address.id = ctAddress.id;
         address.title = ctAddress.title;
@@ -233,13 +246,13 @@ class CartMapper {
     /**
      * Maps array of cart coupon codes to CIF coupons.
      * 
-     * @param {string} ctCoupons    Array of JSON representation of CommerceTools coupons..
+     * @param {string} ctCoupons    Array of JSON representation of CommerceTools coupons.
      * @returns {Array}             returns array of Coupon instances.
      * @private
      */
-    static _mapCoupons(ctCoupons) {
+    _mapCoupons(ctCoupons) {
         return ctCoupons.map(ctCoupon => {
-            return CouponMapper.mapCoupon(ctCoupon.discountCode.obj);
+            return this.couponMapper.mapCoupon(ctCoupon.discountCode.obj);
         });
     }
 
@@ -249,7 +262,7 @@ class CartMapper {
      * @return {ShippingInfo} CCIF ShippingInfo
      * @private
      */
-    static _mapShippingInfo(ctShippingInfo) {
+    _mapShippingInfo(ctShippingInfo) {
         let shippingInfo = new ShippingInfo();
         if (ctShippingInfo.shippingMethod) {
             shippingInfo.id = ctShippingInfo.shippingMethod.id;
@@ -261,7 +274,7 @@ class CartMapper {
                                                      ctShippingInfo.discountedPrice.value.currencyCode);
         }
         if (ctShippingInfo.taxedPrice && ctShippingInfo.taxRate) {
-            shippingInfo.shippingTaxInfo = CartMapper._mapItemTaxInfo(ctShippingInfo.taxedPrice, ctShippingInfo.taxRate);
+            shippingInfo.shippingTaxInfo = this._mapItemTaxInfo(ctShippingInfo.taxedPrice, ctShippingInfo.taxRate);
         }
         return shippingInfo;
     }
@@ -270,14 +283,14 @@ class CartMapper {
      * Adds discounts(like shipping discounts) to the cart discounts.
      *
      * @param {Cart} cart
-     * @param ctDiscounts DiscountedLineItemPortion from CommerceTools response. See
-     *     https://dev.commercetools.com/http-api-projects-carts.html#discountedlineitemportion
+     * @param ctDiscounts               DiscountedLineItemPortion from CommerceTools response. See
+     *                                  https://dev.commercetools.com/http-api-projects-carts.html#discountedlineitemportion
      * @param {string} discountType
      * @private
      */
-    static _addCartDiscounts(cart, ctDiscounts, discountType) {
+    _addCartDiscounts(cart, ctDiscounts, discountType) {
         cart.discounts.push(...ctDiscounts.map(includedDiscount => {
-            return CartMapper._mapDiscount(includedDiscount, discountType);
+            return this._mapDiscount(includedDiscount, discountType);
         }));
     }
 
@@ -288,11 +301,11 @@ class CartMapper {
      * @param ctPayments
      * @private
      */
-    static _mapPayments(ctPayments) {
+    _mapPayments(ctPayments) {
         if (ctPayments.length > 1) {
             throw new Error(`Unexpected cart payments array size. Found ${ctPayments.length}!`);
         }
-        return PaymentMapper._mapPayment(ctPayments[0].obj);
+        return this.paymentMapper._mapPayment(ctPayments[0].obj);
 
     }
 
@@ -305,12 +318,11 @@ class CartMapper {
      * @return {TaxInfo}    Commerce Integration Framework tax info.
      * @private
      */
-    static _mapItemTaxInfo(ctTaxedPrice, ctTaxRate) {
-
+    _mapItemTaxInfo(ctTaxedPrice, ctTaxRate) {
         let taxInfo = new TaxInfo();
         let taxPortion = new TaxPortion();
 
-        taxPortion.name = {'en': ctTaxRate.name};
+        taxPortion.name = ctTaxRate.name;
         taxPortion.centAmount = ctTaxedPrice.totalGross.centAmount - ctTaxedPrice.totalNet.centAmount;
 
         taxInfo.totalCentAmount = taxPortion.centAmount;
@@ -329,8 +341,7 @@ class CartMapper {
      * @return {TaxInfo}    Commerce Integration Framework tax info.
      * @private
      */
-    static _mapCartTaxInfo(ctTaxedPrice) {
-
+    _mapCartTaxInfo(ctTaxedPrice) {
         let taxInfo = new TaxInfo();
 
         taxInfo.taxPortions = [];
@@ -339,7 +350,7 @@ class CartMapper {
         if (ctTaxedPrice.taxPortions) {
             taxInfo.taxPortions.push(...ctTaxedPrice.taxPortions.map(ctTaxPortion => {
                 let taxPortion = new TaxPortion();
-                taxPortion.name = {'en': ctTaxPortion.name};
+                taxPortion.name = ctTaxPortion.name;
                 taxPortion.centAmount = ctTaxPortion.amount.centAmount;
                 return taxPortion;
             }));

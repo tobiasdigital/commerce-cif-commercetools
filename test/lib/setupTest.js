@@ -69,7 +69,7 @@ module.exports.setup = function (ctx, testDirName, actionName) {
         let name;
         for (name in params) {
             if (typeof params[name] !== 'function') {
-                args[name] = (args[name]) ? args[name] : params[name];
+                args[name] = params[name];
             }
         }
         return action(args).then(result => {

@@ -23,12 +23,21 @@ const assert = require('assert');
 class CouponMapper {
     
     /**
+     * Constructor.
+     * 
+     * @param {LanguageParser} languageParser LanguageParser reference
+     */
+    constructor(languageParser) {
+        this.languageParser = languageParser;
+    }
+
+    /**
      * Maps a single Commerce Tools coupon to a CCIF coupon.
      * 
      * @param ctCoupon
      * @return {Coupon}
      */
-    static mapCoupon(ctCoupon) {
+    mapCoupon(ctCoupon) {
 
         let cifCoupon = new Coupon();
 
@@ -39,9 +48,7 @@ class CouponMapper {
         cifCoupon.code = ctCoupon.code;
 
         if (ctCoupon.description) {
-            cifCoupon.description = ctCoupon.description;
-        } else {
-            cifCoupon.description = {};
+            cifCoupon.description = this.languageParser.pickLanguage(ctCoupon.description);
         }
 
         return cifCoupon;

@@ -50,6 +50,7 @@ describe('commercetools deleteCartEntry', function() {
                     quantity: 2,
                     productVariantId: productVariantId
                 })
+                .set('Accept-Language', 'en-US')
                 .then(function(res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
@@ -69,7 +70,6 @@ describe('commercetools deleteCartEntry', function() {
             // TODO(mabecker): Delete cart with id = cartId
         });
 
-
         it('removes an entry from a cart', function() {
             return chai.request(env.openwhiskEndpoint)
                 .post(env.cartsPackage + 'deleteCartEntry')
@@ -77,6 +77,7 @@ describe('commercetools deleteCartEntry', function() {
                     id: cartId,
                     cartEntryId: cartEntryId
                 })
+                .set('Accept-Language', 'en-US')
                 .then(function(res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
@@ -98,6 +99,7 @@ describe('commercetools deleteCartEntry', function() {
                     quantity: 5,
                     productVariantId: productVariantIdSecond
                 })
+                .set('Accept-Language', 'en-US')
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
@@ -118,17 +120,15 @@ describe('commercetools deleteCartEntry', function() {
                             id: cartId,
                             cartEntryId: cartEntryIdSecond
                         })
-                        .then(function(res) {
-                            expect(res).to.be.json;
-                            expect(res).to.have.status(HttpStatus.OK);
+                        .set('Accept-Language', 'en-US');
+                })
+                .then(function(res) {
+                    expect(res).to.be.json;
+                    expect(res).to.have.status(HttpStatus.OK);
 
-                            // Verify that only original product is still in the cart
-                            expect(res.body.cartEntries).to.have.lengthOf(1);
-                            expect(res.body.cartEntries[0].id).to.equal(cartEntryId);
-                        })
-                        .catch(function(err) {
-                            throw err;
-                        });
+                    // Verify that only original product is still in the cart
+                    expect(res.body.cartEntries).to.have.lengthOf(1);
+                    expect(res.body.cartEntries[0].id).to.equal(cartEntryId);
                 })
                 .catch(function(err) {
                     throw err;
@@ -143,6 +143,7 @@ describe('commercetools deleteCartEntry', function() {
                     id: cartId,
                     cartEntryId: 'INVALID ENTRY |D'
                 })
+                .set('Accept-Language', 'en-US')
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
                 });
@@ -155,6 +156,7 @@ describe('commercetools deleteCartEntry', function() {
                     id: cartId,
                     cartEntryId: 'does-not-exist'
                 })
+                .set('Accept-Language', 'en-US')
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
                 });
@@ -167,6 +169,7 @@ describe('commercetools deleteCartEntry', function() {
                     id: 'does-not-exist',
                     cartEntryId: cartEntryId
                 })
+                .set('Accept-Language', 'en-US')
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.NOT_FOUND);
                 });
@@ -175,6 +178,7 @@ describe('commercetools deleteCartEntry', function() {
         it('returns a 400 error for missing parameters', function() {
             return chai.request(env.openwhiskEndpoint)
                 .post(env.cartsPackage + 'deleteCartEntry')
+                .set('Accept-Language', 'en-US')
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
                 });

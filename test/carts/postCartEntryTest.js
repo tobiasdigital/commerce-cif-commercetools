@@ -35,7 +35,13 @@ describe('commercetools postCartEntry', () => {
 
         it('POST /cart/{id} HTTP 400 - invalid currency', () => {
             //for any http code <> 200, 404, get cart returns Promise.resolve(error)
-            return this.execute({'currency': 'US'}).then(result => {
+            let args = {
+                currency: 'US',
+                __ow_headers: {
+                    'accept-language': 'en-US'
+                }
+            };
+            return this.execute(args).then(result => {
                 assert.isDefined(result.response.error);
                 assert.strictEqual(result.response.error.name, 'InvalidArgumentError');
                 assert.strictEqual(result.response.error.message, `Invalid currency code 'US'`);
@@ -48,9 +54,12 @@ describe('commercetools postCartEntry', () => {
         invalidProductVariantIds.forEach(invalidProductVariantId => {
             it(`POST /cart/{id} HTTP 400 - invalid product variant id: ${invalidProductVariantId}`, () => {
                 const args = {
-                    'id': '12345',
-                    'currency': 'USD',
-                    'productVariantId': invalidProductVariantId
+                    id: '12345',
+                    currency: 'USD',
+                    productVariantId: invalidProductVariantId,
+                    __ow_headers: {
+                        'accept-language': 'en-US'
+                    }
                 };
                 return this.execute(args).then(result => {
                     assert.isDefined(result.response.error);
@@ -64,10 +73,13 @@ describe('commercetools postCartEntry', () => {
         ['x', 2.2].forEach(invalidQuantity => {
             it(`POST /cart/{id} HTTP 400 - invalid quantity: ${invalidQuantity}`, () => {
                 const args = {
-                    'id': '12345',
-                    'currency': 'USD',
-                    'productVariantId': '526dc571-104f-40fb-b761-71781a97910b-1',
-                    'quantity': invalidQuantity
+                    id: '12345',
+                    currency: 'USD',
+                    productVariantId: '526dc571-104f-40fb-b761-71781a97910b-1',
+                    quantity: invalidQuantity,
+                    __ow_headers: {
+                        'accept-language': 'en-US'
+                    }
                 };
                 return this.execute(args).then(result => {
                     assert.isDefined(result.response.error);
@@ -77,12 +89,14 @@ describe('commercetools postCartEntry', () => {
             });
         });
 
-
         it('Creating a new cart uses expand to get discount', () => {
             const args = {
-                'currency': 'USD',
-                'productVariantId': '526dc571-104f-40fb-b761-71781a97910b-1',
-                'quantity': 2
+                currency: 'USD',
+                productVariantId: '526dc571-104f-40fb-b761-71781a97910b-1',
+                quantity: 2,
+                __ow_headers: {
+                    'accept-language': 'en-US'
+                }
             };
             const expectedArgs = [{
                 uri: encodeURI(
@@ -101,10 +115,13 @@ describe('commercetools postCartEntry', () => {
 
         it('Adding to an existing cart uses expand to get discount', () => {
             const args = {
-                'id': '1234-7',
-                'currency': 'USD',
-                'productVariantId': '526dc571-104f-40fb-b761-71781a97910b-1',
-                'quantity': 2
+                id: '1234-7',
+                currency: 'USD',
+                productVariantId: '526dc571-104f-40fb-b761-71781a97910b-1',
+                quantity: 2,
+                __ow_headers: {
+                    'accept-language': 'en-US'
+                }
             };
             const expectedArgs = [{
                     uri: encodeURI(`/${config.CT_PROJECTKEY}/carts/1234?${config.CART_EXPAND_QS}`),
@@ -125,17 +142,20 @@ describe('commercetools postCartEntry', () => {
 
         it('POST /cart/ HTTP 404 - cart not found with cached version', () => {
             const args = {
-                'id': '12345-1',
-                'currency': 'USD',
-                'productVariantId': '526dc571-104f-40fb-b761-71781a97910b-1',
-                'quantity': 1
+                id: '12345-1',
+                currency: 'USD',
+                productVariantId: '526dc571-104f-40fb-b761-71781a97910b-1',
+                quantity: 1,
+                __ow_headers: {
+                    'accept-language': 'en-US'
+                }
             };
             return this.prepareReject(samplecart404)
-                       .execute(args)
-                       .then(result => {
-                           assert.isUndefined(result.response.body);
-                           assert.strictEqual(result.response.error.name, 'CommerceServiceResourceNotFoundError');
-                       });
+                .execute(args)
+                .then(result => {
+                    assert.isUndefined(result.response.body);
+                    assert.strictEqual(result.response.error.name, 'CommerceServiceResourceNotFoundError');
+                });
         });
 
         it('POST /cart/ HTTP 404 - cart not found (load cart)', () => {
@@ -144,7 +164,10 @@ describe('commercetools postCartEntry', () => {
                 'currency': 'USD',
                 'productVariantId': '526dc571-104f-40fb-b761-71781a97910b-1',
                 'quantity': 1,
-                'USE_CACHED_CART_VERSION': false
+                'USE_CACHED_CART_VERSION': false,
+                __ow_headers: {
+                    'accept-language': 'en-US'
+                }
             };
             return this.prepareReject(samplecart404)
                        .execute(args)
@@ -156,7 +179,10 @@ describe('commercetools postCartEntry', () => {
 
         it('POST /cart/ HTTP 200 - new empty', () => {
             const args = {
-                'currency': 'USD'
+                'currency': 'USD',
+                __ow_headers: {
+                    'accept-language': 'en-US'
+                }
             };
             const expectedArgs = {
                 uri: encodeURI(`/${config.CT_PROJECTKEY}/carts?${config.CART_EXPAND_QS}`),
@@ -176,7 +202,10 @@ describe('commercetools postCartEntry', () => {
             const args = {
                 'currency': 'USD',
                 'productVariantId': '526dc571-104f-40fb-b761-71781a97910b-1',
-                'quantity': 2
+                'quantity': 2,
+                __ow_headers: {
+                    'accept-language': 'en-US'
+                }
             };
             const expectedArgs = {
                 uri: encodeURI(`/${config.CT_PROJECTKEY}/carts?${config.CART_EXPAND_QS}`),
@@ -197,7 +226,10 @@ describe('commercetools postCartEntry', () => {
                 'id': '12345-7',
                 'currency': 'USD1',
                 'productVariantId': '526dc571-104f-40fb-b761-71781a97910b-1',
-                'quantity': 2
+                'quantity': 2,
+                __ow_headers: {
+                    'accept-language': 'en-US'
+                }
             };
             const expectedArgs = [{
                 uri: encodeURI(`/${config.CT_PROJECTKEY}/carts/12345?${config.CART_EXPAND_QS}`),
@@ -223,7 +255,10 @@ describe('commercetools postCartEntry', () => {
                 'currency': 'USD1',
                 'productVariantId': '526dc571-104f-40fb-b761-71781a97910b-1',
                 'quantity': 2,
-                'USE_CACHED_CART_VERSION': false
+                'USE_CACHED_CART_VERSION': false,
+                __ow_headers: {
+                    'accept-language': 'en-US'
+                }
             };
             const expectedArgs = [{
                 uri: encodeURI(`/${config.CT_PROJECTKEY}/carts/12345?${config.CART_EXPAND_QS}`),
@@ -248,7 +283,10 @@ describe('commercetools postCartEntry', () => {
                 'id': '12345-1',
                 'currency': 'USD',
                 'productVariantId': '526dc571-104f-40fb-b761-71781a97910b-1',
-                'quantity': 2
+                'quantity': 2,
+                __ow_headers: {
+                    'accept-language': 'en-US'
+                }
             };
             sampleCustomerCart.body.customerId = '1234';
             return this.prepareResolve(sampleCustomerCart)

@@ -51,20 +51,21 @@ describe('commercetools deletePayment', function () {
         /** Create empty cart. */
         beforeEach(function () {
             return chai.request(env.openwhiskEndpoint)
-                       .post(env.cartsPackage + 'postCartEntry')
-                       .query({
-                                  currency: 'USD'
-                              })
-                       .then(function (res) {
-                           expect(res).to.be.json;
-                           expect(res).to.have.status(HttpStatus.OK);
+                .post(env.cartsPackage + 'postCartEntry')
+                .query({
+                    currency: 'USD'
+                })
+                .set('Accept-Language', 'en-US')
+                .then(function (res) {
+                    expect(res).to.be.json;
+                    expect(res).to.have.status(HttpStatus.OK);
 
-                           // Store cart id
-                           cartId = res.body.id;
-                       })
-                       .catch(function (err) {
-                           throw err;
-                       });
+                    // Store cart id
+                    cartId = res.body.id;
+                })
+                .catch(function (err) {
+                    throw err;
+                });
         });
 
         /** Delete cart. */
@@ -74,21 +75,24 @@ describe('commercetools deletePayment', function () {
 
         it('returns 400 for deleting payment of not provided cart', function () {
             return chai.request(env.openwhiskEndpoint)
-                       .post(env.cartsPackage + 'deletePayment')
-                       .query({})
-                       .catch(function (err) {
-                           expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
-                       });
+                .post(env.cartsPackage + 'deletePayment')
+                .query({})
+                .set('Accept-Language', 'en-US')
+                .catch(function (err) {
+                    expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
+                });
         });
+
         it('returns 404 for deleting payment method of non existing cart', function () {
             return chai.request(env.openwhiskEndpoint)
-                       .post(env.cartsPackage + 'deletePayment')
-                       .query({
-                                  id: 'non-existing-cart-id'
-                              })
-                       .catch(function (err) {
-                           expect(err.response).to.have.status(HttpStatus.NOT_FOUND);
-                       });
+                .post(env.cartsPackage + 'deletePayment')
+                .query({
+                    id: 'non-existing-cart-id'
+                })
+                .set('Accept-Language', 'en-US')
+                .catch(function (err) {
+                    expect(err.response).to.have.status(HttpStatus.NOT_FOUND);
+                });
         });
 
         it('returns 400 for removing non existing payment', function () {
@@ -96,11 +100,12 @@ describe('commercetools deletePayment', function () {
                 id: cartId
             };
             return chai.request(env.openwhiskEndpoint)
-                       .post(env.cartsPackage + 'deletePayment')
-                       .query(args)
-                       .catch(function (err) {
-                           expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
-                       })
+                .post(env.cartsPackage + 'deletePayment')
+                .query(args)
+                .set('Accept-Language', 'en-US')
+                .catch(function (err) {
+                    expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
+                })
         });
 
         it('returns 200 for successfully removing a cart payment', function () {
@@ -108,31 +113,34 @@ describe('commercetools deletePayment', function () {
                 id: cartId,
             };
             return chai.request(env.openwhiskEndpoint)
-                       .post(env.cartsPackage + 'postPayment')
-                       .query(args)
-                       .send({
-                           payment: ccifPayment
-                       })
-                       .then(function (res) {
-                           let payment = res.body.payment;
-                           expect(res).to.be.json;
-                           expect(res).to.have.status(HttpStatus.OK);
-                           expect(payment).to.have.property('id');
-                           expect(payment).to.have.property('method');
-                           expect(payment).to.have.property('amount');
-                           expect(payment.amount).to.have.property('currency');
-                           expect(payment.amount).to.have.property('centAmount');
-                           expect(payment).to.have.property('createdDate');
-                           expect(payment).to.have.property('lastModifiedDate');
-                           return chai.request(env.openwhiskEndpoint)
-                                      .post(env.cartsPackage + 'deletePayment')
-                                      .query({id: cartId})
-                                      .then(function (res) {
-                                          expect(res).to.be.json;
-                                          expect(res).to.have.status(HttpStatus.OK);
-                                          expect(res.body).to.not.have.property('paymentInfo');
-                                      })
-                       })
+                .post(env.cartsPackage + 'postPayment')
+                .query(args)
+                .send({
+                    payment: ccifPayment
+                })
+                .set('Accept-Language', 'en-US')
+                .then(function (res) {
+                    let payment = res.body.payment;
+                    expect(res).to.be.json;
+                    expect(res).to.have.status(HttpStatus.OK);
+                    expect(payment).to.have.property('id');
+                    expect(payment).to.have.property('method');
+                    expect(payment).to.have.property('amount');
+                    expect(payment.amount).to.have.property('currency');
+                    expect(payment.amount).to.have.property('centAmount');
+                    expect(payment).to.have.property('createdDate');
+                    expect(payment).to.have.property('lastModifiedDate');
+
+                    return chai.request(env.openwhiskEndpoint)
+                                .post(env.cartsPackage + 'deletePayment')
+                                .query({id: cartId})
+                                .set('Accept-Language', 'en-US');
+                })
+                .then(function (res) {
+                    expect(res).to.be.json;
+                    expect(res).to.have.status(HttpStatus.OK);
+                    expect(res.body).to.not.have.property('paymentInfo');
+                });
         });
 
     });

@@ -26,23 +26,33 @@ const CartMapper = require('@adobe/commerce-cif-commercetools-cart/CartMapper');
 class CustomerMapper {
 
     /**
+     * Constructor.
+     * 
+     * @param {LanguageParser} languageParser LanguageParser reference
+     */
+    constructor(languageParser) {
+        this.languageParser = languageParser;
+        this.cartMapper = new CartMapper(languageParser);
+    }
+
+    /**
      * Maps a CommerceTools customer to a CCIF Customer object.
      *
      * @param ctCustomer        A CommerceTools customer object.
      * @returns {Customer}      A CCIF Customer object.
      */
-    static mapCustomer(ctCustomer) {
+    mapCustomer(ctCustomer) {
         if (!ctCustomer || !ctCustomer.body || !ctCustomer.body.id) {
             throw new MissingPropertyException('invalid customer response received from commerce tools');
         }
 
-        return CustomerMapper._mapCustomer(ctCustomer.body);
+        return this._mapCustomer(ctCustomer.body);
     }
 
     /**
      * @private
      */
-    static _mapCustomer(ctCustomer) {
+    _mapCustomer(ctCustomer) {
         if (!ctCustomer || !ctCustomer.id) {
             throw new MissingPropertyException('invalid customer object received from commerce tools');
         }
@@ -60,18 +70,19 @@ class CustomerMapper {
      * Maps a CommerceTools login response to a CCIF LoginResult object.
      *
      * @param ctResult          A CommerceTools login response.
+     * @param args              OpenWhisk action arguments.
      * @returns {LoginResult}   A CCIF LoginResult object.
      */
-    static mapCustomerLogin(ctResult) {
+    mapCustomerLogin(ctResult) {
         if (!ctResult || !ctResult.body || !ctResult.body.customer) {
             throw new MissingPropertyException('invalid customer response received from commerce tools');
         }
 
         let loginResult = new LoginResult();
-        loginResult.customer = CustomerMapper._mapCustomer(ctResult.body.customer);
+        loginResult.customer = this._mapCustomer(ctResult.body.customer);
 
         if (ctResult.body.cart) {
-            loginResult.cart = CartMapper._mapCart(ctResult.body.cart);
+            loginResult.cart = this.cartMapper._mapCart(ctResult.body.cart);
         }
 
         return loginResult;

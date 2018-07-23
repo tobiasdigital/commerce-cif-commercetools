@@ -5,7 +5,7 @@ dist
 .settings
 *-debug.log
 .serverless
-test-results*.xml
+results.xml
 *.iml
 service.yml
 dev-development/service.yml

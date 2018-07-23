@@ -27,9 +27,13 @@ describe('commercetools postCustomerLogin', () => {
         setup(this, __dirname, 'postCustomerLogin');
 
         it('Test postCustomerLogin', () => {
-            let args = {};
-            args.email = 'john.doe@adobe.com';
-            args.password = 'whatever';
+            let args = {
+                email: 'john.doe@adobe.com',
+                password: 'whatever',
+                __ow_headers: {
+                    'accept-language': 'en-US'
+                }
+            };
 
             const expectedArgs = [{
                 uri: `/${config.CT_PROJECTKEY}/login`,
@@ -52,10 +56,15 @@ describe('commercetools postCustomerLogin', () => {
         });
 
         it('Test bad customer credentials', () => {
-            let args = {};
-            args.email = 'john.doe@adobe.com';
-            args.password = 'wrong-password';
-            args.anonymousCartId = '12345';
+            let args = {
+                email: 'john.doe@adobe.com',
+                password: 'wrong-password',
+                anonymousCartId: '12345',
+                __ow_headers: {
+                    'accept-language': 'en-US'
+                }
+            };
+            
             let errorMsg = 'Account with the given credentials not found.';
             return this.prepareReject({code: 400, body: {message: errorMsg}}).execute(args).then(result => {
                 assert.strictEqual(result.response.error.name, 'CommerceServiceBadRequestError');

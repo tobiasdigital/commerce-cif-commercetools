@@ -16,7 +16,8 @@
 
 const CTPerformanceMeasurement = require('@adobe/commerce-cif-commercetools-common/performance-measurement.js');
 const createClient = require('@commercetools/sdk-client').createClient;
-const cartMapper = require('./CartMapper');
+const CartMapper = require('./CartMapper');
+const LanguageParser = require('@adobe/commerce-cif-commercetools-common/LanguageParser');
 const CommerceToolsCart = require('./CommerceToolsCart');
 const CcifIdentifier = require('@adobe/commerce-cif-commercetools-common/CcifIdentifier');
 const InputValidator = require('@adobe/commerce-cif-common/input-validator');
@@ -57,9 +58,12 @@ function postCoupon(args) {
         }]
     };
     
+    let languageParser = new LanguageParser(args);
+    let cartMapper = new CartMapper(languageParser);
+
     // Send request
     let ccifId = new CcifIdentifier(args.id);
-    return new CommerceToolsCart(args, createClient, cartMapper.mapCart)
+    return new CommerceToolsCart(args, createClient, cartMapper.mapCart.bind(cartMapper))
         .byId(ccifId.getCommerceToolsId())
         .postCartData(args.id, data, args.customerId);
 }

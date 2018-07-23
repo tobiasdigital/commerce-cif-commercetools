@@ -47,6 +47,7 @@ describe('commercetools getCart', function() {
                     quantity: 2,
                     productVariantId: productVariantId
                 })
+                .set('Accept-Language', 'en-US')
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
@@ -69,6 +70,7 @@ describe('commercetools getCart', function() {
             return chai.request(env.openwhiskEndpoint)
                 .get(env.cartsPackage + 'getCart')
                 .query({id: cartId})
+                .set('Accept-Language', 'en-US')
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
@@ -126,12 +128,17 @@ describe('commercetools getCart', function() {
                 quantity: 71,
                 productVariantId: productVariantId
             };
-            return chai
-                .request(env.openwhiskEndpoint).post(env.cartsPackage + 'postCart').query(postData)
+            return chai.request(env.openwhiskEndpoint)
+                .post(env.cartsPackage + 'postCart')
+                .query(postData)
+                .set('Accept-Language', 'en-US')
                 .then(function (response) {
                     // Response of cart creation must also contain the discount data
                     checkDiscountData(response);
-                    return chai.request(env.openwhiskEndpoint).get(env.cartsPackage + 'getCart').query({id: response.body.id});
+                    return chai.request(env.openwhiskEndpoint)
+                        .get(env.cartsPackage + 'getCart')
+                        .query({id: response.body.id})
+                        .set('Accept-Language', 'en-US');
                 })
                 .then(response => checkDiscountData(response));
         });
@@ -139,6 +146,7 @@ describe('commercetools getCart', function() {
         it('returns a 400 error for a missing id parameter', function() {
             return chai.request(env.openwhiskEndpoint)
                 .get(env.cartsPackage + 'getCart')
+                .set('Accept-Language', 'en-US')
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
                 });
@@ -148,6 +156,7 @@ describe('commercetools getCart', function() {
             return chai.request(env.openwhiskEndpoint)
                 .get(env.cartsPackage + 'getCart')
                 .query({id: 'does-not-exist'})
+                .set('Accept-Language', 'en-US')
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.NOT_FOUND);
                 });
@@ -164,39 +173,38 @@ describe('commercetools getCart', function() {
                 .post(env.cartsPackage + 'postShippingAddress')
                 .query({id: cartId})
                 .send({address: {country: 'US'}})
+                .set('Accept-Language', 'en-US')
                 .then(function (res) {
-
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
 
                     return chai.request(env.openwhiskEndpoint)
                         .post(env.cartsPackage + 'postShippingMethod')
                         .query(args)
-                        .then(function (res) {
-                            
-                            expect(res).to.be.json;
-                            expect(res).to.have.status(HttpStatus.OK);
+                        .set('Accept-Language', 'en-US');
+                })
+                .then(function (res) {
+                    expect(res).to.be.json;
+                    expect(res).to.have.status(HttpStatus.OK);
 
-                            expect(res.body).to.have.property('cartTaxInfo');
-                            expect(res.body).to.have.property('taxIncludedInPrices');
-                            expect(res.body).to.have.property('netTotalPrice');
-                            expect(res.body).to.have.property('grossTotalPrice');
-                            let cartTaxInfo = res.body.cartTaxInfo;
-                            checkTaxInfo(cartTaxInfo);
+                    expect(res.body).to.have.property('cartTaxInfo');
+                    expect(res.body).to.have.property('taxIncludedInPrices');
+                    expect(res.body).to.have.property('netTotalPrice');
+                    expect(res.body).to.have.property('grossTotalPrice');
+                    let cartTaxInfo = res.body.cartTaxInfo;
+                    checkTaxInfo(cartTaxInfo);
 
-                            expect(res.body).to.have.property('shippingInfo');
-                            expect(res.body.shippingInfo).to.have.property('shippingTaxInfo');
-                            let shippingTaxInfo = res.body.shippingInfo.shippingTaxInfo;
-                            checkTaxInfo(shippingTaxInfo);
+                    expect(res.body).to.have.property('shippingInfo');
+                    expect(res.body.shippingInfo).to.have.property('shippingTaxInfo');
+                    let shippingTaxInfo = res.body.shippingInfo.shippingTaxInfo;
+                    checkTaxInfo(shippingTaxInfo);
 
-                            expect(res.body).to.have.property('cartEntries');
-                            let cartEntries = res.body.cartEntries;
-                            cartEntries.every(cartEntry => {
-                                let cartEntryTaxInfo = cartEntry.cartEntryTaxInfo;
-                                checkTaxInfo(cartEntryTaxInfo);
-                            });
-
-                        });
+                    expect(res.body).to.have.property('cartEntries');
+                    let cartEntries = res.body.cartEntries;
+                    cartEntries.every(cartEntry => {
+                        let cartEntryTaxInfo = cartEntry.cartEntryTaxInfo;
+                        checkTaxInfo(cartEntryTaxInfo);
+                    });
                 });
         });
 

@@ -51,23 +51,24 @@ describe('commercetools postPayment', function () {
         /** Create empty cart. */
         beforeEach(function () {
             return chai.request(env.openwhiskEndpoint)
-                       .post(env.cartsPackage + 'postCartEntry')
-                       .query({
-                                  currency: 'USD',
-                                  quantity: 5,
-                                  productVariantId: productVariantId
-                              })
-                       .then(function (res) {
-                           expect(res).to.be.json;
-                           expect(res).to.have.status(HttpStatus.OK);
+                .post(env.cartsPackage + 'postCartEntry')
+                .query({
+                    currency: 'USD',
+                    quantity: 5,
+                    productVariantId: productVariantId
+                })
+                .set('Accept-Language', 'en-US')
+                .then(function (res) {
+                    expect(res).to.be.json;
+                    expect(res).to.have.status(HttpStatus.OK);
 
-                           // Store cart id
-                           cartId = res.body.id;
+                    // Store cart id
+                    cartId = res.body.id;
 
-                       })
-                       .catch(function (err) {
-                           throw err;
-                       });
+                })
+                .catch(function (err) {
+                    throw err;
+                });
         });
 
         /** Delete cart. */
@@ -77,27 +78,29 @@ describe('commercetools postPayment', function () {
 
         it('returns 400 for posting the payment to an non existing cart', function () {
             return chai.request(env.openwhiskEndpoint)
-                       .post(env.cartsPackage + 'postPayment')
-                       .query({
-                           id: 'non-existing-cart-id',
-                       })
-                       .send({
-                           payment: ccifPayment
-                       })
-                       .catch(function (err) {
-                           expect(err.response).to.have.status(HttpStatus.NOT_FOUND);
-                       });
+                .post(env.cartsPackage + 'postPayment')
+                .query({
+                    id: 'non-existing-cart-id',
+                })
+                .send({
+                    payment: ccifPayment
+                })
+                .set('Accept-Language', 'en-US')
+                .catch(function (err) {
+                    expect(err.response).to.have.status(HttpStatus.NOT_FOUND);
+                });
         });
 
         it('returns 400 for posting to payment without payment', function () {
             return chai.request(env.openwhiskEndpoint)
-                       .post(env.cartsPackage + 'postPayment')
-                       .query({
-                           id: cartId
-                       })
-                       .catch(function (err) {
-                           expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
-                       });
+                .post(env.cartsPackage + 'postPayment')
+                .query({
+                    id: cartId
+                })
+                .set('Accept-Language', 'en-US')
+                .catch(function (err) {
+                    expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
+                });
         });
 
         it('sets payment method', function () {   
@@ -105,23 +108,24 @@ describe('commercetools postPayment', function () {
                 id: cartId,
             };
             return chai.request(env.openwhiskEndpoint)
-                       .post(env.cartsPackage + 'postPayment')
-                       .query(args)
-                       .send({
-                           payment: ccifPayment
-                       })
-                       .then(function(res) {
-                           let payment = res.body.payment;
-                           expect(res).to.be.json;
-                           expect(res).to.have.status(HttpStatus.OK);
-                           expect(payment).to.have.property('id');
-                           expect(payment).to.have.property('method');
-                           expect(payment).to.have.property('amount');
-                           expect(payment.amount).to.have.property('currency');
-                           expect(payment.amount).to.have.property('centAmount');
-                           expect(payment).to.have.property('createdDate');
-                           expect(payment).to.have.property('lastModifiedDate');
-                       });
+                .post(env.cartsPackage + 'postPayment')
+                .query(args)
+                .send({
+                    payment: ccifPayment
+                })
+                .set('Accept-Language', 'en-US')
+                .then(function(res) {
+                    let payment = res.body.payment;
+                    expect(res).to.be.json;
+                    expect(res).to.have.status(HttpStatus.OK);
+                    expect(payment).to.have.property('id');
+                    expect(payment).to.have.property('method');
+                    expect(payment).to.have.property('amount');
+                    expect(payment.amount).to.have.property('currency');
+                    expect(payment.amount).to.have.property('centAmount');
+                    expect(payment).to.have.property('createdDate');
+                    expect(payment).to.have.property('lastModifiedDate');
+                });
         });
         
         it('returns 400 for posting to payment when already exists', function () {
@@ -129,19 +133,21 @@ describe('commercetools postPayment', function () {
                 id: cartId,
             };
             return chai.request(env.openwhiskEndpoint)
-                       .post(env.cartsPackage + 'postPayment')
-                       .query(args)
-                       .send({
-                           payment: ccifPayment
-                       })
-                       .then(() => {
-                           return chai.request(env.openwhiskEndpoint)
-                               .post(env.cartsPackage + 'postPayment')
-                               .query(args)
-                               .catch(err => {
-                                   expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
-                               });
-                       });
+                .post(env.cartsPackage + 'postPayment')
+                .query(args)
+                .send({
+                    payment: ccifPayment
+                })
+                .set('Accept-Language', 'en-US')
+                .then(function() {
+                    return chai.request(env.openwhiskEndpoint)
+                        .post(env.cartsPackage + 'postPayment')
+                        .query(args)
+                        .set('Accept-Language', 'en-US');
+                })
+                .catch(err => {
+                    expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
+                });
         });
     });
 });

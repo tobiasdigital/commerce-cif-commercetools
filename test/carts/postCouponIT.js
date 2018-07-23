@@ -41,22 +41,23 @@ describe('commercetools postCoupon', function () {
         /** Create cart. */
         beforeEach(function () {
             return chai.request(env.openwhiskEndpoint)
-                       .post(env.cartsPackage + 'postCartEntry')
-                       .query({
-                            currency: 'USD',
-                            quantity: 1,
-                            productVariantId: productVariantId
-                        })
-                       .then(function (res) {
-                           expect(res).to.be.json;
-                           expect(res).to.have.status(HttpStatus.OK);
+                .post(env.cartsPackage + 'postCartEntry')
+                .query({
+                    currency: 'USD',
+                    quantity: 1,
+                    productVariantId: productVariantId
+                })
+                .set('Accept-Language', 'en-US')
+                .then(function (res) {
+                    expect(res).to.be.json;
+                    expect(res).to.have.status(HttpStatus.OK);
 
-                           // Store cart id
-                           cartId = res.body.id;
-                       })
-                       .catch(function (err) {
-                           throw err;
-                       });
+                    // Store cart id
+                    cartId = res.body.id;
+                })
+                .catch(function (err) {
+                    throw err;
+                });
         });
 
         /** Delete cart. */
@@ -66,37 +67,40 @@ describe('commercetools postCoupon', function () {
 
         it('returns 400 for adding a coupon to an non existing cart', function () {
             return chai.request(env.openwhiskEndpoint)
-                       .post(env.cartsPackage + 'postCoupon')
-                       .query({
-                           id: 'non-existing-cart-id',
-                           code: 'HW35'
-                       })
-                       .catch(function (err) {
-                           expect(err.response).to.have.status(HttpStatus.NOT_FOUND);
-                       });
+                .post(env.cartsPackage + 'postCoupon')
+                .query({
+                    id: 'non-existing-cart-id',
+                    code: 'HW35'
+                })
+                .set('Accept-Language', 'en-US')
+                .catch(function (err) {
+                    expect(err.response).to.have.status(HttpStatus.NOT_FOUND);
+                });
         });
 
         it('returns 400 for a missing coupon code', function () {
             return chai.request(env.openwhiskEndpoint)
-                       .post(env.cartsPackage + 'postCoupon')
-                       .query({
-                           id: cartId
-                       })
-                       .catch(function (err) {
-                           expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
-                       });
+                .post(env.cartsPackage + 'postCoupon')
+                .query({
+                    id: cartId
+                })
+                .set('Accept-Language', 'en-US')
+                .catch(function (err) {
+                    expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
+                });
         });
 
         it('returns 400 for an invalid coupon code', function () {
             return chai.request(env.openwhiskEndpoint)
-                       .post(env.cartsPackage + 'postCoupon')
-                       .query({
-                           id: cartId,
-                           code: 'non-existing-coupon-code'
-                       })
-                       .catch(function (err) {
-                           expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
-                       });
+                .post(env.cartsPackage + 'postCoupon')
+                .query({
+                    id: cartId,
+                    code: 'non-existing-coupon-code'
+                })
+                .set('Accept-Language', 'en-US')
+                .catch(function (err) {
+                    expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
+                });
         });
 
         it('adds a coupon code to an existing cart', function () {   
@@ -105,19 +109,20 @@ describe('commercetools postCoupon', function () {
                 code: 'HW35'
             };
             return chai.request(env.openwhiskEndpoint)
-                       .post(env.cartsPackage + 'postCoupon')
-                       .query(args)
-                       .then(function(res) {
-                           expect(res).to.be.json;
-                           expect(res).to.have.status(HttpStatus.OK);
-                           expect(res.body).to.have.property('coupons');
-                           expect(res.body.coupons).to.have.lengthOf(1);
+                .post(env.cartsPackage + 'postCoupon')
+                .query(args)
+                .set('Accept-Language', 'en-US')
+                .then(function(res) {
+                    expect(res).to.be.json;
+                    expect(res).to.have.status(HttpStatus.OK);
+                    expect(res.body).to.have.property('coupons');
+                    expect(res.body.coupons).to.have.lengthOf(1);
 
-                           let coupon = res.body.coupons[0];
-                           expect(coupon).to.have.property('id');
-                           expect(coupon).to.have.property('code');
-                           expect(coupon).to.have.property('description');
-                       });
+                    let coupon = res.body.coupons[0];
+                    expect(coupon).to.have.property('id');
+                    expect(coupon).to.have.property('code');
+                    expect(coupon).to.have.property('description');
+                });
         });
 
     });

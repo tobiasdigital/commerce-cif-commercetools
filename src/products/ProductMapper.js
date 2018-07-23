@@ -32,19 +32,28 @@ const MissingPropertyException = require('@adobe/commerce-cif-common/exception')
 class ProductMapper {
 
     /**
+     * Constructor.
+     * 
+     * @param {LanguageParser} languageParser LanguageParser reference
+     */
+    constructor(languageParser) {
+        this.languageParser = languageParser;
+    }
+
+    /**
      * Maps a commercetools products search to a PagedResponse
      *
      * @param ctResult              JSON object returned by the commercetools product search.
      * @returns {PagedResponse}     A paged response with products.
      */
-    static mapPagedProductResponse(result, args) {
+    mapPagedProductResponse(result, args) {
         let pr = new PagedResponse();
         pr.offset = result.body.offset;
         pr.count = result.body.count;
         pr.total = result.body.total;
-        pr.results = ProductMapper.mapProducts(result.body.results);
+        pr.results = this.mapProducts(result.body.results, args);
         if (result.body.facets) {
-            pr.facets = ProductMapper._mapFacets(result.body.facets, args);
+            pr.facets = this._mapFacets(result.body.facets, args);
         }
         return pr;
     }
@@ -55,18 +64,19 @@ class ProductMapper {
      * @param ctProducts            JSON array of commercetools products.
      * @returns {Product}           An array of CCIF products.
      */
-    static mapProducts(ctProducts) {
-        return ctProducts.map(ctProduct => ProductMapper._mapProduct(ctProduct));
+    mapProducts(ctProducts) {
+        return ctProducts.map(ctProduct => this._mapProduct(ctProduct));
     }
 
     /**
      * Maps a single commercetools product to a CCIF product.
      *
      * @param response              JSON response with commercetools product, containing the body enclosing property.
+     * @param args                  OpenWhisk action arguments
      * @returns {Product}           A CCIF product.
      */
-    static mapProduct(response) {
-        return ProductMapper._mapProduct(response.body);
+    mapProduct(response) {
+        return this._mapProduct(response.body);
     }
 
     /**
@@ -74,7 +84,7 @@ class ProductMapper {
      *
      * @private
      */
-    static _mapProduct(ctProduct) {
+    _mapProduct(ctProduct) {
         if (ctProduct.id === undefined) {
             throw new MissingPropertyException('id missing for commercetools product');
         }
@@ -83,12 +93,14 @@ class ProductMapper {
         }
 
         let masterVariantId = ctProduct.id + '-' + ctProduct.masterVariant.id;
-        let p = new Product(ctProduct.id, masterVariantId, ProductMapper._mapProductVariants(ctProduct));
-        p.name = ctProduct.name;
-        p.description = ctProduct.description;
+        let p = new Product(ctProduct.id, masterVariantId, this._mapProductVariants(ctProduct));
+        p.name = this.languageParser.pickLanguage(ctProduct.name);
+        if (ctProduct.description) {
+            p.description = this.languageParser.pickLanguage(ctProduct.description);
+        }
         p.createdDate = ctProduct.createdAt;
         p.lastModifiedDate = ctProduct.lastModifiedAt;
-        p.categories = ProductMapper._mapProductCategories(ctProduct.categories);
+        p.categories = this._mapProductCategories(ctProduct.categories);
         return p;
     }
 
@@ -99,18 +111,21 @@ class ProductMapper {
      * @returns {ProductVariant}    A CCIF product variant.
      */
 
-    static mapProductVariant(ctLineItem) {
+    mapProductVariant(ctLineItem) {
         let attributesTypes = [];
         if (ctLineItem.productType.obj) {
-            attributesTypes = ProductMapper._extractAttributesTypes(ctLineItem);
+            attributesTypes = this._extractAttributesTypes(ctLineItem);
         }
 
         let v = new ProductVariant(ctLineItem.productId + '-' + ctLineItem.variant.id);
-        v.name = ctLineItem.name;
+
+        if (ctLineItem.name) {
+            v.name = this.languageParser.pickLanguage(ctLineItem.name);
+        }
         v.sku = ctLineItem.variant.sku;
-        v.prices = ProductMapper._mapPrices(ctLineItem.variant.prices);
-        v.assets = ProductMapper._mapImages(ctLineItem.variant.images);
-        v.attributes = ProductMapper._mapAttributes(attributesTypes, ctLineItem.variant.attributes);
+        v.prices = this._mapPrices(ctLineItem.variant.prices);
+        v.assets = this._mapImages(ctLineItem.variant.images);
+        v.attributes = this._mapAttributes(attributesTypes, ctLineItem.variant.attributes);
         return v;
     }
 
@@ -120,21 +135,21 @@ class ProductMapper {
      * @param results
      * @return {Array}
      */
-    static getProductFacets(result) {
+    getProductFacets(result) {
         let facets = [];
         if (result && result.body.count > 0) {
             result.body.results[0].productType.obj.attributes.forEach(attribute => {
                 if (attribute.isSearchable === true) {
                     let facet = new Facet();
                     facet.name = `variants.attributes.${attribute.name}.en`;
-                    facet.label = attribute.label;
+                    facet.label = this.languageParser.pickLanguage(attribute.label);
                     facets.push(facet);
                 }
             });
         }
 
-        facets.push(ProductMapper._initProductFacet('categories.id', 'Category'));
-        facets.push(ProductMapper._initProductFacet('variants.prices.value.centAmount', 'Price'));
+        facets.push(this._initProductFacet('categories.id', 'Category'));
+        facets.push(this._initProductFacet('variants.prices.value.centAmount', 'Price'));
 
         return facets;
     }
@@ -142,38 +157,42 @@ class ProductMapper {
     /**
      * @private
      */
-    static _mapProductVariants(ctProduct) {
+    _mapProductVariants(ctProduct) {
         let attributesTypes = [];
         if (ctProduct.productType.obj) {
-            attributesTypes = ProductMapper._extractAttributesTypes(ctProduct);
+            attributesTypes = this._extractAttributesTypes(ctProduct);
         }
 
         let variants = [];
         // make sure the default variant is included in the variants;
-        variants.push(ProductMapper._mapProductVariant(ctProduct, ctProduct.masterVariant, attributesTypes));
+        variants.push(this._mapProductVariant(ctProduct, ctProduct.masterVariant, attributesTypes));
         return variants.concat(ctProduct.variants.map(variant => {
-            return ProductMapper._mapProductVariant(ctProduct, variant, attributesTypes);
+            return this._mapProductVariant(ctProduct, variant, attributesTypes);
         }));
     }
 
     /**
      * @private
      */
-    static _mapProductVariant(ctProduct, variant, attributesTypes) {
+    _mapProductVariant(ctProduct, variant, attributesTypes) {
         let v = new ProductVariant(ctProduct.id + '-' + variant.id);
-        v.name = variant.name;
-        v.description = variant.description;
+        if (variant.name) {
+            v.name = this.languageParser.pickLanguage(variant.name);
+        }
+        if (variant.description) {
+            v.description = this.languageParser.pickLanguage(variant.description);
+        }
         v.sku = variant.sku;
-        v.prices = ProductMapper._mapPrices(variant.prices);
-        v.assets = ProductMapper._mapImages(variant.images);
-        v.attributes = ProductMapper._mapAttributes(attributesTypes, variant.attributes);
+        v.prices = this._mapPrices(variant.prices);
+        v.assets = this._mapImages(variant.images);
+        v.attributes = this._mapAttributes(attributesTypes, variant.attributes);
         return v;
     }
 
     /**
      * @private
      */
-    static _mapProductCategories(categories) {
+    _mapProductCategories(categories) {
         if (categories) {
             return categories.map(category => {
                 return new Category(category.id);
@@ -184,20 +203,20 @@ class ProductMapper {
     /**
      * @private
      */
-    static _isVariantAttributeConstraint(attributeConstraint) {
+    _isVariantAttributeConstraint(attributeConstraint) {
         return attributeConstraint === 'Unique' || attributeConstraint === 'CombinationUnique';
     }
 
     /**
      * @private
      */
-    static _extractAttributesTypes(container) {
+    _extractAttributesTypes(container) {
         return container.productType.obj.attributes
             .map(attribute => {
                 return {
                     id: attribute.name,
-                    name: attribute.label,
-                    variantAttribute: ProductMapper._isVariantAttributeConstraint(attribute.attributeConstraint)
+                    name: this.languageParser.pickLanguage(attribute.label),
+                    variantAttribute: this._isVariantAttributeConstraint(attribute.attributeConstraint)
                 }
             });
     }
@@ -205,7 +224,7 @@ class ProductMapper {
     /**
      * @private
      */
-    static _mapPrices(prices) {
+    _mapPrices(prices) {
         if (prices) {
             return prices.map(price => {
                 let p = new Price(price.value.centAmount, price.value.currencyCode);
@@ -218,7 +237,7 @@ class ProductMapper {
     /**
      * @private
      */
-    static _mapImages(images) {
+    _mapImages(images) {
         if (images) {
             return images.map(image => {
                 let assets = new Asset();
@@ -236,16 +255,16 @@ class ProductMapper {
     /**
      * @private
      */
-    static _mapAttributes(attributesTypes, attributes) {
+    _mapAttributes(attributesTypes, attributes) {
         if (attributesTypes && attributes) {
             return attributes.map(attribute => {
                 let types = attributesTypes.filter(attributeType => attributeType.id == attribute.name);
                 if (types.length) {
-                    let attr = new Attribute(types[0].id, types[0].name, attribute.value);
+                    let attr = new Attribute(types[0].id, types[0].name, this.languageParser.pickLanguage(attribute.value));
                     attr.variantAttribute = types[0].variantAttribute;
                     return attr;
                 } else {
-                    return new Attribute(attribute.name, null, attribute.value);
+                    return new Attribute(attribute.name, null, this.languageParser.pickLanguage(attribute.value));
                 }
             });
         }
@@ -254,37 +273,37 @@ class ProductMapper {
     /**
      * @private
      */
-    static _mapFacets(ctFacets, args) {
-        if (ctFacets) {
-            let cifFacet;
-            let ctFacetNames = Object.keys(ctFacets);
-            return ctFacetNames.map(facetName => {
-                cifFacet = new Facet();
-                cifFacet.name = facetName;
-                cifFacet.missed = ctFacets[facetName].missing;
-                if (ctFacets[facetName].type === 'range') {
-                    cifFacet.type = ctFacets[facetName].type;
-                    cifFacet.facetValues = ctFacets[facetName].ranges.map(range => {
-                        let facetValue = `${range.from}-${range.to}`;
-                        return ProductMapper._getCifFacetValue(`${facetName}.${facetValue}`, facetValue, cifFacet.name, range.productCount, args);
-                    });
-                } else {
-                    cifFacet.type = ctFacets[facetName].dataType;
-                    cifFacet.facetValues = ctFacets[facetName].terms.map(ctTerm => {
-                        return ProductMapper._getCifFacetValue(`${facetName}.${ctTerm.term}`, ctTerm.term, cifFacet.name, ctTerm.productCount, args);
-                    });
-                }
-                return cifFacet;
-            });
-
+    _mapFacets(ctFacets, args) {
+        if (!ctFacets) {
+            return;
         }
+        let cifFacet;
+        let ctFacetNames = Object.keys(ctFacets);
+        return ctFacetNames.map(facetName => {
+            cifFacet = new Facet();
+            cifFacet.name = facetName;
+            cifFacet.missed = ctFacets[facetName].missing;
+            if (ctFacets[facetName].type === 'range') {
+                cifFacet.type = ctFacets[facetName].type;
+                cifFacet.facetValues = ctFacets[facetName].ranges.map(range => {
+                    let facetValue = `${range.from}-${range.to}`;
+                    return this._getCifFacetValue(`${facetName}.${facetValue}`, facetValue, cifFacet.name, range.productCount, args);
+                });
+            } else {
+                cifFacet.type = ctFacets[facetName].dataType;
+                cifFacet.facetValues = ctFacets[facetName].terms.map(ctTerm => {
+                    return this._getCifFacetValue(`${facetName}.${ctTerm.term}`, ctTerm.term, cifFacet.name, ctTerm.productCount, args);
+                });
+            }
+            return cifFacet;
+        });
     }
 
     /**
      *
      * @private
      */
-    static _getCifFacetValue(valueId, facetValue, facetName, count, args) {
+    _getCifFacetValue(valueId, facetValue, facetName, count, args) {
         let cifFacetValue = new FacetValue();
         cifFacetValue.value = facetValue;
         cifFacetValue.id = valueId;
@@ -293,7 +312,7 @@ class ProductMapper {
             let selectedFacets = args.selectedFacets ? args.selectedFacets.split('|') : [];
             selectedFacets.forEach(facet => {
                 if (facet.substring(0, facet.indexOf(':')) === facetName) {
-                    if (ProductMapper._getSelectedFacetValue(facet).includes(cifFacetValue.value)) {
+                    if (this._getSelectedFacetValue(facet).includes(cifFacetValue.value)) {
                         cifFacetValue.selected = true;
                     }
                 }
@@ -306,11 +325,10 @@ class ProductMapper {
      *
      * @private
      */
-    static _initProductFacet(name, label) {
+    _initProductFacet(name, label) {
         let facet = new Facet();
         facet.name = name;
-        facet.label = {};
-        facet.label.en = label;
+        facet.label = this.languageParser.pickLanguage(label);
         return facet;
     }
 
@@ -323,7 +341,7 @@ class ProductMapper {
      * @return {Array} of values for the facets
      * @private
      */
-    static _getSelectedFacetValue(selectedFacet) {
+    _getSelectedFacetValue(selectedFacet) {
         //removes any space and splits the facets values
         let facetValues = selectedFacet.replace(/\s/g, '').substring(selectedFacet.indexOf(':') + 1).split(',');
         if (selectedFacet.includes(':range')) {

@@ -14,27 +14,6 @@
 
 'use strict';
 
-const Order = require('@adobe/commerce-cif-model').Order;
-
-/**
- * Utility class to map commercetools order objects to CCIF objects.
- */
-class OrderMapper {
-
-    /**
-     * Maps the CommerceTools order to the CCIF order.
-     *
-     * @param ctOrder           JSON containing order information as returned by CommerceTools.
-     * @returns {Order}         CCIF Order representation.
-     */
-    mapOrder(ctOrder) {
-        const ccifOrder = new Order();
-        if(!ctOrder.body.id) {
-            throw new Error("No order id in Commerce Tools response.");
-        }
-        ccifOrder.id = ctOrder.body.id;
-        return ccifOrder;
-    }
-}
-
-module.exports = OrderMapper;
+module.exports = {
+    HEADER_ACCEPT_LANGUAGE: 'Accept-Language'
+};

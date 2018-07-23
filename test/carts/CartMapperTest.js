@@ -27,17 +27,22 @@ const utils = require('../lib/utils');
 const Price = require('@adobe/commerce-cif-model').Price;
 const Discount = require('@adobe/commerce-cif-model').Discount;
 const DiscountType = require('@adobe/commerce-cif-common/model').DiscountType;
+const LanguageParser = require('../../src/common/LanguageParser');
+const CartMapper = require('../../src/carts/CartMapper');
 
 describe('commercetools CartMapper', () => {
-
-    let action = utils.getPathForAction(__dirname, 'CartMapper');
-    console.log(__dirname);
-    let cartMapper = require(action);
 
     describe('Unit tests', () => {
         let cartData = null;
         let cartDataWithDiscount = null;
         let cartDataWithMultipleDiscounts = null;
+        let args = {
+            __ow_headers: {
+                'accept-language': 'en-US'
+            }
+        };
+        let languageParser = new LanguageParser(args);
+        let cartMapper = new CartMapper(languageParser);
 
         beforeEach(() => {
             // clone original sample data before each test
@@ -58,7 +63,7 @@ describe('commercetools CartMapper', () => {
         });
 
         it('cart - success', () => {
-            let mappedCart = cartMapper.mapCart(cartData);
+            let mappedCart = cartMapper.mapCart(cartData, args);
             assert.strictEqual(mappedCart.id, cartData.body.id + '-' +  cartData.body.version);
             assert.strictEqual(mappedCart.cartEntries.length, cartData.body.lineItems.length);
             assert.strictEqual(mappedCart.createdDate, cartData.body.createdAt);
@@ -82,10 +87,10 @@ describe('commercetools CartMapper', () => {
                                             ctDiscount.discountedAmount.currencyCode);
                 let needleDiscount = new Discount(needlePrice, ctDiscount.discount.id, DiscountType.SHIPPING);
                 if (ctDiscount.discount.obj.name) {
-                    needleDiscount.name = ctDiscount.discount.obj.name;
+                    needleDiscount.name = ctDiscount.discount.obj.name.en;
                 }
                 if (ctDiscount.discount.obj.description) {
-                    needleDiscount.message = ctDiscount.discount.obj.description;
+                    needleDiscount.message = ctDiscount.discount.obj.description.en;
                 }
                 assert.deepInclude(mappedCart.discounts, needleDiscount, JSON.stringify(mappedCart.discounts, null, 4));
             });
@@ -96,7 +101,7 @@ describe('commercetools CartMapper', () => {
                 assert.strictEqual(cartEntry.quantity, lineItem.quantity);
                 assert.strictEqual(cartEntry.productVariant.sku, lineItem.variant.sku);
                 assert.strictEqual(cartEntry.productVariant.id, lineItem.productId + '-' + lineItem.variant.id);
-                assert.strictEqual(cartEntry.productVariant.name, lineItem.name);
+                assert.strictEqual(cartEntry.productVariant.name, lineItem.name.en);
                 assert.strictEqual(cartEntry.unitPrice.centAmount, lineItem.price.value.centAmount);
                 assert.strictEqual(cartEntry.unitPrice.currency, lineItem.price.value.currencyCode);
                 assert.strictEqual(cartEntry.cartEntryPrice.centAmount, lineItem.totalPrice.centAmount);
@@ -122,7 +127,7 @@ describe('commercetools CartMapper', () => {
         it('cart - check total product price when no shipping info', () => {
             let cartDataNoShipping = JSON.parse(JSON.stringify(sampleCart1));
             delete cartDataNoShipping.body.shippingInfo;
-            let mappedCart = cartMapper.mapCart(cartDataNoShipping);
+            let mappedCart = cartMapper.mapCart(cartDataNoShipping, args);
             assert.strictEqual(mappedCart.totalProductPrice.centAmount, cartDataNoShipping.body.totalPrice.centAmount);
             assert.strictEqual(mappedCart.totalProductPrice.currency, cartDataNoShipping.body.totalPrice.currencyCode);
         });
@@ -130,7 +135,7 @@ describe('commercetools CartMapper', () => {
         it('cart - check total product price when no discount shipping info price', () => {
             let cartDataNoDiscountedShipping = JSON.parse(JSON.stringify(sampleCartWithTax));
             delete cartDataNoDiscountedShipping.body.shippingInfo.discountedPrice;
-            let mappedCart = cartMapper.mapCart(cartDataNoDiscountedShipping);
+            let mappedCart = cartMapper.mapCart(cartDataNoDiscountedShipping, args);
 
             let calculatedProductPrice = mappedCart.grossTotalPrice.centAmount - mappedCart.shippingInfo.price.centAmount;
             assert.strictEqual(mappedCart.totalProductPrice.centAmount, calculatedProductPrice);
@@ -141,25 +146,25 @@ describe('commercetools CartMapper', () => {
         it('cart - fail too many payments', () => {
             let cartDataMultiplePayment = utils.clone(cartData);
             cartDataMultiplePayment.body.paymentInfo.payments.push('{}');
-            assert.throws(() => cartMapper.mapCart(cartDataMultiplePayment));
+            assert.throws(() => cartMapper.mapCart(cartDataMultiplePayment, args));
         });
 
         it('cart - success no shippingAddress', () => {
             let cartDataNoShippingAddress = utils.clone(cartData);
             delete cartDataNoShippingAddress.body.shippingAddress;
-            let mappedCart = cartMapper.mapCart(cartDataNoShippingAddress);
+            let mappedCart = cartMapper.mapCart(cartDataNoShippingAddress, args);
             assert.isUndefined(mappedCart.shippingAddress);
         });
 
         it('cart - success no billingAddress', () => {
             let cartDataNoBillingAddress = utils.clone(cartData);
             delete cartDataNoBillingAddress.body.billingAddress;
-            let mappedCart = cartMapper.mapCart(cartDataNoBillingAddress);
+            let mappedCart = cartMapper.mapCart(cartDataNoBillingAddress, args);
             assert.isUndefined(mappedCart.billingAddress);
         });
 
         it('cart - cart discount', () => {
-            let mappedCart = cartMapper.mapCart(cartDataWithDiscount);
+            let mappedCart = cartMapper.mapCart(cartDataWithDiscount, args);
 
             mappedCart.cartEntries.forEach((cartEntry, index) => {
                 let lineItem = cartDataWithDiscount.body.lineItems[index];
@@ -174,14 +179,10 @@ describe('commercetools CartMapper', () => {
                 assert.strictEqual(cartEntry.discounts[0].id,
                                    lineItem.discountedPricePerQuantity[0].discountedPrice.includedDiscounts[0].discount.id);
                 assert.strictEqual(cartEntry.discounts[0].type, DiscountType.CART_ENTRY);
-                assert.strictEqual(cartEntry.discounts[0].name.en,
+                assert.strictEqual(cartEntry.discounts[0].name,
                                    lineItem.discountedPricePerQuantity[0].discountedPrice.includedDiscounts[0].discount.obj.name.en);
-                assert.strictEqual(cartEntry.discounts[0].name.de,
-                                   lineItem.discountedPricePerQuantity[0].discountedPrice.includedDiscounts[0].discount.obj.name.de);
-                assert.strictEqual(cartEntry.discounts[0].message.en,
+                assert.strictEqual(cartEntry.discounts[0].message,
                                    lineItem.discountedPricePerQuantity[0].discountedPrice.includedDiscounts[0].discount.obj.description.en);
-                assert.strictEqual(cartEntry.discounts[0].message.de,
-                                   lineItem.discountedPricePerQuantity[0].discountedPrice.includedDiscounts[0].discount.obj.description.de);
                 assert.strictEqual(cartEntry.discounts[0].discountedAmount.centAmount,
                     lineItem.discountedPricePerQuantity[0].discountedPrice.includedDiscounts[0].discountedAmount.centAmount *
                     lineItem.quantity);
@@ -192,7 +193,7 @@ describe('commercetools CartMapper', () => {
 
         it('cart - multiple cart discounts', () => {
             // act
-            const mappedCart = cartMapper.mapCart(cartDataWithMultipleDiscounts);
+            const mappedCart = cartMapper.mapCart(cartDataWithMultipleDiscounts, args);
 
             // assert
             const lineItem0 = cartDataWithMultipleDiscounts.body.lineItems[0];
@@ -236,7 +237,7 @@ describe('commercetools CartMapper', () => {
         });
 
         it('cart - gift entry', () => {
-            let mappedCart = cartMapper.mapCart(sampleCartWithGiftEntry);
+            let mappedCart = cartMapper.mapCart(sampleCartWithGiftEntry, args);
             assert.isDefined(mappedCart.cartEntries);
             assert.strictEqual(mappedCart.cartEntries[0].type, 'REGULAR');
             assert.strictEqual(mappedCart.cartEntries[1].type, 'PROMOTION');
@@ -244,21 +245,21 @@ describe('commercetools CartMapper', () => {
 
         it('cart - invalid cart id ', () => {
             delete cartData.body.id;
-            assert.throws(() => cartMapper.mapCart(cartData), MissingProperty);
+            assert.throws(() => cartMapper.mapCart(cartData, args), MissingProperty);
         });
 
         it('cart - invalid CT cart ', () => {
             cartData = undefined;
-            assert.throws(() => cartMapper.mapCart(cartData), MissingProperty);
+            assert.throws(() => cartMapper.mapCart(cartData, args), MissingProperty);
         });
 
         it('cart - invalid CT cart body', () => {
             delete cartData.body;
-            assert.throws(() => cartMapper.mapCart(cartData), MissingProperty);
+            assert.throws(() => cartMapper.mapCart(cartData, args), MissingProperty);
         });
 
         it('cart - success shipping tax info', () => {
-            let mappedCart = cartMapper.mapCart(sampleCartWithTax);
+            let mappedCart = cartMapper.mapCart(sampleCartWithTax, args);
 
             assert.isDefined(mappedCart.shippingInfo);
             assert.isDefined(mappedCart.taxIncludedInPrices);
@@ -267,7 +268,7 @@ describe('commercetools CartMapper', () => {
 
             assert.strictEqual(mappedCart.shippingInfo.shippingTaxInfo.totalCentAmount, ctShippingInfoTaxedPrice.totalGross.centAmount - ctShippingInfoTaxedPrice.totalNet.centAmount);
             mappedCart.shippingInfo.shippingTaxInfo.taxPortions.forEach(cifTaxPortion => {
-                assert.strictEqual(cifTaxPortion.name.en, ctShippingInfoTaxRate.name);
+                assert.strictEqual(cifTaxPortion.name, ctShippingInfoTaxRate.name);
                 assert.strictEqual(cifTaxPortion.centAmount, ctShippingInfoTaxedPrice.totalGross.centAmount - ctShippingInfoTaxedPrice.totalNet.centAmount);
             });
 
@@ -285,7 +286,7 @@ describe('commercetools CartMapper', () => {
         });
 
         it('cart - success cart entries tax info', () => {
-            let mappedCart = cartMapper.mapCart(sampleCartWithTax);
+            let mappedCart = cartMapper.mapCart(sampleCartWithTax, args);
 
             assert.isDefined(mappedCart.cartEntries);
             assert.isDefined(mappedCart.taxIncludedInPrices);
@@ -299,7 +300,7 @@ describe('commercetools CartMapper', () => {
                 assert.isDefined(cartEntry.cartEntryTaxInfo);
                 assert.strictEqual(cartEntry.cartEntryTaxInfo.totalCentAmount, ctCartEntryTaxedPrice.totalGross.centAmount - ctCartEntryTaxedPrice.totalNet.centAmount);
                 cartEntry.cartEntryTaxInfo.taxPortions.forEach(cifTaxPortion => {
-                    assert.strictEqual(cifTaxPortion.name.en, ctCartEntryTaxRate.name);
+                    assert.strictEqual(cifTaxPortion.name, ctCartEntryTaxRate.name);
                     assert.strictEqual(cifTaxPortion.centAmount, ctCartEntryTaxedPrice.totalGross.centAmount - ctCartEntryTaxedPrice.totalNet.centAmount);
                 });
             });
@@ -307,7 +308,7 @@ describe('commercetools CartMapper', () => {
         });
 
         it('cart - success cart summary tax info', () => {
-            let mappedCart = cartMapper.mapCart(sampleCartWithTax);
+            let mappedCart = cartMapper.mapCart(sampleCartWithTax, args);
 
             assert.isDefined(mappedCart.cartTaxInfo);
             assert.isDefined(mappedCart.taxIncludedInPrices);
@@ -317,13 +318,13 @@ describe('commercetools CartMapper', () => {
             let ctCartTaxPortion;
             mappedCart.cartTaxInfo.taxPortions.forEach( (cifTaxPortion, index) => {
                 ctCartTaxPortion = sampleCartWithTax.body.taxedPrice.taxPortions[index];
-                assert.strictEqual(cifTaxPortion.name.en, ctCartTaxPortion.name);
+                assert.strictEqual(cifTaxPortion.name, ctCartTaxPortion.name);
                 assert.strictEqual(cifTaxPortion.centAmount, ctCartTaxPortion.amount.centAmount);
             });
         });
 
         it('cart - success cart tax info not defined', () => {
-            let mappedCart = cartMapper.mapCart(sampleSimpleCart);
+            let mappedCart = cartMapper.mapCart(sampleSimpleCart, args);
 
             assert.isUndefined(mappedCart.cartTaxInfo);
             assert.isUndefined(mappedCart.taxIncludedInPrices);
@@ -335,7 +336,7 @@ describe('commercetools CartMapper', () => {
         });
 
         it('maps a cart with coupon codes', () => {
-            let mappedCart = cartMapper.mapCart(sampleCartWithCoupon);
+            let mappedCart = cartMapper.mapCart(sampleCartWithCoupon, args);
 
             assert.isDefined(mappedCart.coupons);
             assert.equal(mappedCart.coupons.length, 1);

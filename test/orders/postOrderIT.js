@@ -40,22 +40,23 @@ describe('commercetools postOrder', function () {
         /** Create empty cart. */
         beforeEach(function () {
             return chai.request(env.openwhiskEndpoint)
-                       .post(env.cartsPackage + 'postCartEntry')
-                       .query({
-                           currency: 'USD',
-                           quantity: 5,
-                           productVariantId: productVariantId
-                       })
-                       .then(function (res) {
-                           expect(res).to.be.json;
-                           expect(res).to.have.status(HttpStatus.OK);
+                .post(env.cartsPackage + 'postCartEntry')
+                .query({
+                    currency: 'USD',
+                    quantity: 5,
+                    productVariantId: productVariantId
+                })
+                .set('Accept-Language', 'en-US')
+                .then(function (res) {
+                    expect(res).to.be.json;
+                    expect(res).to.have.status(HttpStatus.OK);
 
-                           // Store cart id
-                           cartId = res.body.id;
-                       })
-                       .catch(function (err) {
-                           throw err;
-                       });
+                    // Store cart id
+                    cartId = res.body.id;
+                })
+                .catch(function (err) {
+                    throw err;
+                });
         });
 
         /** Delete cart. */
@@ -65,52 +66,58 @@ describe('commercetools postOrder', function () {
 
         it('returns 400 for updating the order when the cart id is missing', function () {
             return chai.request(env.openwhiskEndpoint)
-                       .post(env.ordersPackage + 'postOrder')
-                       .query({})
-                       .catch(function (err) {
-                           expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
-                       });
+                .post(env.ordersPackage + 'postOrder')
+                .query({})
+                .set('Accept-Language', 'en-US')
+                .catch(function (err) {
+                    expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
+                });
         });
 
         it('returns 400 for creating an order from a non existing cart', function () {
             return chai.request(env.openwhiskEndpoint)
-                       .post(env.ordersPackage + 'postOrder')
-                       .query({cartId: 'non-existing-cart-id-1'})
-                       .catch(function (err) {
-                           expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
-                       });
+                .post(env.ordersPackage + 'postOrder')
+                .query({cartId: 'non-existing-cart-id-1'})
+                .set('Accept-Language', 'en-US')
+                .catch(function (err) {
+                    expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
+                });
         });
 
         it('returns 400 for creating an order from a cart without shipping address', function () {
             return chai.request(env.openwhiskEndpoint)
-                       .post(env.ordersPackage + 'postOrder')
-                       .query({cartId: cartId})
-                       .catch(function (err) {
-                           expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
-                       });
+                .post(env.ordersPackage + 'postOrder')
+                .query({cartId: cartId})
+                .set('Accept-Language', 'en-US')
+                .catch(function (err) {
+                    expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
+                });
         });
 
         it('returns 200 for creating an order', function () {
             return chai.request(env.openwhiskEndpoint)
-                       .post(env.cartsPackage + 'postShippingAddress')
-                       .query({
-                           id: cartId
-                       })
-                       .send({
-                           address: {country: 'US'}
-                       })
-                       .then(function (res) {
-                           expect(res).to.be.json;
-                           expect(res).to.have.status(HttpStatus.OK);
-                           return chai.request(env.openwhiskEndpoint)
-                                      .post(env.ordersPackage + 'postOrder')
-                                      .query({cartId: cartId})
-                                      .then(function (res) {
-                                          expect(res).to.be.json;
-                                          expect(res).to.have.status(HttpStatus.OK);
-                                          expect(res.body).to.have.property('id');
-                                      });
-                       });
+                .post(env.cartsPackage + 'postShippingAddress')
+                .query({
+                    id: cartId
+                })
+                .send({
+                    address: {country: 'US'}
+                })
+                .set('Accept-Language', 'en-US')
+                .then(function (res) {
+                    expect(res).to.be.json;
+                    expect(res).to.have.status(HttpStatus.OK);
+                    
+                    return chai.request(env.openwhiskEndpoint)
+                                .post(env.ordersPackage + 'postOrder')
+                                .query({cartId: cartId})
+                                .set('Accept-Language', 'en-US');
+                })
+                .then(function (res) {
+                    expect(res).to.be.json;
+                    expect(res).to.have.status(HttpStatus.OK);
+                    expect(res.body).to.have.property('id');
+                });
         });
 
     });

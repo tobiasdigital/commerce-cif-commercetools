@@ -41,23 +41,24 @@ describe('commercetools getShippingMethods integration test for a cart', functio
         /** Create cart. */
         before(function() {
             return chai.request(env.openwhiskEndpoint)
-                   .post(env.cartsPackage + 'postCart')
-                   .query({
-                              currency: 'USD',
-                              quantity: 2,
-                              productVariantId: productVariantId
-                          })
-                   .then(function (res) {
-                       expect(res).to.be.json;
-                       expect(res).to.have.status(HttpStatus.OK);
-                       expect(res.body.id).to.not.be.empty;
+                .post(env.cartsPackage + 'postCart')
+                .query({
+                    currency: 'USD',
+                    quantity: 2,
+                    productVariantId: productVariantId
+                })
+                .set('Accept-Language', 'en-US')
+                .then(function (res) {
+                    expect(res).to.be.json;
+                    expect(res).to.have.status(HttpStatus.OK);
+                    expect(res.body.id).to.not.be.empty;
 
-                       // Store cart id
-                       cartId = res.body.id;
-                   })
-                   .catch(function (err) {
-                       throw err;
-                   });
+                    // Store cart id
+                    cartId = res.body.id;
+                })
+                .catch(function (err) {
+                    throw err;
+                });
         });
 
         /** Delete cart. */
@@ -71,91 +72,96 @@ describe('commercetools getShippingMethods integration test for a cart', functio
                 id: cartId
             };
             return chai.request(env.openwhiskEndpoint)
-                   .post(env.cartsPackage + 'postShippingAddress')
-                   .query(args)
-                   .send({
-                       address: {country: 'US'}
-                   })
-                   .then(function (res) {
-                       expect(res).to.be.json;
-                       expect(res).to.have.status(HttpStatus.OK);
-                       expect(res.body).to.have.property('shippingAddress');
+                .post(env.cartsPackage + 'postShippingAddress')
+                .query(args)
+                .send({
+                    address: {country: 'US'}
+                })
+                .set('Accept-Language', 'en-US')
+                .then(function (res) {
+                    expect(res).to.be.json;
+                    expect(res).to.have.status(HttpStatus.OK);
+                    expect(res.body).to.have.property('shippingAddress');
 
-                       return chai.request(env.openwhiskEndpoint)
-                                  .get(env.cartsPackage + 'getShippingMethods')
-                                  .query({id: cartId})
-                                  .then(function (res) {
-                                      expect(res).to.be.json;
-                                      expect(res).to.have.status(HttpStatus.OK);
+                    return chai.request(env.openwhiskEndpoint)
+                                .get(env.cartsPackage + 'getShippingMethods')
+                                .query({id: cartId})
+                                .set('Accept-Language', 'en-US');
+                })
+                .then(function (res) {
+                    expect(res).to.be.json;
+                    expect(res).to.have.status(HttpStatus.OK);
 
-                                      // Verify structure
-                                      expect(res.body).to.be.an('array');
-                                      res.body.forEach(shippingMethod => {
-                                          expect(shippingMethod).to.have.all
-                                                                .keys('id', 'name', 'description', 'price');
-                                      });
-                                  })
-                                  .catch(function (err) {
-                                      throw err;
-                                  });
-                   });
+                    // Verify structure
+                    expect(res.body).to.be.an('array');
+                    res.body.forEach(shippingMethod => {
+                        expect(shippingMethod).to.have.all.keys('id', 'name', 'description', 'price');
+                    });
+                })
+                .catch(function (err) {
+                    throw err;
+                });
         });
 
         it('returns an empty list for cart with no shipping methods defined for country', function() {
-
             // set valid shipping address for cart, country has no shipping methods defined
             const args = {
                 id: cartId
             };
             return chai.request(env.openwhiskEndpoint)
-                   .post(env.cartsPackage + 'postShippingAddress')
-                   .query(args)
-                   .send({
-                       address: {country: 'FR'}
-                   })
-                   .then(function (res) {
-                       expect(res).to.be.json;
-                       expect(res).to.have.status(HttpStatus.OK);
-                       expect(res.body).to.have.property('shippingAddress');
+                .post(env.cartsPackage + 'postShippingAddress')
+                .query(args)
+                .send({
+                    address: {country: 'FR'}
+                })
+                .set('Accept-Language', 'en-US')
+                .then(function (res) {
+                    expect(res).to.be.json;
+                    expect(res).to.have.status(HttpStatus.OK);
+                    expect(res.body).to.have.property('shippingAddress');
 
-                       return chai.request(env.openwhiskEndpoint)
-                                  .get(env.cartsPackage + 'getShippingMethods')
-                                  .query({id: cartId})
-                                  .then(function (res) {
-                                      expect(res).to.be.json;
-                                      expect(res).to.have.status(HttpStatus.OK);
+                    return chai.request(env.openwhiskEndpoint)
+                        .get(env.cartsPackage + 'getShippingMethods')
+                        .query({id: cartId})
+                        .set('Accept-Language', 'en-US');
+                })
+                .then(function (res) {
+                    expect(res).to.be.json;
+                    expect(res).to.have.status(HttpStatus.OK);
 
-                                      // Verify structure
-                                      expect(res.body).to.be.an('array').that.is.empty;
-                                  })
-                                  .catch(function (err) {
-                                      throw err;
-                                  });
-                   });
+                    // Verify structure
+                    expect(res.body).to.be.an('array').that.is.empty;
+                })
+                .catch(function (err) {
+                    throw err;
+                });
         });
 
         it('returns a 400 error for a cart without shipping address', function() {
             // set valid shipping address for cart
             return chai.request(env.openwhiskEndpoint)
-                   .post(env.cartsPackage + 'deleteShippingAddress')
-                   .query({id: cartId})
-                   .then(function (res) {
-                       expect(res).to.be.json;
-                       expect(res).to.have.status(HttpStatus.OK);
-                       expect(res.body).to.not.have.property('shippingAddress');
+                .post(env.cartsPackage + 'deleteShippingAddress')
+                .query({id: cartId})
+                .set('Accept-Language', 'en-US')
+                .then(function (res) {
+                    expect(res).to.be.json;
+                    expect(res).to.have.status(HttpStatus.OK);
+                    expect(res.body).to.not.have.property('shippingAddress');
 
-                       return chai.request(env.openwhiskEndpoint)
-                                  .get(env.cartsPackage + 'getShippingMethods')
-                                  .query({id: cartId})
-                                  .catch(function (err) {
-                                      expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
-                                  });
-                   });
+                    return chai.request(env.openwhiskEndpoint)
+                        .get(env.cartsPackage + 'getShippingMethods')
+                        .query({id: cartId})
+                        .set('Accept-Language', 'en-US');
+                })
+                .catch(function (err) {
+                    expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
+                });
         });
 
         it('returns a 400 error for a missing id parameter', function() {
             return chai.request(env.openwhiskEndpoint)
                 .get(env.cartsPackage + 'getShippingMethods')
+                .set('Accept-Language', 'en-US')
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
                 });
@@ -165,6 +171,7 @@ describe('commercetools getShippingMethods integration test for a cart', functio
             return chai.request(env.openwhiskEndpoint)
                 .get(env.cartsPackage + 'getShippingMethods')
                 .query({id: 'does-not-exist'})
+                .set('Accept-Language', 'en-US')
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
                 });

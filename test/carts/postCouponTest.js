@@ -38,7 +38,13 @@ describe('commercetools postCoupon', () => {
         });
 
         it('returns an error if the coupon code is missing', () => {
-            return this.execute({'id': '12345-1'})
+            let args = {
+                id: '12345-1',
+                __ow_headers: {
+                    'accept-language': 'en-US'
+                }
+            };
+            return this.execute(args)
                 .then(result => {
                     assert.isDefined(result.response);
                     assert.isDefined(result.response.error);
@@ -53,11 +59,15 @@ describe('commercetools postCoupon', () => {
                 body: `{"actions":[{"action":"addDiscountCode","code":"APRIL18"}],"version":1}`,
                 headers: undefined
             };
+            let args = {
+                id: '12345-1', 
+                code: 'APRIL18',
+                __ow_headers: {
+                    'accept-language': 'en-US'
+                }
+            };
             return this.prepareResolve(samplecart, expectedArgs)
-                .execute({
-                    'id': '12345-1', 
-                    'code': 'APRIL18'
-                })
+                .execute(args)
                 .then(result => {
                     assert.isUndefined(result.response.error, JSON.stringify(result.response.error));
                     assert.isDefined(result.response);

@@ -40,7 +40,10 @@ describe('commercetools deletePayment', () => {
 
         it('DELETE /cart/{id}/payment HTTP 400 - payment does not exist. ', () => {
             const args = {
-                id: '12345-7'
+                id: '12345-7',
+                __ow_headers: {
+                    'accept-language': 'en-US'
+                }
             };
             const expectedArgs = [{
                 uri: encodeURI(
@@ -79,7 +82,10 @@ describe('commercetools deletePayment', () => {
 
         it('DELETE /cart/{id}/payment HTTP 200 ', () => {
             const args = {
-                id: '12345-7'
+                id: '12345-7',
+                __ow_headers: {
+                    'accept-language': 'en-US'
+                }
             };
             const expectedArgs = [{
                 uri: encodeURI(
@@ -108,13 +114,10 @@ describe('commercetools deletePayment', () => {
                 .prepareResolveMultipleResponse(mockedResponses, expectedArgs)
                 .execute(args)
                 .then(result => {
-                    console.log(result);
                     assert.isDefined(result.response);
                     assert.strictEqual(result.response.statusCode, 200);
                 });
         });
-
-
 
     });
 });

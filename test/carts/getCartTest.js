@@ -41,7 +41,13 @@ describe('commercetools getCart', () => {
                 headers: undefined,
                 method: 'GET'
             };
-            return this.prepareResolve(samplecart1, expectedArgs).execute({'id': 'dummy-1'})
+            let args = {
+                id: 'dummy-1',
+                __ow_headers: {
+                    'accept-language': 'en-US'
+                }
+            };
+            return this.prepareResolve(samplecart1, expectedArgs).execute(args)
                        .then(result => {
                            assert.isDefined(result.response);
                            assert.isDefined(result.response.body);
@@ -55,7 +61,13 @@ describe('commercetools getCart', () => {
                 headers: undefined,
                 method: 'GET'
             };
-            return this.prepareResolve(samplecart1, expectedArgs).execute({'id': 'dummy-1'});
+            let args = {
+                id: 'dummy-1',
+                __ow_headers: {
+                    'accept-language': 'en-US'
+                }
+            };
+            return this.prepareResolve(samplecart1, expectedArgs).execute(args);
         });
 
         it('Get /cart/{id} HTTP 404 - cart not found', () => {

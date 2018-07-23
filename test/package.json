@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@adobe/commerce-cif-common": "0.1.15",
-    "@adobe/commerce-cif-model": "0.1.119",
+    "@adobe/commerce-cif-model": "0.1.123",
     "@commercetools/api-request-builder": "1.7.0",
     "@commercetools/sdk-client": "1.4.1",
     "@commercetools/sdk-middleware-auth": "3.1.0",

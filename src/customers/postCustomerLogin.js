@@ -18,7 +18,8 @@ const createClient = require('@commercetools/sdk-client').createClient;
 const CTPerformanceMeasurement = require('@adobe/commerce-cif-commercetools-common/performance-measurement.js');
 const InputValidator = require('@adobe/commerce-cif-common/input-validator');
 const CommerceToolsCustomerLogin = require('./CommerceToolsCustomerLogin');
-const customerMapper = require('./CustomerMapper');
+const CustomerMapper = require('./CustomerMapper');
+const LanguageParser = require('@adobe/commerce-cif-commercetools-common/LanguageParser');
 const ERROR_TYPE = require('./constants').ERROR_TYPE;
 
 /**
@@ -36,7 +37,6 @@ const ERROR_TYPE = require('./constants').ERROR_TYPE;
  * @return  {LoginResult}                      a LoginResult object
  */
 function login(args) {
-
     const validator = new InputValidator(args, ERROR_TYPE);
 
     validator.checkArguments()
@@ -56,7 +56,10 @@ function login(args) {
         data.anonymousCartId = args.anonymousCartId;
     }
 
-    const commerceToolsCustomer = new CommerceToolsCustomerLogin(args, createClient, customerMapper.mapCustomerLogin);
+    let languageParser = new LanguageParser(args);
+    let customerMapper = new CustomerMapper(languageParser);
+
+    const commerceToolsCustomer = new CommerceToolsCustomerLogin(args, createClient, customerMapper.mapCustomerLogin.bind(customerMapper));
     return commerceToolsCustomer.login(data);
 
 }

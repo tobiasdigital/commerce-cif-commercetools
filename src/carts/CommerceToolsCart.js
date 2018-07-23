@@ -121,15 +121,15 @@ class CommerceToolsCart extends CommerceToolsClientBase {
      * Gets a CCIF cart by id.
      *
      * @param id           The cart id.
-     * @param customerId   An optional customer id that is checked against the cart's customer id.
+     * @param args         OpenWhisk action arguments
      * @return {Promise}   Promise with CCIF cart Object.
      */
-    getById(id, customerId) {
+    getById(id, args) {
         let ccifId = new CcifIdentifier(id);
         this.requestBuilder.byId(ccifId.getCommerceToolsId());
         const baseUrl = this._buildBaseUrl();
-        return this._ctCartById(baseUrl, customerId).then(result => {
-            return this._handleSuccess(this.mapper(result));
+        return this._ctCartById(baseUrl, args.customerId).then(result => {
+            return this._handleSuccess(this.mapper(result, args));
         }).catch(error => {
             return this._handleError(error);
         });

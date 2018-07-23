@@ -18,8 +18,9 @@ const createClient = require('@commercetools/sdk-client').createClient;
 const CTPerformanceMeasurement = require('@adobe/commerce-cif-commercetools-common/performance-measurement.js');
 const InputValidator = require('@adobe/commerce-cif-common/input-validator');
 const CommerceToolsProductSearch = require('./CommerceToolsProductSearch');
-const productMapper = require('./ProductMapper');
+const ProductMapper = require('./ProductMapper');
 const ERROR_TYPE = require('./constants').ERROR_TYPE;
+const LanguageParser = require('@adobe/commerce-cif-commercetools-common/LanguageParser');
 
 /**
  * This action searches commerceTools product data (product projections) based on search and filter criteria.
@@ -51,19 +52,22 @@ function searchProducts(args) {
         return validator.buildErrorResponse();
     }
 
+    let languageParser = new LanguageParser(args);
+    let productMapper = new ProductMapper(languageParser);
+
     let filters = args.filter ? args.filter.split('|') : [];
     let sorts = args.sort ? args.sort.split('|') : [];
     let selectedFacets = args.selectedFacets ? args.selectedFacets.split('|') : [];
     let queryFacets = args.queryFacets ? args.queryFacets.split('|') : [];
 
     let text = args.text;
-    let language = args.language || 'en';
+    let language = languageParser.getFirstLanguage();
     let staged = args.staged || false;
     let limit = Number(args.limit) || 25;
     let offset = Number(args.offset) || 0;
 
-    const commerceToolsProductSearch = new CommerceToolsProductSearch(args, createClient, productMapper.mapPagedProductResponse);
-    const commerceToolsFacetSearch = new CommerceToolsProductSearch(args, createClient, productMapper.getProductFacets);
+    const commerceToolsProductSearch = new CommerceToolsProductSearch(args, createClient, productMapper.mapPagedProductResponse.bind(productMapper));
+    const commerceToolsFacetSearch = new CommerceToolsProductSearch(args, createClient, productMapper.getProductFacets.bind(productMapper));
 
     _setQueryCriteria(commerceToolsProductSearch, language, text, filters, selectedFacets, sorts);
 
@@ -107,16 +111,25 @@ function _setQueryCriteria(client, language, text, filters, selectedFacets, sort
         client.text(text, language);
     }
     // sort orders
-    for (let s in sorts) {
-        let sort = sorts[s];
-        if (sort.endsWith('.asc')) {
-            client.sort(sort.slice(0, -4), true);
-        } else if (sort.endsWith('.desc')) {
-            client.sort(sort.slice(0, -5), false);
-        } else {
-            client.sort(sort, true);
+    sorts.forEach(sortString => {
+        let field = sortString;
+        let direction = true;
+
+        if (sortString.endsWith('.desc')) {
+            direction = false;
+            field = sortString.slice(0, -5)
+        } else if (sortString.endsWith('.asc')) {
+            direction = true;
+            field = sortString.slice(0, -4)
         }
-    }
+
+        // Add localization for name and description fields
+        if (field.startsWith("name") || field.startsWith("description")) {
+            field += `.${language}`
+        }
+
+        client.sort(field, direction);
+    });
 }
 
 module.exports.main = CTPerformanceMeasurement.decorateActionForSequence(searchProducts);

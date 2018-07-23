@@ -21,7 +21,6 @@ const CommerceServiceForbiddenError = require('@adobe/commerce-cif-common/except
 const UnexpectedError = require('@adobe/commerce-cif-common/exception').UnexpectedError;
 
 function respondWithCommerceToolsError(error, args, resolve, errorType) {
-    console.log(JSON.stringify(error, null, 4));
     if (error && error.code === HttpStatusCodes.NOT_FOUND) {
         args['response'] =
             {'error': new CommerceServiceResourceNotFoundError('CommerceTools resource not found', error)};

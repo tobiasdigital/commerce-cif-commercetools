@@ -18,14 +18,21 @@ const assert = require('chai').assert;
 const sampleCustomer = require('../resources/sample-customer');
 const sampleCustomerLogin = require('../resources/sample-customer-login');
 const MissingProperty = require('@adobe/commerce-cif-common').MissingPropertyException;
-const utils = require('../lib/utils');
+const CustomerMapper = require('../../src/customers/CustomerMapper');
+const LanguageParser = require('../../src/common/LanguageParser');
 
-describe('commercetools customer mapper tests', () => {
+describe('commercetools CustomerMapper', () => {
 
-    let action = utils.getPathForAction(__dirname, 'CustomerMapper');
-    let customerMapper = require(action);
+    describe('Unit tests', () => {
 
-    describe('Generic unit tests', () => {
+        let args = {
+            __ow_headers: {
+                'accept-language': 'en-US'
+            }
+        };
+        let languageParser = new LanguageParser(args);
+        let customerMapper = new CustomerMapper(languageParser);
+
         it('customer public method', () => {
             let customer = customerMapper.mapCustomer({body: sampleCustomer});
             assert.strictEqual(sampleCustomer.id, customer.id);
@@ -55,7 +62,7 @@ describe('commercetools customer mapper tests', () => {
         });
         
         it('customer login', () => {
-            let loginResult = customerMapper.mapCustomerLogin(sampleCustomerLogin);
+            let loginResult = customerMapper.mapCustomerLogin(sampleCustomerLogin, args);
             let ctCustomer = sampleCustomerLogin.body.customer;
             let ctCart = sampleCustomerLogin.body.cart;
 
@@ -64,7 +71,7 @@ describe('commercetools customer mapper tests', () => {
         });
         
         it('customer login - invalid object', () => {
-            assert.throws(() => customerMapper.mapCustomerLogin(null), MissingProperty);
+            assert.throws(() => customerMapper.mapCustomerLogin(null, args), MissingProperty);
         });
     });
 

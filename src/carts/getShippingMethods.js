@@ -18,7 +18,7 @@ const InputValidator = require('@adobe/commerce-cif-common/input-validator');
 const CommerceToolsShippingMethods = require('./CommerceToolsShippingMethods');
 const CTPerformanceMeasurement = require('@adobe/commerce-cif-commercetools-common/performance-measurement.js');
 const createClient = require('@commercetools/sdk-client').createClient;
-const shippingMethodMapper = require('./ShippingMethodMapper');
+const ShippingMethodMapper = require('./ShippingMethodMapper');
 const ERROR_TYPE = require('./constants').ERROR_TYPE;
 
 /**
@@ -42,7 +42,8 @@ function getShippingMethods(args) {
         return validator.buildErrorResponse();
     }
 
-    const shippingMethods = new CommerceToolsShippingMethods(args, createClient, shippingMethodMapper.mapShippingMethods);
+    let shippingMethodMapper = new ShippingMethodMapper();
+    const shippingMethods = new CommerceToolsShippingMethods(args, createClient, shippingMethodMapper.mapShippingMethods.bind(shippingMethodMapper));
     return shippingMethods.getByCartId(args.id);
 }
 

@@ -29,12 +29,17 @@ describe('commercetools searchProducts', () => {
 
         it('Test searchProduct with full we.retail product', () => {
             let id = '526dc571-104f-40fb-b761-71781a97910b';
-            let args = {};
-            args.filter = 'id:"' + id + '"';
-            args.text = 'coat';
-            args.limit = 5;
-            args.offset = 10;
-            args.sort = 'name.en.desc|variants.sku';
+            let args = {
+                filter: `id:"${id}"`,
+                text: 'coat',
+                limit: 5,
+                offset: 10,
+                sort: 'name.desc|variants.sku',
+                __ow_headers: {
+                    'accept-language': 'en-US'
+                }
+            };
+
             const expectedArgs = {
                 uri: `/${config.CT_PROJECTKEY}/product-projections/search?staged=false&expand=productType&limit=5&offset=10&sort=name.en%20desc&sort=variants.sku%20asc&text.en=coat&markMatchingVariants=false&filter.query=id%3A%22526dc571-104f-40fb-b761-71781a97910b%22`,
                 method: 'GET',
@@ -59,9 +64,13 @@ describe('commercetools searchProducts', () => {
         });
 
         it('Test searchProduct with missing mandatory arguments', () => {
-            let args = {};
-            args.filter = '';
-            args.text = undefined;
+            let args = {
+                filter: '',
+                text: undefined,
+                __ow_headers: {
+                    'accept-language': 'en-US'
+                }
+            };
 
             return this.execute(args).then(result => {
                 assert.strictEqual(result.response.error.name, 'MissingPropertyError');
@@ -76,9 +85,13 @@ describe('commercetools searchProducts', () => {
                 text: 'jacket',
                 limit: 5,
                 offset: 10,
-                sort: 'name.en.desc|variants.sku',
-                queryFacets: 'auto'
+                sort: 'name.desc|variants.sku',
+                queryFacets: 'auto',
+                __ow_headers: {
+                    'accept-language': 'en-US'
+                }
             };
+
             const expectedArgs = [{
                 uri: encodeURI(
                     `/${config.CT_PROJECTKEY}/product-projections/search?staged=true&expand=productType&limit=1&text.en=jacket&markMatchingVariants=false`),
@@ -86,7 +99,6 @@ describe('commercetools searchProducts', () => {
                 headers: undefined
             }, {
                 uri: `/${config.CT_PROJECTKEY}/product-projections/search?staged=false&expand=productType&limit=5&offset=10&sort=name.en%20desc&sort=variants.sku%20asc&text.en=jacket&markMatchingVariants=false&facet=variants.attributes.color.en%20counting%20products&facet=variants.attributes.size.en%20counting%20products&facet=variants.attributes.designer.en%20counting%20products&facet=variants.attributes.colorFreeDefinition.en%20counting%20products&facet=variants.attributes.test.en%20counting%20products&facet=categories.id%20counting%20products&facet=variants.prices.value.centAmount%20counting%20products`,
-
                 method: 'GET',
                 headers: undefined
             }];
@@ -118,9 +130,13 @@ describe('commercetools searchProducts', () => {
                 text: 'jacket',
                 limit: 5,
                 offset: 10,
-                sort: 'name.en.desc|variants.sku',
-                queryFacets: 'variants.attributes.color.en'
+                sort: 'name.desc|variants.sku',
+                queryFacets: 'variants.attributes.color.en',
+                __ow_headers: {
+                    'accept-language': 'en-US'
+                }
             };
+
             const expectedArgs = {
                 uri: `/${config.CT_PROJECTKEY}/product-projections/search?staged=false&expand=productType&limit=5&offset=10&sort=name.en%20desc&sort=variants.sku%20asc&text.en=jacket&markMatchingVariants=false&facet=variants.attributes.color.en%20counting%20products`,
                 method: 'GET',
@@ -151,10 +167,14 @@ describe('commercetools searchProducts', () => {
                 text: 'jacket',
                 limit: 5,
                 offset: 10,
-                sort: 'name.en.desc|variants.sku',
+                sort: 'name.desc|variants.sku',
                 queryFacets: 'variants.attributes.color.en',
                 selectedFacets: 'variants.attributes.color.en:"purple"',
+                __ow_headers: {
+                    'accept-language': 'en-US'
+                }
             };
+
             const expectedArgs = {
                 uri: `/${config.CT_PROJECTKEY}/product-projections/search?staged=false&expand=productType&limit=5&offset=10&sort=name.en%20desc&sort=variants.sku%20asc&text.en=jacket&markMatchingVariants=false&facet=variants.attributes.color.en%20counting%20products&filter=variants.attributes.color.en%3A%22purple%22`,
                 method: 'GET',

@@ -104,8 +104,16 @@ describe('commercetools putCartEntry', () => {
                 body: '{"actions":[{"action":"changeLineItemQuantity","lineItemId":"12345","quantity":1}],"version":7}',
                 headers: undefined
             }];
+            let args = {
+                id: '12345-7',
+                cartEntryId: '12345',
+                quantity: 1,
+                __ow_headers: {
+                    'accept-language': 'en-US'
+                }
+            };
             return this.prepareResolve(samplecart1, expectedArgs)
-                       .execute({'id': '12345-7', 'cartEntryId': '12345', 'quantity': 1})
+                       .execute(args)
                        .then(result => {
                            assert.isUndefined(result.response.error, JSON.stringify(result.response.error));
                            assert.isDefined(result.response);
@@ -126,8 +134,16 @@ describe('commercetools putCartEntry', () => {
                 body: '{"actions":[{"action":"changeLineItemQuantity","lineItemId":"12345","quantity":1}],"version":7}',
                 headers: undefined
             }];
+            let args = {
+                id: '12345-7',
+                cartEntryId: '12345',
+                quantity: 1,
+                __ow_headers: {
+                    'accept-language': 'en-US'
+                }
+            }
             return this.prepareResolve(samplecart1, expectedArgs)
-                       .execute({'id': '12345-7', 'cartEntryId': '12345', 'quantity': 1})
+                       .execute(args)
                        .then(result => {
                            assert.isUndefined(result.response.error, JSON.stringify(result.response.error));
                            assert.isDefined(result.response);

@@ -52,10 +52,10 @@ module.exports.tests = function (ctx, addressType) {
 
     /** Create empty cart - same for all address ITs */
     beforeEach(function () {
-        return chai
-            .request(env.openwhiskEndpoint)
+        return chai.request(env.openwhiskEndpoint)
             .post(env.cartsPackage + 'postCartEntry')
             .query({currency: 'USD'})
+            .set('Accept-Language', 'en-US')
             .then(function (res) {
                 expect(res).to.be.json;
                 expect(res).to.have.status(HttpStatus.OK);
@@ -96,6 +96,7 @@ module.exports.tests = function (ctx, addressType) {
             .request(env.openwhiskEndpoint)
             .post(path)
             .query({id: 'non-existing-cart-id'})
+            .set('Accept-Language', 'en-US')
             .catch(function (err) {
                 expect(err.response).to.have.status(HttpStatus.NOT_FOUND);
             });
@@ -108,6 +109,7 @@ module.exports.tests = function (ctx, addressType) {
             .request(env.openwhiskEndpoint)
             .post(that.postAddressPath)
             .query({id: cartId, title: 'Home'})
+            .set('Accept-Language', 'en-US')
             .catch(function (err) {
                 expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
             });
@@ -141,13 +143,13 @@ module.exports.tests = function (ctx, addressType) {
             id: cartId
         };
 
-        return chai
-            .request(env.openwhiskEndpoint)
+        return chai.request(env.openwhiskEndpoint)
             .post(that.postAddressPath)
             .query(args)
             .send({
                 address: addr
             })
+            .set('Accept-Language', 'en-US')
             .then(function (res) {
                 let addressBodyPropertyName = res.body[that.addressPropertyName];
                 expect(res).to.be.json;
@@ -214,18 +216,19 @@ module.exports.tests = function (ctx, addressType) {
                     country: 'US'
                 }
             })
+            .set('Accept-Language', 'en-US')
             .then(function (res) {
                 expect(res).to.be.json;
                 expect(res).to.have.status(HttpStatus.OK);
                 expect(res.body).to.have.property(that.addressPropertyName);
                 return chai.request(env.openwhiskEndpoint)
-                           .post(that.deleteAddressPath)
-                           .query({id: cartId})
-                           .then(function (res) {
-                               expect(res).to.be.json;
-                               expect(res).to.have.status(HttpStatus.OK);
-                               expect(res.body).to.not.have.property(that.addressPropertyName);
-                           });
+                    .post(that.deleteAddressPath)
+                    .query({id: cartId})
+                    .set('Accept-Language', 'en-US');
+            }).then(function (res) {
+                expect(res).to.be.json;
+                expect(res).to.have.status(HttpStatus.OK);
+                expect(res.body).to.not.have.property(that.addressPropertyName);
             });
     };
 

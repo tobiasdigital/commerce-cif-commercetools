@@ -24,6 +24,15 @@ const PagedResponse = require('@adobe/commerce-cif-model').PagedResponse;
 class CategoryMapper {
 
     /**
+     * Constructor.
+     * 
+     * @param {LanguageParser} languageParser LanguageParser reference
+     */
+    constructor(languageParser) {
+        this.languageParser = languageParser;
+    }
+
+    /**
      * Maps a commercetools categories response to a PagedResponse.
      * If the type parameter is 'flat', the count property of the paged response is equal to the size of the results array.
      * If the type parameter is 'tree', the count property of the paged response is equal to the total number of
@@ -34,17 +43,17 @@ class CategoryMapper {
      * @param depth                 If type equals 'tree', the depth defins the maximum depth of the returned category tree(s).
      * @returns {PagedResponse}     A paged response with products.
      */
-    static mapPagedCategoryResponse(ctResult, args, type = 'flat', depth) {
+    mapPagedCategoryResponse(ctResult, args, type = 'flat', depth) {
         // if depth is defined, exclude "too deep" categories from the commerce tools results
         if (depth >= 0 && ctResult.body.results) {
             ctResult.body.results = ctResult.body.results.filter(cat => !cat.ancestors || cat.ancestors.length <= depth);
         }
-        
+
         let pr = new PagedResponse();
         pr.offset = ctResult.body.offset || 0;
         pr.count = ctResult.body.results ? ctResult.body.results.length : 1;
         pr.total = ctResult.body.total || 1;
-        pr.results = (type === 'tree') ? CategoryMapper._mapCategoriesTree(ctResult) : CategoryMapper._mapCategories(ctResult);
+        pr.results = (type === 'tree') ? this._mapCategoriesTree(ctResult) : this._mapCategories(ctResult);
         return pr;
     }
     
@@ -52,12 +61,13 @@ class CategoryMapper {
      * Maps a commercetools category response to a CCIF category.
      * 
      * @param ctResult              JSON object returned by the commercetools categories by id search.
+     * @param args                  OpenWhisk action arguments
      * @returns {Category}          A CCIF category.
      */
-    static mapCategory(ctResult) {
-        return CategoryMapper._mapCategory(ctResult.body);
+    mapCategory(ctResult) {
+        return this._mapCategory(ctResult.body);
     }
-    
+
     /**
      * Maps an array of commercetools categories to a tree of CCIF categories.
      * The result can contain multiple disjoint trees if the product catalog has multiple root categories or with paginated results.
@@ -66,8 +76,8 @@ class CategoryMapper {
      * @param ctResult              JSON object returned by the commercetools categories search.
      * @returns {Category[]}        An array of CCIF categories.
      */
-    static _mapCategoriesTree(ctResult) {
-        let categories = CategoryMapper._mapCategories(ctResult);
+    _mapCategoriesTree(ctResult) {
+        let categories = this._mapCategories(ctResult);
         
         let categoryMap = new Map();
         categories.forEach(cat => categoryMap.set(cat.id, cat));
@@ -102,13 +112,13 @@ class CategoryMapper {
      * @param ctResult              JSON object returned by the commercetools categories search.
      * @returns {Category[]}        An array of CCIF categories.
      */
-    static _mapCategories(ctResult) {
+    _mapCategories(ctResult) {
         if (ctResult.body.results) {
             return ctResult.body.results.map(category => {
-                return CategoryMapper._mapCategory(category);
+                return this._mapCategory(category);
             });
         } else if (ctResult.body.id) {
-            return [CategoryMapper._mapCategory(ctResult.body)];
+            return [this._mapCategory(ctResult.body)];
         }
     }
 
@@ -116,13 +126,17 @@ class CategoryMapper {
      * Maps a commercetools category to a CCIF category
      *
      * @private
-     * @param ctCategory   Category as returned by CommerceTools
-     * @returns {Category} A CCIF category
+     * @param ctCategory     Category as returned by CommerceTools
+     * @returns {Category}   A CCIF category
      */
-    static _mapCategory(ctCategory) {
+    _mapCategory(ctCategory) {
         let category = new Category(ctCategory.id);
-        category.name = ctCategory.name;
-        category.description = ctCategory.description;
+        
+        category.name = this.languageParser.pickLanguage(ctCategory.name);
+
+        if (ctCategory.description) {
+            category.description = this.languageParser.pickLanguage(ctCategory.description);
+        }
         
         if (ctCategory.parent) {
             let parentCategory = new Category(ctCategory.parent.id);

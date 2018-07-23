@@ -55,8 +55,15 @@ describe('commercetools deleteCartEntry', () => {
         it('Remove cartEntry /cart/{id}/entries/{cartEntryId} HTTP 404 - cart not found', () => {
             //for http code = 404, remove cart entry/get cart returns Promise.resolve
             //indicating that the item was not found
-            return this.prepareReject(samplecart404).execute(
-                {'id': 'dummy-1', 'cartEntryId': '3f4130c5-6e39-4e6f-b73f-a4ecd4520577'}).then(result => {
+            let args = {
+                id: 'dummy-1', 
+                cartEntryId: '3f4130c5-6e39-4e6f-b73f-a4ecd4520577',
+                __ow_headers: {
+                    'accept-language': 'en-US'
+                }
+            }
+
+            return this.prepareReject(samplecart404).execute(args).then(result => {
                 assert.isUndefined(result.response.body);
                 assert.strictEqual(result.response.error.name, 'CommerceServiceResourceNotFoundError');
             });
@@ -73,8 +80,15 @@ describe('commercetools deleteCartEntry', () => {
                     headers: undefined,
                     body: '{"actions":[{"action":"removeLineItem","lineItemId":"3f4130c5-6e39-4e6f-b73f-a4ecd4520577"}],"version":7}'
             }];
+            let args = {
+                id: 'dummy-7',
+                cartEntryId: '3f4130c5-6e39-4e6f-b73f-a4ecd4520577',
+                __ow_headers: {
+                    'accept-language': 'en-US'
+                }
+            };
             return this.prepareResolve(samplecart1, expectedArgs)
-                       .execute({'id': 'dummy-7','cartEntryId': '3f4130c5-6e39-4e6f-b73f-a4ecd4520577'});
+                       .execute(args);
         });
 
         it('Remove cartEntry /cart/{id}/entries/{cartEntryId} HTTP 200 ', () => {
@@ -88,13 +102,19 @@ describe('commercetools deleteCartEntry', () => {
                 headers: undefined,
                 body: '{"actions":[{"action":"removeLineItem","lineItemId":"3f4130c5-6e39-4e6f-b73f-a4ecd4520577"}],"version":7}'
             }];
+            let args = {
+                id: 'dummy-7', 
+                cartEntryId: '3f4130c5-6e39-4e6f-b73f-a4ecd4520577',
+                __ow_headers: {
+                    'accept-language': 'en-US'
+                }
+            };
             return this.prepareResolve(samplecart1, expectedArgs)
-                       .execute({'id': 'dummy-7', 'cartEntryId': '3f4130c5-6e39-4e6f-b73f-a4ecd4520577'})
+                       .execute(args)
                        .then(result => {
                            assert.isUndefined(result.response.error, JSON.stringify(result.response.error));
                            assert.isDefined(result.response);
                            assert.isDefined(result.response.body);
-
                        });
         });
     });

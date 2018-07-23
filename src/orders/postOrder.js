@@ -18,7 +18,7 @@ const CTPerformanceMeasurement = require('@adobe/commerce-cif-commercetools-comm
 const InputValidator = require('@adobe/commerce-cif-common/input-validator');
 const CommerceToolsCartOrder = require('./CommerceToolsCartOrder');
 const createClient = require('@commercetools/sdk-client').createClient;
-const orderMapper = require('./OrderMapper');
+const OrderMapper = require('./OrderMapper');
 const ERROR_TYPE = require('./constants').ERROR_TYPE;
 /**
  * This action creates an order based on a cart.
@@ -40,7 +40,10 @@ function postOrder(args) {
     if (validator.error) {
         return validator.buildErrorResponse();
     }
-    const cartOrderClient = new CommerceToolsCartOrder(args, createClient, orderMapper.mapOrder);
+
+    let orderMapper = new OrderMapper();
+
+    const cartOrderClient = new CommerceToolsCartOrder(args, createClient, orderMapper.mapOrder.bind(orderMapper));
     return cartOrderClient.postOrder(args.cartId, args.customerId);
 }
 

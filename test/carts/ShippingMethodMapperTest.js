@@ -18,17 +18,15 @@ const assert = require('chai').assert;
 const sampleShippingMethodsFile = require('../resources/sample-shippingmethods');
 const sampleShippingMethodsForCartFile = require('../resources/sample-shippingmethods-for-cart');
 const MissingProperty = require('@adobe/commerce-cif-common').MissingPropertyException;
-const utils = require('../lib/utils');
+const ShippingMethodMapper = require('../../src/carts/ShippingMethodMapper');
 
 describe('commercetools ShippingMethodMapper', () => {
-
-    let action = utils.getPathForAction(__dirname, 'ShippingMethodMapper');
-    let shippingMethodMapper = require(action);
 
     describe('Unit tests', () => {
 
         let sampleShippingMethods = null;
         let sampleShippingMethodsForCart = null;
+        let shippingMethodMapper = new ShippingMethodMapper();
 
         beforeEach(() => {
             // clone original sample data before each test

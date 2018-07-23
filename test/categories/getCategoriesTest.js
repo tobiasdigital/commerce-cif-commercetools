@@ -27,7 +27,12 @@ describe('commercetools getCategories', () => {
         setup(this, __dirname, 'getCategories');
 
         it('Test get category by id', () => {
-            let args = {id: '693b0fc5-7283-4673-a362-589d37fb7b73'};
+            let args = {
+                id: '693b0fc5-7283-4673-a362-589d37fb7b73',
+                __ow_headers: {
+                    'accept-language': 'en-US'
+                }
+            };
             const expectedArgs = [{
                 uri: `/${config.CT_PROJECTKEY}/categories/693b0fc5-7283-4673-a362-589d37fb7b73`,
                 method: 'GET',
@@ -45,11 +50,16 @@ describe('commercetools getCategories', () => {
         });
 
         it('Test "flat" getCategories with full we.retail catalog', () => {
-            let args = {};
-            args.type = 'flat';
-            args.sort = 'id.asc|lastModifiedAt.desc';
+            let args = {
+                type: 'flat',
+                sort: 'id.asc|name.desc',
+                __ow_headers: {
+                    'accept-language': 'en-US'
+                }
+            };
+            
             const expectedArgs = [{
-                uri:  `/${config.CT_PROJECTKEY}/categories?limit=50&offset=0&sort=id%20asc&sort=lastModifiedAt%20desc`,
+                uri:  `/${config.CT_PROJECTKEY}/categories?limit=50&offset=0&sort=id%20asc&sort=name.en%20desc`,
                 method: 'GET',
                 headers: undefined
             }];
@@ -74,7 +84,12 @@ describe('commercetools getCategories', () => {
         });
 
         it('Test "tree" getCategories with full we.retail catalog', () => {
-            let args = {type: 'tree'};
+            let args = {
+                type: 'tree',
+                __ow_headers: {
+                    'accept-language': 'en-US'
+                }
+            };
             const expectedArgs = [{
                 uri:  `/${config.CT_PROJECTKEY}/categories?limit=50&offset=0`,
                 method: 'GET',
@@ -104,9 +119,13 @@ describe('commercetools getCategories', () => {
         });
 
         it('Test getCategories with "depth" parameter', () => {
-            let args = {};
-            args.type = 'flat';
-            args.depth = '0';
+            let args = {
+                type: 'flat',
+                depth: '0',
+                __ow_headers: {
+                    'accept-language': 'en-US'
+                }
+            };
             const expectedArgs = [{
                 uri: `/${config.CT_PROJECTKEY}/categories?limit=50&offset=0`,
                 method: 'GET',

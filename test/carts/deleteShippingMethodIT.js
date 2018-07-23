@@ -40,20 +40,21 @@ describe('commercetools deleteShippingMethod', function () {
         /** Create empty cart. */
         beforeEach(function () {
             return chai.request(env.openwhiskEndpoint)
-                       .post(env.cartsPackage + 'postCartEntry')
-                       .query({
-                                  currency: 'USD'
-                              })
-                       .then(function (res) {
-                           expect(res).to.be.json;
-                           expect(res).to.have.status(HttpStatus.OK);
+                .post(env.cartsPackage + 'postCartEntry')
+                .query({
+                    currency: 'USD'
+                })
+                .set('Accept-Language', 'en-US')
+                .then(function (res) {
+                    expect(res).to.be.json;
+                    expect(res).to.have.status(HttpStatus.OK);
 
-                           // Store cart id
-                           cartId = res.body.id;
-                       })
-                       .catch(function (err) {
-                           throw err;
-                       });
+                    // Store cart id
+                    cartId = res.body.id;
+                })
+                .catch(function (err) {
+                    throw err;
+                });
         });
 
         /** Delete cart. */
@@ -63,21 +64,24 @@ describe('commercetools deleteShippingMethod', function () {
 
         it('returns 400 for deleting shipping method of not provided cart', function () {
             return chai.request(env.openwhiskEndpoint)
-                       .post(env.cartsPackage + 'deleteShippingMethod')
-                       .query({})
-                       .catch(function (err) {
-                           expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
-                       });
+                .post(env.cartsPackage + 'deleteShippingMethod')
+                .query({})
+                .set('Accept-Language', 'en-US')
+                .catch(function (err) {
+                    expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
+                });
         });
+
         it('returns 404 for deleting shipping method of non existing cart', function () {
             return chai.request(env.openwhiskEndpoint)
-                       .post(env.cartsPackage + 'deleteShippingAddress')
-                       .query({
-                                  id: 'non-existing-cart-id'
-                              })
-                       .catch(function (err) {
-                           expect(err.response).to.have.status(HttpStatus.NOT_FOUND);
-                       });
+                .post(env.cartsPackage + 'deleteShippingAddress')
+                .query({
+                    id: 'non-existing-cart-id'
+                })
+                .set('Accept-Language', 'en-US')
+                .catch(function (err) {
+                    expect(err.response).to.have.status(HttpStatus.NOT_FOUND);
+                });
         });
 
         it('removes shipping method', function () {
@@ -86,37 +90,41 @@ describe('commercetools deleteShippingMethod', function () {
                 shippingMethodId: '6f0b3638-73a5-4d80-8455-081d3e9f98bb'
             };
             return chai.request(env.openwhiskEndpoint)
-                       .post(env.cartsPackage + 'postShippingAddress')
-                       .query({
-                           id: cartId
-                       })
-                       .send({
-                           address: {country: 'US'}
-                       })
-                       .then(function (res) {
-                           expect(res).to.be.json;
-                           expect(res).to.have.status(HttpStatus.OK);
-                           expect(res.body).to.have.property('shippingAddress');
+                .post(env.cartsPackage + 'postShippingAddress')
+                .query({
+                    id: cartId
+                })
+                .send({
+                    address: {country: 'US'}
+                })
+                .set('Accept-Language', 'en-US')
+                .then(function (res) {
+                    expect(res).to.be.json;
+                    expect(res).to.have.status(HttpStatus.OK);
+                    expect(res.body).to.have.property('shippingAddress');
 
-                           return chai.request(env.openwhiskEndpoint)
-                               .post(env.cartsPackage + 'postShippingMethod')
-                               .query(args)
-                               .then(function (res) {
-                                   expect(res).to.be.json;
-                                   expect(res).to.have.status(HttpStatus.OK);
-                                   expect(res.body).to.have.property('shippingInfo');
+                    return chai.request(env.openwhiskEndpoint)
+                        .post(env.cartsPackage + 'postShippingMethod')
+                        .query(args)
+                        .set('Accept-Language', 'en-US');
 
-                                  return  chai.request(env.openwhiskEndpoint)
-                                       .post(env.cartsPackage + 'deleteShippingMethod')
-                                       .query({id: cartId})
-                                       .then(function (res) {
-                                           expect(res).to.be.json;
-                                           expect(res).to.have.status(HttpStatus.OK);
-                                           expect(res.body).to.not.have.property('shippingInfo');
-                                       });
-                               })
+                })
+                .then(function (res) {
+                    expect(res).to.be.json;
+                    expect(res).to.have.status(HttpStatus.OK);
+                    expect(res.body).to.have.property('shippingInfo');
 
-                       })
+                    return  chai.request(env.openwhiskEndpoint)
+                        .post(env.cartsPackage + 'deleteShippingMethod')
+                        .query({id: cartId})
+                        .set('Accept-Language', 'en-US');
+
+                })
+                .then(function (res) {
+                    expect(res).to.be.json;
+                    expect(res).to.have.status(HttpStatus.OK);
+                    expect(res.body).to.not.have.property('shippingInfo');
+                });
         });
 
     });

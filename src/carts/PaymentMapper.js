@@ -29,9 +29,9 @@ class PaymentMapper {
      * @param ctResult        JSON object returned by the commercetools payments.
      * @returns {Payment}     CCIF payment representation.
      */
-    static mapPayment(result) {
+    mapPayment(result) {
         if(result.body == undefined) return null;
-        return PaymentMapper._mapPayment(result.body);
+        return this._mapPayment(result.body);
     }
 
     /**
@@ -51,7 +51,7 @@ class PaymentMapper {
      * @return {Payment}
      * @private
      */
-    static _mapPayment(ctPayment) {
+    _mapPayment(ctPayment) {
         let ccifPayment = new Payment();
         
         ccifPayment.id = ctPayment.id;
@@ -71,7 +71,7 @@ class PaymentMapper {
      * @param {Payment} payment
      * @return A CommerceTools PaymentDraft object.
      */
-    static mapPaymentDraft(payment) {
+    mapPaymentDraft(payment) {
         let paymentDraft = {};
         
         paymentDraft.externalId = payment.token;

@@ -42,13 +42,14 @@ describe('commercetools getProduct', function() {
             return chai.request(env.openwhiskEndpoint)
                 .get(env.productsPackage + 'getProductById')
                 .query({id: productId})
+                .set('Accept-Language', 'en-US')
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
 
                     // Verify structure
                     expect(res.body).to.have.own.property('name');
-                    expect(res.body.name.en).to.equal('El Gordo Down Jacket');
+                    expect(res.body.name).to.equal('El Gordo Down Jacket');
                     expect(res.body).to.have.own.property('masterVariantId');
                     expect(res.body).to.have.own.property('description');
                     expect(res.body).to.have.own.property('id');
@@ -66,11 +67,12 @@ describe('commercetools getProduct', function() {
             return chai.request(env.openwhiskEndpoint)
                 .get(env.productsPackage + 'getProductById')
                 .query({id: variantId})
+                .set('Accept-Language', 'en-US')
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
                     expect(res.body).to.have.own.property('name');
-                    expect(res.body.name.en).to.equal('El Gordo Down Jacket');
+                    expect(res.body.name).to.equal('El Gordo Down Jacket');
                     expect(res.body).to.have.own.property('id');
                     expect(res.body.id).to.equal(productId);
                 })

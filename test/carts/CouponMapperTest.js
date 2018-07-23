@@ -15,37 +15,41 @@
 'use strict';
 
 const expect = require('chai').expect;
-const utils = require('../lib/utils');
 const AssertionError = require('assert').AssertionError;
+const LanguageParser = require('../../src/common/LanguageParser');
+const CouponMapper = require('../../src/carts/CouponMapper');
 
 describe('commercetools CouponMapper', () => {
 
-    let action = utils.getPathForAction(__dirname, 'CouponMapper');
-    let CouponMapper = require(action);
-
     describe('Unit tests', () => {
+
+        let args = {
+            __ow_headers: {
+                'accept-language': 'en-US'
+            }
+        };
+        let languageParser = new LanguageParser(args);
+        let couponMapper = new CouponMapper(languageParser);
 
         it('should return a Coupon instance', () => {
             let ctCoupon = {
                 "id": "coupon-id",
                 "code": "APRIL18",
                 "name": {
-                    "de": "CCIF Discount"
+                    "en": "CCIF Discount"
                 },
                 "description": {
-                    "de": "This is a sample description"
+                    "en": "This is a sample description"
                 }
             };
         
             let expectedCoupon = {
                 id: 'coupon-id',
                 code: 'APRIL18',
-                description: {
-                    de: 'This is a sample description'
-                }
+                description: 'This is a sample description'
             };
 
-            let cifCoupon = CouponMapper.mapCoupon(ctCoupon);
+            let cifCoupon = couponMapper.mapCoupon(ctCoupon);
             expect(cifCoupon).to.deep.equal(expectedCoupon);
         });
 
@@ -58,10 +62,10 @@ describe('commercetools CouponMapper', () => {
             let expectedCoupon = {
                 id: 'coupon-id',
                 code: 'APRIL18',
-                description: {}
+                description: undefined
             };
 
-            let cifCoupon = CouponMapper.mapCoupon(ctCoupon);
+            let cifCoupon = couponMapper.mapCoupon(ctCoupon);
             expect(cifCoupon).to.deep.equal(expectedCoupon);
         })
 
@@ -69,14 +73,14 @@ describe('commercetools CouponMapper', () => {
             let ctCoupon = {
                 "code": "APRIL18"
             };
-            expect(() => { CouponMapper.mapCoupon(ctCoupon); }).to.throw(AssertionError, /Coupon id is not set./);
+            expect(() => { couponMapper.mapCoupon(ctCoupon); }).to.throw(AssertionError, /Coupon id is not set./);
         });
 
         it('should return an error if the coupon code is not set', () => {
             let ctCoupon = {
                 "id": "coupon-id"
             };
-            expect(() => { CouponMapper.mapCoupon(ctCoupon); }).to.throw(AssertionError, /Coupon code is not set./);
+            expect(() => { couponMapper.mapCoupon(ctCoupon); }).to.throw(AssertionError, /Coupon code is not set./);
         });
 
     });

@@ -19,7 +19,7 @@ const setup = require('../lib/setupTest').setup;
 const samplecart1 = require('../resources/sample-cart');
 const samplePayment = require('../resources/sample-payment');
 const config = require('../lib/config').config;
-const paymentMapper = require('../../src/carts/PaymentMapper');
+const PaymentMapper = require('../../src/carts/PaymentMapper');
 
 /**
  * Describes the unit tests for commerce tools put cart entry operation.
@@ -30,6 +30,8 @@ describe('commercetools post payment test', () => {
 
         //build the helper in the context of '.this' suite
         setup(this, __dirname, 'postPayment');
+
+        let paymentMapper = new PaymentMapper();
 
         it('PUT /cart/{id}/payment HTTP 400 - missing cart id', () => {
             return this.execute()
@@ -95,7 +97,10 @@ describe('commercetools post payment test', () => {
         
             const args = {
                 id: '12345-7',
-                payment: payment
+                payment: payment,
+                __ow_headers: {
+                    'accept-language': 'en-US'
+                }
             };
             const expectedArgs = [{
                 uri: encodeURI(
