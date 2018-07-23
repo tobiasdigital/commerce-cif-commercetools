@@ -29,13 +29,13 @@ describe('commercetools common', () => {
         }
 
         beforeEach(() => {
-            CTPerformanceMeasurement.startBackendRequest = sinon.spy();
-            CTPerformanceMeasurement.endBackendRequest = sinon.spy();
+            sinon.spy(CTPerformanceMeasurement, "startBackendRequest");
+            sinon.spy(CTPerformanceMeasurement, "endBackendRequest");
         });
 
         afterEach(() => {
-            CTPerformanceMeasurement.startBackendRequest.reset();
-            CTPerformanceMeasurement.endBackendRequest.reset();
+            CTPerformanceMeasurement.startBackendRequest.restore();
+            CTPerformanceMeasurement.endBackendRequest.restore();
         });
 
         it('does not update execute() if performance header is not set', () => {

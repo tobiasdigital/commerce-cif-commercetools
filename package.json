@@ -16,12 +16,11 @@
     "chai": "4.0.2",
     "chai-http": "^3.0.0",
     "http-status-codes": "^1.2.0",
-    "lerna": "^2.0.0-rc.5",
-    "mocha": "3.4.2",
-    "mocha-jenkins-reporter": "0.3.7",
+    "lerna": "2.9.0",
+    "mocha": "5.2.0",
     "mock-require": "2.0.2",
     "nyc": "11.1.0",
-    "sinon": "2.3.6",
+    "sinon": "5.1.0",
     "xunit-file": "1.0.0"
   },
   "nyc": {
