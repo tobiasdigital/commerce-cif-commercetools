@@ -29,11 +29,11 @@ module.exports.setup = function () {
     expect(env.openwhiskEndpoint).to.have.string('http');
 
     // Sets the name of the package where all web actions are deployed
-    // To make it very flexible, we crate one entry per microservice but still
+    // To make it very flexible, we create one entry per microservice but still
     // only use one single package for all actions
-    let mainPackage = '/commerce/';
+    let mainPackage = '/commercetools/';
     if (process.env.OW_PACKAGE_SUFFIX) {
-        mainPackage = `/commerce@${process.env.OW_PACKAGE_SUFFIX}/`
+        mainPackage = `/commercetools@${process.env.OW_PACKAGE_SUFFIX}/`
     }
     env.cartsPackage = mainPackage;
     env.categoriesPackage = mainPackage;

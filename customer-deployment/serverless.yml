@@ -27,7 +27,7 @@ plugins:
 
 resources:
   packages:
-    commerce:
+    commercetools:
       parameters:
     commerce-cif-commercetools-cart@latest:
       binding: /${self:custom.bindings-namespace}/commerce-cif-commercetools-cart@latest
