@@ -66,6 +66,7 @@ describe('commercetools deleteShippingMethod', () => {
                        .then(result => {
                            assert.isUndefined(result.response.error, JSON.stringify(result.response.error));
                            assert.isDefined(result.response);
+                           assert.strictEqual(result.response.statusCode, 200);
                            assert.isDefined(result.response.body);
                            assert.isUndefined(result.response.body.shippingMethod,
                                               'Expected undefined result.response.body.shippingMethod');

@@ -53,7 +53,7 @@ describe('commercetools deleteCartEntry', function() {
                 .set('Accept-Language', 'en-US')
                 .then(function(res) {
                     expect(res).to.be.json;
-                    expect(res).to.have.status(HttpStatus.OK);
+                    expect(res).to.have.status(HttpStatus.CREATED);
 
                     // Store cart id
                     cartId = res.body.id;
@@ -102,7 +102,7 @@ describe('commercetools deleteCartEntry', function() {
                 .set('Accept-Language', 'en-US')
                 .then(function (res) {
                     expect(res).to.be.json;
-                    expect(res).to.have.status(HttpStatus.OK);
+                    expect(res).to.have.status(HttpStatus.CREATED);
 
                     // Verify that two products are in the cart
                     expect(res.body.cartEntries).to.have.lengthOf(2);

@@ -95,7 +95,14 @@ function postCartEntry(args) {
     switch (actionState) {
         case ActionStateEnum.NEW_EMPTY_CART:
             data.currency = currency;
-            return cart.create(data);
+            return cart.create(data).then(result => {
+                if (result.response.statusCode === 200) {
+                    result.response.statusCode = 201;
+                    result.response.headers = result.response.headers || {};
+                    result.response.headers.Location = `carts/${result.response.body.id}`;
+                }
+                return Promise.resolve(result);
+            });
             
         case ActionStateEnum.ADD_ENTRY_2_CART:
             data.actions = [{
@@ -104,7 +111,17 @@ function postCartEntry(args) {
                 variantId: variantId,
                 quantity: quantity
             }];
-            return cart.postCartData(id, data, args.customerId);
+            return cart.postCartData(id, data, args.customerId).then(result => {
+                if (result.response.statusCode === 200) {
+                    result.response.statusCode = 201;
+                    let entry = result.response.body.cartEntries.find(entry => (entry.productVariant.id === `${productId}-${variantId}`));
+                    if (entry) {
+                        result.response.headers = result.response.headers || {};
+                        result.response.headers.Location = `carts/${id}/entries/${entry.id}`;
+                    }
+                }
+                return Promise.resolve(result);
+            });
             
         case ActionStateEnum.NEW_CART_AND_ENTRY:
             data.currency = currency;
@@ -113,7 +130,17 @@ function postCartEntry(args) {
                 variantId: variantId,
                 quantity: quantity
             }];
-            return cart.create(data);
+            return cart.create(data).then(result => {
+                if (result.response.statusCode === 200) {
+                    result.response.statusCode = 201;
+                    let entry = result.response.body.cartEntries.find(entry => (entry.productVariant.id === `${productId}-${variantId}`));
+                    if (entry) {
+                        result.response.headers = result.response.headers || {};
+                        result.response.headers.Location = `carts/${result.response.body.id}/entries/${entry.id}`;
+                    }
+                }
+                return Promise.resolve(result);
+            });
     }
 }
 

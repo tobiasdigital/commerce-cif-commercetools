@@ -49,7 +49,7 @@ describe('commercetools postOrder', function () {
                 .set('Accept-Language', 'en-US')
                 .then(function (res) {
                     expect(res).to.be.json;
-                    expect(res).to.have.status(HttpStatus.OK);
+                    expect(res).to.have.status(HttpStatus.CREATED);
 
                     // Store cart id
                     cartId = res.body.id;
@@ -94,7 +94,7 @@ describe('commercetools postOrder', function () {
                 });
         });
 
-        it('returns 200 for creating an order', function () {
+        it('returns 201 for creating an order', function () {
             return chai.request(env.openwhiskEndpoint)
                 .post(env.cartsPackage + 'postShippingAddress')
                 .query({
@@ -115,7 +115,9 @@ describe('commercetools postOrder', function () {
                 })
                 .then(function (res) {
                     expect(res).to.be.json;
-                    expect(res).to.have.status(HttpStatus.OK);
+                    expect(res).to.have.status(HttpStatus.CREATED);
+                    expect(res).to.have.property('headers');
+                    expect(res.headers).to.have.property('location');
                     expect(res.body).to.have.property('id');
                 });
         });

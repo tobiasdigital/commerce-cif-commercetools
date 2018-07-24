@@ -45,6 +45,7 @@ describe('commercetools postCustomerLogin', () => {
             return this.prepareResolve(sampleCustomerLogin, expectedArgs).execute(args).then(result => {
                 assert.isDefined(result);
                 assert.isDefined(result.response);
+                assert.strictEqual(result.response.statusCode, 200);
                 assert.isDefined(result.response.body);
 
                 let customer = result.response.body.customer;

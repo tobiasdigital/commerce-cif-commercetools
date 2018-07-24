@@ -106,7 +106,7 @@ describe('commercetools postOrder', () => {
                 });
         });
 
-        it('POST /orders HTTP 200 - success with cached cart version', () => {
+        it('POST /orders HTTP 201 - success with cached cart version', () => {
             const args = {
                 cartId: '12345-1'
             };
@@ -126,12 +126,14 @@ describe('commercetools postOrder', () => {
                        .execute(args)
                        .then(result => {
                            assert.isDefined(result.response);
+                           assert.strictEqual(result.response.statusCode, 201);
+                           assert.strictEqual(result.response.headers.Location, `orders/${sampleOrder.body.id}`);
                            assert.isDefined(result.response.body);
                            assert.strictEqual(result.response.body.id, sampleOrder.body.id);
                        });
         });
 
-        it('POST /orders HTTP 200 - success with loaded cart version', () => {
+        it('POST /orders HTTP 201 - success with loaded cart version', () => {
             const args = {
                 cartId: '12345-1',
                 'USE_CACHED_CART_VERSION': false
@@ -152,6 +154,8 @@ describe('commercetools postOrder', () => {
                        .execute(args)
                        .then(result => {
                            assert.isDefined(result.response);
+                           assert.strictEqual(result.response.statusCode, 201);
+                           assert.strictEqual(result.response.headers.Location, `orders/${sampleOrder.body.id}`);
                            assert.isDefined(result.response.body);
                            assert.strictEqual(result.response.body.id, sampleOrder.body.id);
                        });

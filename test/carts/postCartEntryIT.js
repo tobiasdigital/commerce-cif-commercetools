@@ -51,7 +51,7 @@ describe('commercetools postCartEntry', function() {
                 .set('Accept-Language', 'en-US')
                 .then(function (res) {
                     expect(res).to.be.json;
-                    expect(res).to.have.status(HttpStatus.OK);
+                    expect(res).to.have.status(HttpStatus.CREATED);
                     expect(res.body.id).to.not.be.empty;
 
                     // Store cart id
@@ -76,7 +76,9 @@ describe('commercetools postCartEntry', function() {
                 .set('Accept-Language', 'en-US')
                 .then(function (res) {
                     expect(res).to.be.json;
-                    expect(res).to.have.status(HttpStatus.OK);
+                    expect(res).to.have.status(HttpStatus.CREATED);
+                    expect(res).to.have.property('headers');
+                    expect(res.headers).to.have.property('location');
 
                     // Verify structure
                     expect(res.body).to.have.own.property('id');
@@ -103,7 +105,9 @@ describe('commercetools postCartEntry', function() {
                 .set('Accept-Language', 'en-US')
                 .then(function (res) {
                     expect(res).to.be.json;
-                    expect(res).to.have.status(HttpStatus.OK);
+                    expect(res).to.have.status(HttpStatus.CREATED);
+                    expect(res).to.have.property('headers');
+                    expect(res.headers).to.have.property('location');
 
                     // Verify structure
                     expect(res.body).to.have.own.property('id');
@@ -142,7 +146,9 @@ describe('commercetools postCartEntry', function() {
                 .set('Accept-Language', 'en-US')
                 .then(function (res) {
                     expect(res).to.be.json;
-                    expect(res).to.have.status(HttpStatus.OK);
+                    expect(res).to.have.status(HttpStatus.CREATED);
+                    expect(res).to.have.property('headers');
+                    expect(res.headers).to.have.property('location');
 
                     // Verify structure
                     expect(res.body).to.have.own.property('id');
@@ -206,7 +212,7 @@ describe('commercetools postCartEntry', function() {
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
                 });
-        })
+        });
 
         it('returns a 400 error for a non existent product variand id', function() {
             return chai.request(env.openwhiskEndpoint)

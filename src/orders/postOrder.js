@@ -44,7 +44,13 @@ function postOrder(args) {
     let orderMapper = new OrderMapper();
 
     const cartOrderClient = new CommerceToolsCartOrder(args, createClient, orderMapper.mapOrder.bind(orderMapper));
-    return cartOrderClient.postOrder(args.cartId, args.customerId);
+    return cartOrderClient.postOrder(args.cartId, args.customerId).then(result => {
+        if (result.response.statusCode === 200) {
+            result.response.statusCode = 201;
+            result.response.headers = {'Location': `orders/${result.response.body.id}`};
+        }
+        return Promise.resolve(result);
+    });
 }
 
 module.exports.main = CTPerformanceMeasurement.decorateActionForSequence(postOrder);

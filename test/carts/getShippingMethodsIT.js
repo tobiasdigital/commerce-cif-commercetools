@@ -50,7 +50,7 @@ describe('commercetools getShippingMethods integration test for a cart', functio
                 .set('Accept-Language', 'en-US')
                 .then(function (res) {
                     expect(res).to.be.json;
-                    expect(res).to.have.status(HttpStatus.OK);
+                    expect(res).to.have.status(HttpStatus.CREATED);
                     expect(res.body.id).to.not.be.empty;
 
                     // Store cart id

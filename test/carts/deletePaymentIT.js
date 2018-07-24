@@ -58,7 +58,7 @@ describe('commercetools deletePayment', function () {
                 .set('Accept-Language', 'en-US')
                 .then(function (res) {
                     expect(res).to.be.json;
-                    expect(res).to.have.status(HttpStatus.OK);
+                    expect(res).to.have.status(HttpStatus.CREATED);
 
                     // Store cart id
                     cartId = res.body.id;

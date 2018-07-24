@@ -177,7 +177,7 @@ describe('commercetools postCartEntry', () => {
                        });
         });
 
-        it('POST /cart/ HTTP 200 - new empty', () => {
+        it('POST /cart/ HTTP 201 - new empty', () => {
             const args = {
                 'currency': 'USD',
                 __ow_headers: {
@@ -194,11 +194,12 @@ describe('commercetools postCartEntry', () => {
                        .execute(args)
                        .then(result => {
                            assert.isDefined(result.response);
+                           assert.strictEqual(result.response.statusCode, 201);
                            assert.isDefined(result.response.body);
                        });
         });
 
-        it('POST /cart/ HTTP 200 - new cart with one entry', () => {
+        it('POST /cart/ HTTP 201 - new cart with one entry', () => {
             const args = {
                 'currency': 'USD',
                 'productVariantId': '526dc571-104f-40fb-b761-71781a97910b-1',
@@ -217,11 +218,12 @@ describe('commercetools postCartEntry', () => {
                        .execute(args)
                        .then(result => {
                            assert.isDefined(result.response);
+                           assert.strictEqual(result.response.statusCode, 201);
                            assert.isDefined(result.response.body);
                        });
         });
 
-        it('POST /cart/{id} HTTP 200 - existing cart with cached version', () => {
+        it('POST /cart/{id} HTTP 201 - existing cart with cached version', () => {
             const args = {
                 'id': '12345-7',
                 'currency': 'USD1',
@@ -245,11 +247,12 @@ describe('commercetools postCartEntry', () => {
                        .execute(args)
                        .then(result => {
                            assert.isDefined(result.response);
+                           assert.strictEqual(result.response.statusCode, 201);
                            assert.isDefined(result.response.body);
                        });
         });
 
-        it('POST /cart/{id} HTTP 200 - existing cart with load cart version', () => {
+        it('POST /cart/{id} HTTP 201 - existing cart with load cart version', () => {
             const args = {
                 'id': '12345-7',
                 'currency': 'USD1',
@@ -274,6 +277,7 @@ describe('commercetools postCartEntry', () => {
                        .execute(args)
                        .then(result => {
                            assert.isDefined(result.response);
+                           assert.strictEqual(result.response.statusCode, 201);
                            assert.isDefined(result.response.body);
                        });
         });

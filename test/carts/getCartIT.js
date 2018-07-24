@@ -50,7 +50,7 @@ describe('commercetools getCart', function() {
                 .set('Accept-Language', 'en-US')
                 .then(function (res) {
                     expect(res).to.be.json;
-                    expect(res).to.have.status(HttpStatus.OK);
+                    expect(res).to.have.status(HttpStatus.CREATED);
                     expect(res.body.id).to.not.be.empty;
 
                     // Store cart id
@@ -101,9 +101,9 @@ describe('commercetools getCart', function() {
         });
 
         it('returns a cart which contains at least one cart discount', () => {
-            const checkDiscountData = response => {
+            const checkDiscountData = (response, statusCode) => {
                 expect(response).to.be.json;
-                expect(response).to.have.status(HttpStatus.OK);
+                expect(response).to.have.status(statusCode);
                 expect(response.body.id).to.not.be.empty;
                 expect(response.body).to.have.own.property('cartEntries');
                 expect(response.body.cartEntries).to.have.lengthOf(1);
@@ -134,13 +134,13 @@ describe('commercetools getCart', function() {
                 .set('Accept-Language', 'en-US')
                 .then(function (response) {
                     // Response of cart creation must also contain the discount data
-                    checkDiscountData(response);
+                    checkDiscountData(response, HttpStatus.CREATED);
                     return chai.request(env.openwhiskEndpoint)
                         .get(env.cartsPackage + 'getCart')
                         .query({id: response.body.id})
                         .set('Accept-Language', 'en-US');
                 })
-                .then(response => checkDiscountData(response));
+                .then(response => checkDiscountData(response, HttpStatus.OK));
         });
 
         it('returns a 400 error for a missing id parameter', function() {
