@@ -1,4 +1,5 @@
 [![CircleCI](https://circleci.com/gh/adobe/commerce-cif-commercetools.svg?style=svg)](https://circleci.com/gh/adobe/commerce-cif-commercetools)
+[![codecov](https://codecov.io/gh/adobe/commerce-cif-commercetools/branch/master/graph/badge.svg)](https://codecov.io/gh/adobe/commerce-cif-commercetools)
 
 # Commerce Integration Framework (CIF) on Cloud for commercetools
 
