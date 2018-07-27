@@ -94,12 +94,12 @@ describe('commercetools putCartEntry', () => {
         it('PUT /cart/{id}/entries/{id} HTTP 200 ', () => {
             const expectedArgs = [{
                 uri: encodeURI(
-                    `/${config.CT_PROJECTKEY}/carts/12345?${config.CART_EXPAND_QS}`),
+                    `/${config.CT_PROJECTKEY}/me/carts/12345?${config.CART_EXPAND_QS}`),
                 method: 'GET',
                 headers: undefined
             }, {
                 uri: encodeURI(
-                    `/${config.CT_PROJECTKEY}/carts/12345?${config.CART_EXPAND_QS}`),
+                    `/${config.CT_PROJECTKEY}/me/carts/12345?${config.CART_EXPAND_QS}`),
                 method: 'POST',
                 body: '{"actions":[{"action":"changeLineItemQuantity","lineItemId":"12345","quantity":1}],"version":7}',
                 headers: undefined
@@ -124,12 +124,12 @@ describe('commercetools putCartEntry', () => {
         it('PUT /cart/{id}/entries/{id} uses expand to get discount', () => {
             const expectedArgs = [{
                 uri: encodeURI(
-                    `/${config.CT_PROJECTKEY}/carts/12345?${config.CART_EXPAND_QS}`),
+                    `/${config.CT_PROJECTKEY}/me/carts/12345?${config.CART_EXPAND_QS}`),
                 method: 'GET',
                 headers: undefined
             }, {
                 uri: encodeURI(
-                    `/${config.CT_PROJECTKEY}/carts/12345?${config.CART_EXPAND_QS}`),
+                    `/${config.CT_PROJECTKEY}/me/carts/12345?${config.CART_EXPAND_QS}`),
                 method: 'POST',
                 body: '{"actions":[{"action":"changeLineItemQuantity","lineItemId":"12345","quantity":1}],"version":7}',
                 headers: undefined

@@ -16,7 +16,6 @@
 
 const CommerceToolsClientBase = require('@adobe/commerce-cif-commercetools-common/CommerceToolsClientBase');
 const ERROR_TYPE = require('./constants').ERROR_TYPE;
-
 /**
  * Commerce Tools customer login API implementation.
  */
@@ -39,6 +38,8 @@ class CommerceToolsCustomerLogin extends CommerceToolsClientBase {
      */
     login(data) {
         const url = this.requestBuilder.project.build() + 'login';
+        //remove the cookie to enable auth middleware with password flow
+        delete this.args.__ow_headers['cookie'];
         return this._handle(url, 'POST', data);
     }
 

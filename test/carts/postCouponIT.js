@@ -18,9 +18,9 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 const HttpStatus = require('http-status-codes');
 const setup = require('../lib/setupIT.js').setup;
-
+const extractToken = require('../lib/setupIT').extractToken;
 const expect = chai.expect;
-
+const OAUTH_TOKEN_NAME = require('../../src/common/constants').OAUTH_TOKEN_NAME;
 chai.use(chaiHttp);
 
 
@@ -36,6 +36,8 @@ describe('commercetools postCoupon', function () {
         this.timeout(env.timeout);
 
         let cartId;
+        let accessToken;
+
         const productVariantId = '90ed1673-4553-47c6-9336-5cb23947abb2-1';
 
         /** Create cart. */
@@ -54,15 +56,12 @@ describe('commercetools postCoupon', function () {
 
                     // Store cart id
                     cartId = res.body.id;
+                    // Store token to access the anonymous session
+                    accessToken = extractToken(res);
                 })
                 .catch(function (err) {
                     throw err;
                 });
-        });
-
-        /** Delete cart. */
-        after(function () {
-            // TODO(mabecker): Delete cart with id = cartId
         });
 
         it('returns 400 for adding a coupon to an non existing cart', function () {
@@ -73,6 +72,7 @@ describe('commercetools postCoupon', function () {
                     code: 'HW35'
                 })
                 .set('Accept-Language', 'en-US')
+                .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .catch(function (err) {
                     expect(err.response).to.have.status(HttpStatus.NOT_FOUND);
                 });
@@ -85,6 +85,7 @@ describe('commercetools postCoupon', function () {
                     id: cartId
                 })
                 .set('Accept-Language', 'en-US')
+                .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .catch(function (err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
                 });
@@ -98,6 +99,7 @@ describe('commercetools postCoupon', function () {
                     code: 'non-existing-coupon-code'
                 })
                 .set('Accept-Language', 'en-US')
+                .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .catch(function (err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
                 });
@@ -112,6 +114,7 @@ describe('commercetools postCoupon', function () {
                 .post(env.cartsPackage + 'postCoupon')
                 .query(args)
                 .set('Accept-Language', 'en-US')
+                .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .then(function(res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);

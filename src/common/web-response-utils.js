@@ -21,13 +21,24 @@ const CommerceServiceForbiddenError = require('@adobe/commerce-cif-common/except
 const UnexpectedError = require('@adobe/commerce-cif-common/exception').UnexpectedError;
 
 function respondWithCommerceToolsError(error, args, resolve, errorType) {
-    if (error && error.code === HttpStatusCodes.NOT_FOUND) {
+
+    let errorCode = null;
+
+    if(error && error.code) {
+        errorCode = error.code;
+    } else if (error && error.body) {
+        // latest CT sdk returns a different response for certain invalid requests
+        // i.e customer login with bad password
+        errorCode = error.body.statusCode;
+    }
+
+    if (errorCode === HttpStatusCodes.NOT_FOUND) {
         args['response'] =
             {'error': new CommerceServiceResourceNotFoundError('CommerceTools resource not found', error)};
-    } else if (error && error.code === HttpStatusCodes.BAD_REQUEST) {
+    } else if (errorCode === HttpStatusCodes.BAD_REQUEST) {
         args['response'] =
             {'error': new CommerceServiceBadRequestError('Bad CommerceTools Request', error)};
-    } else if (error && error.code === HttpStatusCodes.FORBIDDEN) {
+    } else if (errorCode === HttpStatusCodes.FORBIDDEN) {
         args['response'] =
             {'error': new CommerceServiceForbiddenError('Forbidden Request', error)};
     } else {

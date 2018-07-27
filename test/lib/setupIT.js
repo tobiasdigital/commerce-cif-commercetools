@@ -44,3 +44,16 @@ module.exports.setup = function () {
     return env;
 
 };
+
+module.exports.extractToken = function (res) {
+    let headers = res.header['set-cookie'];
+    let accessToken = null;
+    if (headers) {
+        headers.forEach(header => {
+            accessToken = header.match(/ccs-ct-token=(.*);P/)[1];
+        });
+    } else {
+        throw 'NO HEADERS';
+    }
+    return accessToken;
+};

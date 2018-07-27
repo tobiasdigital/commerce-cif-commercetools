@@ -71,11 +71,11 @@ describe('commercetools deleteCartEntry', () => {
 
         it('Remove cartEntry /cart/{id}/entries/{cartEntryId} - uses expand to get discount ', () => {
             const expectedArgs = [{
-                uri: encodeURI(`/${config.CT_PROJECTKEY}/carts/dummy?${config.CART_EXPAND_QS}`),
+                uri: encodeURI(`/${config.CT_PROJECTKEY}/me/carts/dummy?${config.CART_EXPAND_QS}`),
                 headers: undefined,
                 method: 'GET'
             }, {
-                uri: encodeURI(`/${config.CT_PROJECTKEY}/carts/dummy?${config.CART_EXPAND_QS}`),
+                uri: encodeURI(`/${config.CT_PROJECTKEY}/me/carts/dummy?${config.CART_EXPAND_QS}`),
                     method: 'POST',
                     headers: undefined,
                     body: '{"actions":[{"action":"removeLineItem","lineItemId":"3f4130c5-6e39-4e6f-b73f-a4ecd4520577"}],"version":7}'
@@ -93,11 +93,11 @@ describe('commercetools deleteCartEntry', () => {
 
         it('Remove cartEntry /cart/{id}/entries/{cartEntryId} HTTP 200 ', () => {
             const expectedArgs = [{
-                uri: encodeURI(`/${config.CT_PROJECTKEY}/carts/dummy?${config.CART_EXPAND_QS}`),
+                uri: encodeURI(`/${config.CT_PROJECTKEY}/me/carts/dummy?${config.CART_EXPAND_QS}`),
                 headers: undefined,
                 method: 'GET',
             }, {
-                uri: encodeURI(`/${config.CT_PROJECTKEY}/carts/dummy?${config.CART_EXPAND_QS}`),
+                uri: encodeURI(`/${config.CT_PROJECTKEY}/me/carts/dummy?${config.CART_EXPAND_QS}`),
                 method: 'POST',
                 headers: undefined,
                 body: '{"actions":[{"action":"removeLineItem","lineItemId":"3f4130c5-6e39-4e6f-b73f-a4ecd4520577"}],"version":7}'

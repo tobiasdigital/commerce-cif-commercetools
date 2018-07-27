@@ -18,9 +18,9 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 const HttpStatus = require('http-status-codes');
 const setup = require('../lib/setupIT.js').setup;
-
+const extractToken = require('../lib/setupIT').extractToken;
 const expect = chai.expect;
-
+const OAUTH_TOKEN_NAME = require('../../src/common/constants').OAUTH_TOKEN_NAME;
 chai.use(chaiHttp);
 
 
@@ -36,6 +36,7 @@ describe('commercetools deletePayment', function () {
         this.timeout(env.timeout);
 
         let cartId;
+        let accessToken;
 
         let ccifPayment = {
             token: '1234',
@@ -62,15 +63,12 @@ describe('commercetools deletePayment', function () {
 
                     // Store cart id
                     cartId = res.body.id;
+                    // Store token to access the anonymous session
+                    accessToken = extractToken(res);
                 })
                 .catch(function (err) {
                     throw err;
                 });
-        });
-
-        /** Delete cart. */
-        after(function () {
-            // TODO(mabecker): Delete cart with id = cartId
         });
 
         it('returns 400 for deleting payment of not provided cart', function () {
@@ -78,6 +76,7 @@ describe('commercetools deletePayment', function () {
                 .post(env.cartsPackage + 'deletePayment')
                 .query({})
                 .set('Accept-Language', 'en-US')
+                .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .catch(function (err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
                 });
@@ -90,6 +89,7 @@ describe('commercetools deletePayment', function () {
                     id: 'non-existing-cart-id'
                 })
                 .set('Accept-Language', 'en-US')
+                .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .catch(function (err) {
                     expect(err.response).to.have.status(HttpStatus.NOT_FOUND);
                 });
@@ -103,6 +103,7 @@ describe('commercetools deletePayment', function () {
                 .post(env.cartsPackage + 'deletePayment')
                 .query(args)
                 .set('Accept-Language', 'en-US')
+                .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .catch(function (err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
                 })
@@ -119,6 +120,7 @@ describe('commercetools deletePayment', function () {
                     payment: ccifPayment
                 })
                 .set('Accept-Language', 'en-US')
+                .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .then(function (res) {
                     let payment = res.body.payment;
                     expect(res).to.be.json;
@@ -134,7 +136,8 @@ describe('commercetools deletePayment', function () {
                     return chai.request(env.openwhiskEndpoint)
                                 .post(env.cartsPackage + 'deletePayment')
                                 .query({id: cartId})
-                                .set('Accept-Language', 'en-US');
+                                .set('Accept-Language', 'en-US')
+                                .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`);
                 })
                 .then(function (res) {
                     expect(res).to.be.json;

@@ -18,9 +18,9 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 const HttpStatus = require('http-status-codes');
 const setup = require('../lib/setupIT.js').setup;
-
+const extractToken = require('../lib/setupIT').extractToken;
 const expect = chai.expect;
-
+const OAUTH_TOKEN_NAME = require('../../src/common/constants').OAUTH_TOKEN_NAME;
 chai.use(chaiHttp);
 
 
@@ -36,6 +36,8 @@ describe('commercetools postShippingMethod', function () {
         this.timeout(env.timeout);
 
         let cartId;
+        let accessToken;
+
         const productVariantId = '90ed1673-4553-47c6-9336-5cb23947abb2-1';
         /** Create empty cart. */
         beforeEach(function () {
@@ -53,15 +55,12 @@ describe('commercetools postShippingMethod', function () {
 
                     // Store cart id
                     cartId = res.body.id;
+                    // Store token to access the anonymous session
+                    accessToken = extractToken(res);
                 })
                 .catch(function (err) {
                     throw err;
                 });
-        });
-
-        /** Delete cart. */
-        after(function () {
-            // TODO(mabecker): Delete cart with id = cartId
         });
 
         it('returns 400 for updating the shipping method of non existing cart', function () {
@@ -72,6 +71,7 @@ describe('commercetools postShippingMethod', function () {
                     shippingMethodId: 666
                 })
                 .set('Accept-Language', 'en-US')
+                .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .catch(function (err) {
                     expect(err.response).to.have.status(HttpStatus.NOT_FOUND);
                 });
@@ -84,6 +84,7 @@ describe('commercetools postShippingMethod', function () {
                     id: cartId
                 })
                 .set('Accept-Language', 'en-US')
+                .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .catch(function (err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
                 });
@@ -105,13 +106,15 @@ describe('commercetools postShippingMethod', function () {
                     address: {country: 'US'}
                 })
                 .set('Accept-Language', 'en-US')
+                .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
                     return chai.request(env.openwhiskEndpoint)
-                    .post(env.cartsPackage + 'postShippingMethod')
-                    .query(args)
-                    .set('Accept-Language', 'en-US');
+                        .post(env.cartsPackage + 'postShippingMethod')
+                        .query(args)
+                        .set('Accept-Language', 'en-US')
+                        .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`);
                 })
                 .then(function (res) {
                     expect(res).to.be.json;

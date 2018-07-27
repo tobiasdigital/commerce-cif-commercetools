@@ -18,9 +18,9 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 const HttpStatus = require('http-status-codes');
 const setup = require('../lib/setupIT.js').setup;
-
+const extractToken = require('../lib/setupIT').extractToken;
 const expect = chai.expect;
-
+const OAUTH_TOKEN_NAME = require('../../src/common/constants').OAUTH_TOKEN_NAME;
 chai.use(chaiHttp);
 
 
@@ -36,6 +36,7 @@ describe('commercetools deleteShippingMethod', function () {
         this.timeout(env.timeout);
 
         let cartId;
+        let accessToken;
 
         /** Create empty cart. */
         beforeEach(function () {
@@ -51,15 +52,12 @@ describe('commercetools deleteShippingMethod', function () {
 
                     // Store cart id
                     cartId = res.body.id;
+                    // Store token to access the anonymous session
+                    accessToken = extractToken(res);
                 })
                 .catch(function (err) {
                     throw err;
                 });
-        });
-
-        /** Delete cart. */
-        after(function () {
-            // TODO(mabecker): Delete cart with id = cartId
         });
 
         it('returns 400 for deleting shipping method of not provided cart', function () {
@@ -67,6 +65,7 @@ describe('commercetools deleteShippingMethod', function () {
                 .post(env.cartsPackage + 'deleteShippingMethod')
                 .query({})
                 .set('Accept-Language', 'en-US')
+                .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .catch(function (err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
                 });
@@ -79,6 +78,7 @@ describe('commercetools deleteShippingMethod', function () {
                     id: 'non-existing-cart-id'
                 })
                 .set('Accept-Language', 'en-US')
+                .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .catch(function (err) {
                     expect(err.response).to.have.status(HttpStatus.NOT_FOUND);
                 });
@@ -98,6 +98,7 @@ describe('commercetools deleteShippingMethod', function () {
                     address: {country: 'US'}
                 })
                 .set('Accept-Language', 'en-US')
+                .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
@@ -106,7 +107,8 @@ describe('commercetools deleteShippingMethod', function () {
                     return chai.request(env.openwhiskEndpoint)
                         .post(env.cartsPackage + 'postShippingMethod')
                         .query(args)
-                        .set('Accept-Language', 'en-US');
+                        .set('Accept-Language', 'en-US')
+                        .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`);
 
                 })
                 .then(function (res) {
@@ -117,7 +119,8 @@ describe('commercetools deleteShippingMethod', function () {
                     return  chai.request(env.openwhiskEndpoint)
                         .post(env.cartsPackage + 'deleteShippingMethod')
                         .query({id: cartId})
-                        .set('Accept-Language', 'en-US');
+                        .set('Accept-Language', 'en-US')
+                        .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`);
 
                 })
                 .then(function (res) {

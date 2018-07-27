@@ -47,12 +47,12 @@ describe('commercetools deletePayment', () => {
             };
             const expectedArgs = [{
                 uri: encodeURI(
-                    `/${config.CT_PROJECTKEY}/carts/12345?${config.CART_EXPAND_QS}`),
+                    `/${config.CT_PROJECTKEY}/me/carts/12345?${config.CART_EXPAND_QS}`),
                 method: 'GET',
                 headers: undefined
             }, {
                 uri: encodeURI(
-                    `/${config.CT_PROJECTKEY}/carts/12345?${config.CART_EXPAND_QS}`),
+                    `/${config.CT_PROJECTKEY}/me/carts/12345?${config.CART_EXPAND_QS}`),
                 method: 'POST',
                 body: `{"actions":[{"action":"removePayment","payment":{"id":"7a975b17-4a8e-457b-9338-4229dac84066","version":1}}],"version":7}`,
                 headers: undefined
@@ -89,12 +89,12 @@ describe('commercetools deletePayment', () => {
             };
             const expectedArgs = [{
                 uri: encodeURI(
-                    `/${config.CT_PROJECTKEY}/carts/12345?${config.CART_EXPAND_QS}`),
+                    `/${config.CT_PROJECTKEY}/me/carts/12345?${config.CART_EXPAND_QS}`),
                 method: 'GET',
                 headers: undefined
             }, {
                 uri: encodeURI(
-                    `/${config.CT_PROJECTKEY}/carts/12345?${config.CART_EXPAND_QS}`),
+                    `/${config.CT_PROJECTKEY}/me/carts/12345?${config.CART_EXPAND_QS}`),
                 method: 'POST',
                 body: `{"actions":[{"action":"removePayment","payment":{"id":"7a975b17-4a8e-457b-9338-4229dac84066","version":1}}],"version":7}`,
                 headers: undefined

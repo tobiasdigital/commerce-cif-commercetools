@@ -34,7 +34,7 @@ class CommerceToolsCart extends CommerceToolsClientBase {
      */
     constructor(args, createClient, cartMapper) {
         super(args, createClient, cartMapper, ERROR_TYPE);
-        this.requestBuilder = this.requestBuilder.carts;
+        this.requestBuilder = this.requestBuilder.myCarts;
         this.responseArgs.cacheControl = 'no-cache, no-store, no-transform, must-revalidate';
         this._setExpandConfiguration();
     }

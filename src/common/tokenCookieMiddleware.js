@@ -14,7 +14,7 @@
 
 'use strict';
 
-const CCS_CT_TOKEN = 'ccs-ct-token';
+const OAUTH_TOKEN_NAME = require('./constants').OAUTH_TOKEN_NAME;
 
 module.exports = {
 
@@ -26,7 +26,7 @@ module.exports = {
                     let cookies = headers.cookie.split(';');
                     for (let i = 0, length = cookies.length; i < length; i++) {
                         let parts = cookies[i].trim().split('=');
-                        if (parts[0].trim() === CCS_CT_TOKEN) {
+                        if (parts[0].trim() === OAUTH_TOKEN_NAME) {
                             request['headers'] = request['headers'] || {};
                             request.headers['Authorization'] = 'Bearer ' + parts[1];
                             request.tokenExtracted = true;
@@ -43,7 +43,6 @@ module.exports = {
     setOauthTokenMiddleware(httpResponse) {
         return function (next) {
             return function (request, response) {
-
                 // The cookie is only set if the token was not extracted from the initial http request
                 if (!request.tokenExtracted && request.headers && request.headers.Authorization) {
 
@@ -54,7 +53,7 @@ module.exports = {
                     // TODO: we cannot get the toekn expires_in value from the CT oauth middleware, so we just set one
                     // hour for now
                     httpResponse['headers'] = httpResponse['headers'] || {};
-                    httpResponse.headers['Set-Cookie'] = CCS_CT_TOKEN + '=' + token + ';Path=/;Max-Age=3600';
+                    httpResponse.headers['Set-Cookie'] = OAUTH_TOKEN_NAME + '=' + token + ';Path=/;Max-Age=3600';
                 }
 
                 next(request, response);

@@ -18,9 +18,10 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 const HttpStatus = require('http-status-codes');
 const setup = require('../lib/setupIT.js').setup;
+const extractToken = require('../lib/setupIT').extractToken;
 const CcifIdentifier = require('../../src/common/CcifIdentifier');
 const expect = chai.expect;
-
+const OAUTH_TOKEN_NAME = require('../../src/common/constants').OAUTH_TOKEN_NAME;
 chai.use(chaiHttp);
 
 
@@ -36,6 +37,8 @@ describe('commercetools postCartEntry', function() {
         this.timeout(env.timeout);
 
         let cartId;
+        let accessToken;
+
         const productVariantId = '90ed1673-4553-47c6-9336-5cb23947abb2-1';
         const productVariantIdSecond = '90ed1673-4553-47c6-9336-5cb23947abb2-2';
 
@@ -56,15 +59,12 @@ describe('commercetools postCartEntry', function() {
 
                     // Store cart id
                     cartId = res.body.id;
+                    // Store token to access the anonymous session
+                    accessToken = extractToken(res);
                 })
                 .catch(function(err) {
                     throw err;
                 });
-        });
-
-        /** Delete cart. */
-        after(function() {
-            // TODO(mabecker): Delete cart with id = cartId
         });
 
         it('creates an empty cart', function() {
@@ -74,6 +74,7 @@ describe('commercetools postCartEntry', function() {
                     currency: 'EUR'
                 })
                 .set('Accept-Language', 'en-US')
+                .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.CREATED);
@@ -103,6 +104,7 @@ describe('commercetools postCartEntry', function() {
                     productVariantId: productVariantIdSecond
                 })
                 .set('Accept-Language', 'en-US')
+                .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.CREATED);
@@ -144,6 +146,7 @@ describe('commercetools postCartEntry', function() {
                     productVariantId: productVariantId
                 })
                 .set('Accept-Language', 'en-US')
+                .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.CREATED);
@@ -181,6 +184,7 @@ describe('commercetools postCartEntry', function() {
                     currency: 'EURO'
                 })
                 .set('Accept-Language', 'en-US')
+                .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
                 });
@@ -195,6 +199,7 @@ describe('commercetools postCartEntry', function() {
                     productVariantId: productVariantIdSecond
                 })
                 .set('Accept-Language', 'en-US')
+                .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
                 });
@@ -209,6 +214,7 @@ describe('commercetools postCartEntry', function() {
                     productVariantId: '526dc571-104f-40fb-b761-71781a97910b'
                 })
                 .set('Accept-Language', 'en-US')
+                .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
                 });
@@ -223,6 +229,7 @@ describe('commercetools postCartEntry', function() {
                     productVariantId: 'does-not-exist'
                 })
                 .set('Accept-Language', 'en-US')
+                .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
                 });
@@ -237,6 +244,7 @@ describe('commercetools postCartEntry', function() {
                     productVariantId: productVariantId
                 })
                 .set('Accept-Language', 'en-US')
+                .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.NOT_FOUND);
                 });
@@ -246,6 +254,7 @@ describe('commercetools postCartEntry', function() {
             return chai.request(env.openwhiskEndpoint)
                 .post(env.cartsPackage + 'postCartEntry')
                 .set('Accept-Language', 'en-US')
+                .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
                 });

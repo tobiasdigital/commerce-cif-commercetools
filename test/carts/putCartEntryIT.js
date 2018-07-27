@@ -18,9 +18,10 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 const HttpStatus = require('http-status-codes');
 const setup = require('../lib/setupIT.js').setup;
+const extractToken = require('../lib/setupIT').extractToken;
 const CcifIdentifier = require('../../src/common/CcifIdentifier');
 const expect = chai.expect;
-
+const OAUTH_TOKEN_NAME = require('../../src/common/constants').OAUTH_TOKEN_NAME;
 chai.use(chaiHttp);
 
 
@@ -39,6 +40,7 @@ describe('commercetools putCartEntry', function() {
 
         let cartId;
         let cartEntryId;
+        let accessToken;
 
         /** Create cart. */
         beforeEach(function() {
@@ -56,18 +58,14 @@ describe('commercetools putCartEntry', function() {
 
                     // Store cart id
                     cartId = res.body.id;
-
                     // Store cart entry id
                     cartEntryId = res.body.cartEntries[0].id;
+                    // Store token to access the anonymous session
+                    accessToken = extractToken(res);
                 })
                 .catch(function(err) {
                     throw err;
                 });
-        });
-
-        /** Delete cart. */
-        after(function() {
-            // TODO(mabecker): Delete cart with id = cartId
         });
 
         it('updates the quantity of a cart entry to a new value', function() {
@@ -80,6 +78,7 @@ describe('commercetools putCartEntry', function() {
                     cartEntryId: cartEntryId
                 })
                 .set('Accept-Language', 'en-US')
+                .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
@@ -114,6 +113,7 @@ describe('commercetools putCartEntry', function() {
                     cartEntryId: cartEntryId
                 })
                 .set('Accept-Language', 'en-US')
+                .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
@@ -134,6 +134,7 @@ describe('commercetools putCartEntry', function() {
                     cartEntryId: cartEntryId
                 })
                 .set('Accept-Language', 'en-US')
+                .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
                 });
@@ -148,6 +149,7 @@ describe('commercetools putCartEntry', function() {
                     cartEntryId: 'does-not-exist'
                 })
                 .set('Accept-Language', 'en-US')
+                .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
                 });
@@ -162,6 +164,7 @@ describe('commercetools putCartEntry', function() {
                     cartEntryId: cartEntryId
                 })
                 .set('Accept-Language', 'en-US')
+                .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.NOT_FOUND);
                 });
@@ -171,6 +174,7 @@ describe('commercetools putCartEntry', function() {
             return chai.request(env.openwhiskEndpoint)
                 .post(env.cartsPackage + 'putCartEntry')
                 .set('Accept-Language', 'en-US')
+                .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
                 });

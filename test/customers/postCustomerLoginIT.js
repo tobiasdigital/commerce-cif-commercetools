@@ -18,9 +18,9 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 const HttpStatus = require('http-status-codes');
 const setup = require('../lib/setupIT.js').setup;
-
+const extractToken = require('../lib/setupIT').extractToken;
 const expect = chai.expect;
-
+const OAUTH_TOKEN_NAME = require('../../src/common/constants').OAUTH_TOKEN_NAME;
 chai.use(chaiHttp);
 
 describe('commercetools postCustomerLogin', function() {
@@ -34,8 +34,34 @@ describe('commercetools postCustomerLogin', function() {
         this.slow(env.slow);
         this.timeout(env.timeout);
 
-        const email = 'jelger@adobe.com';
-        const password = 'dummy1234';
+        const email = 'cif@adobe.com';
+        const password = 'cif';
+        const productVariantId = '90ed1673-4553-47c6-9336-5cb23947abb2-1';
+
+        let accessToken;
+
+        /** Create cart using anonymous auth. */
+        before(function() {
+            return chai.request(env.openwhiskEndpoint)
+                .post(env.cartsPackage + 'postCart')
+                .query({
+                    currency: 'USD',
+                    quantity: 2,
+                    productVariantId: productVariantId
+                })
+                .set('Accept-Language', 'en-US')
+                .then(function (res) {
+                    expect(res).to.be.json;
+                    expect(res).to.have.status(HttpStatus.CREATED);
+                    expect(res.body.id).to.not.be.empty;
+
+                    // Store token to access the anonymous session
+                    accessToken = extractToken(res);
+                })
+                .catch(function(err) {
+                    throw err;
+                });
+        });
 
         it('performs a customer login', function() {
             return chai.request(env.openwhiskEndpoint)
@@ -67,5 +93,19 @@ describe('commercetools postCustomerLogin', function() {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
                 });
         });
+
+        it('check password auth login access token', function() {
+            return chai.request(env.openwhiskEndpoint)
+                .post(env.customersPackage + 'postCustomerLogin')
+                .query({
+                    email: email,
+                    password: password
+                })
+                .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
+                .then(function(result) {
+                    expect(accessToken).not.to.equal(extractToken(result));
+                });
+        });
+
     });
 });

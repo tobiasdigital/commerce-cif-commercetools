@@ -48,12 +48,12 @@ describe('commercetools deleteShippingMethod', () => {
             };
             const expectedArgs = [{
                 uri: encodeURI(
-                    `/${config.CT_PROJECTKEY}/carts/12345?${config.CART_EXPAND_QS}`),
+                    `/${config.CT_PROJECTKEY}/me/carts/12345?${config.CART_EXPAND_QS}`),
                 method: 'GET',
                 headers: undefined
             }, {
                 uri: encodeURI(
-                    `/${config.CT_PROJECTKEY}/carts/12345?${config.CART_EXPAND_QS}`),
+                    `/${config.CT_PROJECTKEY}/me/carts/12345?${config.CART_EXPAND_QS}`),
                 method: 'POST',
                 body: `{"actions":[{"action":"setShippingMethod"}],"version":7}`,
                 headers: undefined

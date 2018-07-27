@@ -100,12 +100,12 @@ describe('commercetools postCartEntry', () => {
             };
             const expectedArgs = [{
                 uri: encodeURI(
-                    `/${config.CT_PROJECTKEY}/carts?${config.CART_EXPAND_QS}`),
+                    `/${config.CT_PROJECTKEY}/me/carts?${config.CART_EXPAND_QS}`),
                 headers: undefined,
                 method: 'GET'
             }, {
                 uri: encodeURI(
-                    `/${config.CT_PROJECTKEY}/carts?${config.CART_EXPAND_QS}`),
+                    `/${config.CT_PROJECTKEY}/me/carts?${config.CART_EXPAND_QS}`),
                 headers: undefined,
                 method: 'POST',
                 body: '{"currency":"USD","lineItems":[{"productId":"526dc571-104f-40fb-b761-71781a97910b","variantId":1,"quantity":2}]}'
@@ -124,11 +124,11 @@ describe('commercetools postCartEntry', () => {
                 }
             };
             const expectedArgs = [{
-                    uri: encodeURI(`/${config.CT_PROJECTKEY}/carts/1234?${config.CART_EXPAND_QS}`),
+                    uri: encodeURI(`/${config.CT_PROJECTKEY}/me/carts/1234?${config.CART_EXPAND_QS}`),
                     headers: undefined,
                     method: 'GET'
                 }, {
-                    uri: encodeURI(`/${config.CT_PROJECTKEY}/carts/1234?${config.CART_EXPAND_QS}`),
+                    uri: encodeURI(`/${config.CT_PROJECTKEY}/me/carts/1234?${config.CART_EXPAND_QS}`),
                     headers: undefined,
                     method: 'POST',
                     body: '{"actions":[{"action":"addLineItem","productId":"526dc571-104f-40fb-b761-71781a97910b","variantId":1,"quantity":2}],"version":7}'
@@ -185,7 +185,7 @@ describe('commercetools postCartEntry', () => {
                 }
             };
             const expectedArgs = {
-                uri: encodeURI(`/${config.CT_PROJECTKEY}/carts?${config.CART_EXPAND_QS}`),
+                uri: encodeURI(`/${config.CT_PROJECTKEY}/me/carts?${config.CART_EXPAND_QS}`),
                 headers: undefined,
                 method: 'POST',
                 body: `{"currency":"${args.currency}"}`
@@ -209,7 +209,7 @@ describe('commercetools postCartEntry', () => {
                 }
             };
             const expectedArgs = {
-                uri: encodeURI(`/${config.CT_PROJECTKEY}/carts?${config.CART_EXPAND_QS}`),
+                uri: encodeURI(`/${config.CT_PROJECTKEY}/me/carts?${config.CART_EXPAND_QS}`),
                 headers: undefined,
                 method: 'POST',
                 body: '{"currency":"USD","lineItems":[{"productId":"526dc571-104f-40fb-b761-71781a97910b","variantId":1,"quantity":2}]}'
@@ -234,11 +234,11 @@ describe('commercetools postCartEntry', () => {
                 }
             };
             const expectedArgs = [{
-                uri: encodeURI(`/${config.CT_PROJECTKEY}/carts/12345?${config.CART_EXPAND_QS}`),
+                uri: encodeURI(`/${config.CT_PROJECTKEY}/me/carts/12345?${config.CART_EXPAND_QS}`),
                 headers: undefined,
                 method: 'GET'
             }, {
-                uri: encodeURI(`/${config.CT_PROJECTKEY}/carts/12345?${config.CART_EXPAND_QS}`),
+                uri: encodeURI(`/${config.CT_PROJECTKEY}/me/carts/12345?${config.CART_EXPAND_QS}`),
                 headers: undefined,
                 method: 'POST',
                 body: '{"actions":[{"action":"addLineItem","productId":"526dc571-104f-40fb-b761-71781a97910b","variantId":1,"quantity":2}],"version":7}'
@@ -264,11 +264,11 @@ describe('commercetools postCartEntry', () => {
                 }
             };
             const expectedArgs = [{
-                uri: encodeURI(`/${config.CT_PROJECTKEY}/carts/12345?${config.CART_EXPAND_QS}`),
+                uri: encodeURI(`/${config.CT_PROJECTKEY}/me/carts/12345?${config.CART_EXPAND_QS}`),
                 headers: undefined,
                 method: 'GET'
             }, {
-                uri: encodeURI(`/${config.CT_PROJECTKEY}/carts/12345?${config.CART_EXPAND_QS}`),
+                uri: encodeURI(`/${config.CT_PROJECTKEY}/me/carts/12345?${config.CART_EXPAND_QS}`),
                 headers: undefined,
                 method: 'POST',
                 body: '{"actions":[{"action":"addLineItem","productId":"526dc571-104f-40fb-b761-71781a97910b","variantId":1,"quantity":2}],"version":7}'

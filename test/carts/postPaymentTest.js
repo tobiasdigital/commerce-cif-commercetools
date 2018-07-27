@@ -58,12 +58,12 @@ describe('commercetools post payment test', () => {
             };
             const expectedArgs = [{
                 uri: encodeURI(
-                    `/${config.CT_PROJECTKEY}/carts/12345?${config.CART_EXPAND_QS}`),
+                    `/${config.CT_PROJECTKEY}/me/carts/12345?${config.CART_EXPAND_QS}`),
                 method: 'GET',
                 headers: undefined
             }, {
                 uri: encodeURI(
-                    `/${config.CT_PROJECTKEY}/carts/12345?${config.CART_EXPAND_QS}`),
+                    `/${config.CT_PROJECTKEY}/me/carts/12345?${config.CART_EXPAND_QS}`),
                 method: 'POST',
                 body: `{"actions":[{"action":"setShippingMethod","shippingMethod":{"typeId":"shipping-method","id":"6f0b3638-73a5-4d80-8455-081d3e9f98bb"}}],"version":7}`,
                 headers: undefined
@@ -104,7 +104,7 @@ describe('commercetools post payment test', () => {
             };
             const expectedArgs = [{
                 uri: encodeURI(
-                    `/${config.CT_PROJECTKEY}/carts/12345?${config.CART_EXPAND_QS}`),
+                    `/${config.CT_PROJECTKEY}/me/carts/12345?${config.CART_EXPAND_QS}`),
                 method: 'GET',
                 headers: undefined
             }, {
@@ -114,7 +114,7 @@ describe('commercetools post payment test', () => {
                 body: JSON.stringify(paymentDraft)
             }, {
                 uri: encodeURI(
-                    `/${config.CT_PROJECTKEY}/carts/12345?${config.CART_EXPAND_QS}`),
+                    `/${config.CT_PROJECTKEY}/me/carts/12345?${config.CART_EXPAND_QS}`),
                 method: 'POST',
                 body: `{"actions":[{"action":"addPayment","payment":{"id":"efaa7df3-46f2-4116-8170-f1623e78aca7"}}],"version":7}`,
                 headers: undefined

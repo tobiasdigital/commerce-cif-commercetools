@@ -41,7 +41,7 @@ describe('commercetools searchProducts', () => {
             };
 
             const expectedArgs = {
-                uri: `/${config.CT_PROJECTKEY}/product-projections/search?staged=false&expand=productType&limit=5&offset=10&sort=name.en%20desc&sort=variants.sku%20asc&text.en=coat&markMatchingVariants=false&filter.query=id%3A%22526dc571-104f-40fb-b761-71781a97910b%22`,
+                uri: `/${config.CT_PROJECTKEY}/product-projections/search?expand=productType&limit=5&offset=10&sort=name.en%20desc&sort=variants.sku%20asc&text.en=coat&markMatchingVariants=false&filter.query=id%3A%22526dc571-104f-40fb-b761-71781a97910b%22`,
                 method: 'GET',
                 headers: undefined
             };
@@ -94,11 +94,11 @@ describe('commercetools searchProducts', () => {
 
             const expectedArgs = [{
                 uri: encodeURI(
-                    `/${config.CT_PROJECTKEY}/product-projections/search?staged=true&expand=productType&limit=1&text.en=jacket&markMatchingVariants=false`),
+                    `/${config.CT_PROJECTKEY}/product-projections/search?expand=productType&limit=1&text.en=jacket&markMatchingVariants=false`),
                 method: 'GET',
                 headers: undefined
             }, {
-                uri: `/${config.CT_PROJECTKEY}/product-projections/search?staged=false&expand=productType&limit=5&offset=10&sort=name.en%20desc&sort=variants.sku%20asc&text.en=jacket&markMatchingVariants=false&facet=variants.attributes.color.en%20counting%20products&facet=variants.attributes.size.en%20counting%20products&facet=variants.attributes.designer.en%20counting%20products&facet=variants.attributes.colorFreeDefinition.en%20counting%20products&facet=variants.attributes.test.en%20counting%20products&facet=categories.id%20counting%20products&facet=variants.prices.value.centAmount%20counting%20products`,
+                uri: `/${config.CT_PROJECTKEY}/product-projections/search?expand=productType&limit=5&offset=10&sort=name.en%20desc&sort=variants.sku%20asc&text.en=jacket&markMatchingVariants=false&facet=variants.attributes.color.en%20counting%20products&facet=variants.attributes.size.en%20counting%20products&facet=variants.attributes.designer.en%20counting%20products&facet=variants.attributes.colorFreeDefinition.en%20counting%20products&facet=variants.attributes.test.en%20counting%20products&facet=categories.id%20counting%20products&facet=variants.prices.value.centAmount%20counting%20products`,
                 method: 'GET',
                 headers: undefined
             }];
@@ -138,7 +138,7 @@ describe('commercetools searchProducts', () => {
             };
 
             const expectedArgs = {
-                uri: `/${config.CT_PROJECTKEY}/product-projections/search?staged=false&expand=productType&limit=5&offset=10&sort=name.en%20desc&sort=variants.sku%20asc&text.en=jacket&markMatchingVariants=false&facet=variants.attributes.color.en%20counting%20products`,
+                uri: `/${config.CT_PROJECTKEY}/product-projections/search?expand=productType&limit=5&offset=10&sort=name.en%20desc&sort=variants.sku%20asc&text.en=jacket&markMatchingVariants=false&facet=variants.attributes.color.en%20counting%20products`,
                 method: 'GET',
                 headers: undefined
             };
@@ -176,7 +176,7 @@ describe('commercetools searchProducts', () => {
             };
 
             const expectedArgs = {
-                uri: `/${config.CT_PROJECTKEY}/product-projections/search?staged=false&expand=productType&limit=5&offset=10&sort=name.en%20desc&sort=variants.sku%20asc&text.en=jacket&markMatchingVariants=false&facet=variants.attributes.color.en%20counting%20products&filter=variants.attributes.color.en%3A%22purple%22`,
+                uri: `/${config.CT_PROJECTKEY}/product-projections/search?expand=productType&limit=5&offset=10&sort=name.en%20desc&sort=variants.sku%20asc&text.en=jacket&markMatchingVariants=false&facet=variants.attributes.color.en%20counting%20products&filter=variants.attributes.color.en%3A%22purple%22`,
                 method: 'GET',
                 headers: undefined
             };

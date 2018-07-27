@@ -19,7 +19,8 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 const HttpStatus = require('http-status-codes');
 const expect = chai.expect;
-
+const extractToken = require('../lib/setupIT').extractToken;
+const OAUTH_TOKEN_NAME = require('../../src/common/constants').OAUTH_TOKEN_NAME;
 chai.use(chaiHttp);
 
 /**
@@ -49,6 +50,7 @@ module.exports.tests = function (ctx, addressType) {
     ctx.timeout(env.timeout);
 
     let cartId;
+    let accessToken;
 
     /** Create empty cart - same for all address ITs */
     beforeEach(function () {
@@ -61,15 +63,12 @@ module.exports.tests = function (ctx, addressType) {
                 expect(res).to.have.status(HttpStatus.CREATED);
                 // Store cart id
                 cartId = res.body.id;
+                // Store token to access the anonymous session
+                accessToken = extractToken(res);
             })
             .catch(function (err) {
                 throw err;
             });
-    });
-
-    /** Delete cart. */
-    after(function () {
-        // TODO(mabecker): Delete cart with id = cartId
     });
     /**
      * Verifies that a bad request is returned when no cart id is provided. Used only from post and deletes address ITs.
@@ -97,6 +96,7 @@ module.exports.tests = function (ctx, addressType) {
             .post(path)
             .query({id: 'non-existing-cart-id'})
             .set('Accept-Language', 'en-US')
+            .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
             .catch(function (err) {
                 expect(err.response).to.have.status(HttpStatus.NOT_FOUND);
             });
@@ -110,6 +110,7 @@ module.exports.tests = function (ctx, addressType) {
             .post(that.postAddressPath)
             .query({id: cartId, title: 'Home'})
             .set('Accept-Language', 'en-US')
+            .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
             .catch(function (err) {
                 expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
             });
@@ -150,6 +151,7 @@ module.exports.tests = function (ctx, addressType) {
                 address: addr
             })
             .set('Accept-Language', 'en-US')
+            .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
             .then(function (res) {
                 let addressBodyPropertyName = res.body[that.addressPropertyName];
                 expect(res).to.be.json;
@@ -217,6 +219,7 @@ module.exports.tests = function (ctx, addressType) {
                 }
             })
             .set('Accept-Language', 'en-US')
+            .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
             .then(function (res) {
                 expect(res).to.be.json;
                 expect(res).to.have.status(HttpStatus.OK);
@@ -224,7 +227,8 @@ module.exports.tests = function (ctx, addressType) {
                 return chai.request(env.openwhiskEndpoint)
                     .post(that.deleteAddressPath)
                     .query({id: cartId})
-                    .set('Accept-Language', 'en-US');
+                    .set('Accept-Language', 'en-US')
+                    .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`);
             }).then(function (res) {
                 expect(res).to.be.json;
                 expect(res).to.have.status(HttpStatus.OK);

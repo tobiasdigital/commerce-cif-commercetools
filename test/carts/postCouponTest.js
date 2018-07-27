@@ -54,7 +54,7 @@ describe('commercetools postCoupon', () => {
 
         it('adds the coupon code to the cart if all required parameters are given', () => {
             const expectedArgs = {
-                uri: encodeURI(`/${config.CT_PROJECTKEY}/carts/12345?${config.CART_EXPAND_QS}`),
+                uri: encodeURI(`/${config.CT_PROJECTKEY}/me/carts/12345?${config.CART_EXPAND_QS}`),
                 method: 'POST',
                 body: `{"actions":[{"action":"addDiscountCode","code":"APRIL18"}],"version":1}`,
                 headers: undefined

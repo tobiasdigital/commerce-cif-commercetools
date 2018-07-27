@@ -18,9 +18,9 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 const HttpStatus = require('http-status-codes');
 const setup = require('../lib/setupIT.js').setup;
-
+const extractToken = require('../lib/setupIT').extractToken;
 const expect = chai.expect;
-
+const OAUTH_TOKEN_NAME = require('../../src/common/constants').OAUTH_TOKEN_NAME;
 chai.use(chaiHttp);
 
 
@@ -40,6 +40,7 @@ describe('commercetools deleteCartEntry', function() {
 
         let cartId;
         let cartEntryId;
+        let accessToken;
 
         /** Create cart and add product. */
         beforeEach(function() {
@@ -59,15 +60,12 @@ describe('commercetools deleteCartEntry', function() {
                     cartId = res.body.id;
                     // Store cart entry id
                     cartEntryId = res.body.cartEntries[0].id;
+                    // Store token to access the anonymous session
+                    accessToken = extractToken(res);
                 })
                 .catch(function(err) {
                     throw err;
                 });
-        });
-
-        /** Delete cart. */
-        after(function() {
-            // TODO(mabecker): Delete cart with id = cartId
         });
 
         it('removes an entry from a cart', function() {
@@ -78,6 +76,7 @@ describe('commercetools deleteCartEntry', function() {
                     cartEntryId: cartEntryId
                 })
                 .set('Accept-Language', 'en-US')
+                .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .then(function(res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
@@ -100,6 +99,7 @@ describe('commercetools deleteCartEntry', function() {
                     productVariantId: productVariantIdSecond
                 })
                 .set('Accept-Language', 'en-US')
+                .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.CREATED);
@@ -120,7 +120,8 @@ describe('commercetools deleteCartEntry', function() {
                             id: cartId,
                             cartEntryId: cartEntryIdSecond
                         })
-                        .set('Accept-Language', 'en-US');
+                        .set('Accept-Language', 'en-US')
+                        .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`);
                 })
                 .then(function(res) {
                     expect(res).to.be.json;
@@ -144,6 +145,7 @@ describe('commercetools deleteCartEntry', function() {
                     cartEntryId: 'INVALID ENTRY |D'
                 })
                 .set('Accept-Language', 'en-US')
+                .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
                 });
@@ -157,6 +159,7 @@ describe('commercetools deleteCartEntry', function() {
                     cartEntryId: 'does-not-exist'
                 })
                 .set('Accept-Language', 'en-US')
+                .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
                 });
@@ -170,6 +173,7 @@ describe('commercetools deleteCartEntry', function() {
                     cartEntryId: cartEntryId
                 })
                 .set('Accept-Language', 'en-US')
+                .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.NOT_FOUND);
                 });
@@ -179,6 +183,7 @@ describe('commercetools deleteCartEntry', function() {
             return chai.request(env.openwhiskEndpoint)
                 .post(env.cartsPackage + 'deleteCartEntry')
                 .set('Accept-Language', 'en-US')
+                .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
                 });

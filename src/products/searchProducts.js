@@ -62,7 +62,6 @@ function searchProducts(args) {
 
     let text = args.text;
     let language = languageParser.getFirstLanguage();
-    let staged = args.staged || false;
     let limit = Number(args.limit) || 25;
     let offset = Number(args.offset) || 0;
 
@@ -82,21 +81,20 @@ function searchProducts(args) {
                 //get facet count for product as well. 
                 commerceToolsProductSearch.facet(`${facet.name} counting products`)
             });
-            return _executeSearch(commerceToolsProductSearch, limit, offset, staged);
+            return _executeSearch(commerceToolsProductSearch, limit, offset);
         });
     } else {
         queryFacets.forEach(facet => {
             commerceToolsProductSearch.facet(`${facet} counting products`)
         });
-        return _executeSearch(commerceToolsProductSearch, limit, offset, staged);
+        return _executeSearch(commerceToolsProductSearch, limit, offset);
     }
 }
 
-function _executeSearch(commerceToolsProductSearch, limit, offset, staged) {
+function _executeSearch(commerceToolsProductSearch, limit, offset) {
     return commerceToolsProductSearch
         .perPage(limit)
         .page(offset > 0 ? (offset / limit + 1) : 1)
-        .staged(staged)
         .expand('productType')
         .search();
 }

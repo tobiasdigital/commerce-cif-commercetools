@@ -14,14 +14,15 @@
 
 'use strict';
 
-const createAuthMiddleware = require('@commercetools/sdk-middleware-auth').createAuthMiddlewareForClientCredentialsFlow;
+const createAuthMiddlewareForAnonymousSessionFlow = require('@commercetools/sdk-middleware-auth').createAuthMiddlewareForAnonymousSessionFlow;
+const createAuthMiddlewareForPasswordFlow = require('@commercetools/sdk-middleware-auth').createAuthMiddlewareForPasswordFlow;
 const createHttpMiddleware = require('@commercetools/sdk-middleware-http').createHttpMiddleware;
 const tokenCookieMiddleware = require('./tokenCookieMiddleware.js');
 const respondWithCommerceToolsError = require('./web-response-utils').respondWithCommerceToolsError;
 const CTPerformanceMeasurement = require('./performance-measurement.js');
 const createRequestBuilder = require('@commercetools/api-request-builder').createRequestBuilder;
 const HttpStatusCodes = require('http-status-codes');
-
+const fetch = require('isomorphic-fetch');
 /**
  * Base class for commerce tools client. This should be extended for each implemented business domain api like catalog,
  * products or cart.
@@ -38,28 +39,43 @@ class CommerceToolsClientBase {
         this.args = args;
         this.errorType = errorType;
         this.requestBuilder = createRequestBuilder({projectKey: args.CT_PROJECTKEY});
-        this.client =
-            CTPerformanceMeasurement.decorateCommerceToolsClient(createClient(
-                {
-                    middlewares: [
-                        tokenCookieMiddleware.extractOauthTokenMiddleware(args.__ow_headers),
-                        createAuthMiddleware(
-                            {
-                                host: args.CT_AUTH_HOST,
-                                projectKey: args.CT_PROJECTKEY,
-                                credentials: {
-                                    clientId: args.CT_CLIENTID,
-                                    clientSecret: args.CT_CLIENTSECRET
-                                }
-                            }),
-                        tokenCookieMiddleware.setOauthTokenMiddleware(args.response),
-                        createHttpMiddleware({host: args.CT_API_HOST})
-                    ]
-                }), args);
         this.mapper = mapper;
         this.mapperArgs = [];
         //if any, set from children
         this.responseArgs = {};
+
+        //configuration from property file
+        const authConfig = {
+            host: args.CT_AUTH_HOST,
+            projectKey: args.CT_PROJECTKEY,
+            credentials: {
+                clientId: args.CT_CLIENTID,
+                clientSecret: args.CT_CLIENTSECRET
+            },
+            fetch,
+        };
+        let createAuthMiddleware;
+        //if email and password then create a customer login token
+        if (args.email && args.password) {
+            authConfig.credentials.user = {
+                username: args.email,
+                password: args.password
+            };
+            authConfig.scopes = [`manage_project:${args.CT_PROJECTKEY}`];
+            createAuthMiddleware = createAuthMiddlewareForPasswordFlow(authConfig);
+        } else {
+            createAuthMiddleware = createAuthMiddlewareForAnonymousSessionFlow(authConfig);
+        }
+
+        this.client = CTPerformanceMeasurement.decorateCommerceToolsClient(createClient({
+            middlewares: [
+                tokenCookieMiddleware.extractOauthTokenMiddleware(args.__ow_headers),
+                createAuthMiddleware,
+                tokenCookieMiddleware.setOauthTokenMiddleware(args.response),
+                createHttpMiddleware({host: args.CT_API_HOST})
+            ]
+        }), args);
+
     }
 
     /**
@@ -137,14 +153,6 @@ class CommerceToolsClientBase {
      */
     byId(value) {
         this.requestBuilder.byId(value);
-        return this;
-    }
-
-    /**
-     * Staged wrapper.
-     */
-    staged(value) {
-        this.requestBuilder.staged(value);
         return this;
     }
 

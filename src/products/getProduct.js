@@ -45,7 +45,6 @@ function getProduct(args) {
     }
 
     let id = args.id;
-    let staged = args.staged || false;
 
     // strip the last part of the id, if we have a product variant id
     if (id.length > 36 && id.lastIndexOf('-') == 36) {
@@ -60,7 +59,6 @@ function getProduct(args) {
     // expand productType is needed to retrieve the attribute product attribute definitions and axis map
     return commerceToolsProduct
         .byId(id)
-        .staged(staged)
         .expand('productType')
         .get();
 

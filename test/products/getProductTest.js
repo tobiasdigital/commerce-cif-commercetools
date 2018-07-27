@@ -34,7 +34,7 @@ describe('commercetools getProduct', () => {
                 }
             };
             const expectedArgs = [{
-                uri: `/${config.CT_PROJECTKEY}/product-projections/526dc571-104f-40fb-b761-71781a97910b?staged=false&expand=productType`,
+                uri: `/${config.CT_PROJECTKEY}/product-projections/526dc571-104f-40fb-b761-71781a97910b?expand=productType`,
                 method: 'GET',
                 headers: undefined
             }];
@@ -70,7 +70,7 @@ describe('commercetools getProduct', () => {
             };
             let productId = args.id.substring(0, args.id.lastIndexOf('-'));
             const expectedArgs = [{
-                uri: `/${config.CT_PROJECTKEY}/product-projections/526dc571-104f-40fb-b761-71781a97910b?staged=false&expand=productType`,
+                uri: `/${config.CT_PROJECTKEY}/product-projections/526dc571-104f-40fb-b761-71781a97910b?expand=productType`,
                 method: 'GET',
                 headers: undefined
             }];

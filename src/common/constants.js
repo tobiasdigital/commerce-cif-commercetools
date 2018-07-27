@@ -15,5 +15,6 @@
 'use strict';
 
 module.exports = {
-    HEADER_ACCEPT_LANGUAGE: 'Accept-Language'
+    HEADER_ACCEPT_LANGUAGE: 'Accept-Language',
+    OAUTH_TOKEN_NAME: 'ccs-ct-token'
 };

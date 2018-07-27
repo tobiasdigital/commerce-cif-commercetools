@@ -91,12 +91,12 @@ module.exports.tests = function (ctx, addressType) {
         };
         const expectedArgs = [{
             uri: encodeURI(
-                `/${config.CT_PROJECTKEY}/carts/12345?${config.CART_EXPAND_QS}`),
+                `/${config.CT_PROJECTKEY}/me/carts/12345?${config.CART_EXPAND_QS}`),
             method: 'GET',
             headers: undefined
         }, {
             uri: encodeURI(
-                `/${config.CT_PROJECTKEY}/carts/12345?${config.CART_EXPAND_QS}`),
+                `/${config.CT_PROJECTKEY}/me/carts/12345?${config.CART_EXPAND_QS}`),
             method: 'POST',
             body: `{"actions":[{"action":"${addressActionMethod}","address":{"title":"${addr.title}","salutation":"${addr.salutation}","firstName":"${addr.firstName}","lastName":"${addr.lastName}","streetName":"${addr.streetName}","streetNumber":"${addr.streetNumber}","additionalStreetInfo":"${addr.additionalStreetInfo}","postalCode":"${addr.postalCode}","city":"${addr.city}","region":"${addr.region}","country":"${addr.country}","department":"${addr.department}","phone":"${addr.phone}","mobile":"${addr.mobile}","email":"${addr.email}","fax":"${addr.fax}","additionalAddressInfo":"${addr.additionalAddressInfo}","company":"${addr.organizationName}"}}],"version":7}`,
             headers: undefined
@@ -119,12 +119,12 @@ module.exports.tests = function (ctx, addressType) {
         };
         const expectedArgs = [{
             uri: encodeURI(
-                `/${config.CT_PROJECTKEY}/carts/12345?${config.CART_EXPAND_QS}`),
+                `/${config.CT_PROJECTKEY}/me/carts/12345?${config.CART_EXPAND_QS}`),
             method: 'GET',
             headers: undefined
         }, {
             uri: encodeURI(
-                `/${config.CT_PROJECTKEY}/carts/12345?${config.CART_EXPAND_QS}`),
+                `/${config.CT_PROJECTKEY}/me/carts/12345?${config.CART_EXPAND_QS}`),
             method: 'POST',
             body: `{"actions":[{"action":"${addressActionMethod}"}],"version":7}`,
             headers: undefined

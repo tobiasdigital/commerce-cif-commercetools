@@ -18,9 +18,9 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 const HttpStatus = require('http-status-codes');
 const setup = require('../lib/setupIT.js').setup;
-
+const extractToken = require('../lib/setupIT').extractToken;
 const expect = chai.expect;
-
+const OAUTH_TOKEN_NAME = require('../../src/common/constants').OAUTH_TOKEN_NAME;
 chai.use(chaiHttp);
 
 
@@ -36,6 +36,8 @@ describe('commercetools getShippingMethods integration test for a cart', functio
         this.timeout(env.timeout);
 
         let cartId;
+        let accessToken;
+
         const productVariantId = '90ed1673-4553-47c6-9336-5cb23947abb2-1';
 
         /** Create cart. */
@@ -55,15 +57,12 @@ describe('commercetools getShippingMethods integration test for a cart', functio
 
                     // Store cart id
                     cartId = res.body.id;
+                    // Store token to access the anonymous session
+                    accessToken = extractToken(res);
                 })
                 .catch(function (err) {
                     throw err;
                 });
-        });
-
-        /** Delete cart. */
-        after(function() {
-            // TODO(mabecker): Delete cart with id = cartId
         });
 
         it('returns the list of available shipping methods for the cart', function() {
@@ -78,6 +77,7 @@ describe('commercetools getShippingMethods integration test for a cart', functio
                     address: {country: 'US'}
                 })
                 .set('Accept-Language', 'en-US')
+                .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
@@ -86,7 +86,8 @@ describe('commercetools getShippingMethods integration test for a cart', functio
                     return chai.request(env.openwhiskEndpoint)
                                 .get(env.cartsPackage + 'getShippingMethods')
                                 .query({id: cartId})
-                                .set('Accept-Language', 'en-US');
+                                .set('Accept-Language', 'en-US')
+                                .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`);
                 })
                 .then(function (res) {
                     expect(res).to.be.json;
@@ -115,6 +116,7 @@ describe('commercetools getShippingMethods integration test for a cart', functio
                     address: {country: 'FR'}
                 })
                 .set('Accept-Language', 'en-US')
+                .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
@@ -123,7 +125,8 @@ describe('commercetools getShippingMethods integration test for a cart', functio
                     return chai.request(env.openwhiskEndpoint)
                         .get(env.cartsPackage + 'getShippingMethods')
                         .query({id: cartId})
-                        .set('Accept-Language', 'en-US');
+                        .set('Accept-Language', 'en-US')
+                        .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`);
                 })
                 .then(function (res) {
                     expect(res).to.be.json;
@@ -143,6 +146,7 @@ describe('commercetools getShippingMethods integration test for a cart', functio
                 .post(env.cartsPackage + 'deleteShippingAddress')
                 .query({id: cartId})
                 .set('Accept-Language', 'en-US')
+                .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
@@ -151,7 +155,8 @@ describe('commercetools getShippingMethods integration test for a cart', functio
                     return chai.request(env.openwhiskEndpoint)
                         .get(env.cartsPackage + 'getShippingMethods')
                         .query({id: cartId})
-                        .set('Accept-Language', 'en-US');
+                        .set('Accept-Language', 'en-US')
+                        .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`);
                 })
                 .catch(function (err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
@@ -162,6 +167,7 @@ describe('commercetools getShippingMethods integration test for a cart', functio
             return chai.request(env.openwhiskEndpoint)
                 .get(env.cartsPackage + 'getShippingMethods')
                 .set('Accept-Language', 'en-US')
+                .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
                 });
@@ -172,6 +178,7 @@ describe('commercetools getShippingMethods integration test for a cart', functio
                 .get(env.cartsPackage + 'getShippingMethods')
                 .query({id: 'does-not-exist'})
                 .set('Accept-Language', 'en-US')
+                .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
                 });

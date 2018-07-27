@@ -37,7 +37,7 @@ describe('commercetools getCart', () => {
         it('Get /cart/{id} HTTP 200 ', () => {
             const expectedArgs = {
                 uri: encodeURI(
-                    `/${config.CT_PROJECTKEY}/carts/dummy?${config.CART_EXPAND_QS}`),
+                    `/${config.CT_PROJECTKEY}/me/carts/dummy?${config.CART_EXPAND_QS}`),
                 headers: undefined,
                 method: 'GET'
             };
@@ -57,7 +57,7 @@ describe('commercetools getCart', () => {
         it('Get /cart/{id} - uses expand to get discount name in the same call', () => {
             const expectedArgs = {
                 uri: encodeURI(
-                    `/${config.CT_PROJECTKEY}/carts/dummy?${config.CART_EXPAND_QS}`),
+                    `/${config.CT_PROJECTKEY}/me/carts/dummy?${config.CART_EXPAND_QS}`),
                 headers: undefined,
                 method: 'GET'
             };
