@@ -18,6 +18,7 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 const HttpStatus = require('http-status-codes');
 const setup = require('../lib/setupIT.js').setup;
+const requiredFields = require('../lib/requiredFields');
 const extractToken = require('../lib/setupIT').extractToken;
 const expect = chai.expect;
 const OAUTH_TOKEN_NAME = require('../../src/common/constants').OAUTH_TOKEN_NAME;
@@ -75,6 +76,8 @@ describe('commercetools postCoupon', function () {
                 .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .catch(function (err) {
                     expect(err.response).to.have.status(HttpStatus.NOT_FOUND);
+                    expect(err.response).to.be.json;
+                    requiredFields.verifyErrorResponse(err.response.body);
                 });
         });
 
@@ -88,6 +91,8 @@ describe('commercetools postCoupon', function () {
                 .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .catch(function (err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
+                    expect(err.response).to.be.json;
+                    requiredFields.verifyErrorResponse(err.response.body);
                 });
         });
 
@@ -102,6 +107,8 @@ describe('commercetools postCoupon', function () {
                 .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .catch(function (err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
+                    expect(err.response).to.be.json;
+                    requiredFields.verifyErrorResponse(err.response.body);
                 });
         });
 
@@ -118,12 +125,12 @@ describe('commercetools postCoupon', function () {
                 .then(function(res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
+                    requiredFields.verifyCart(res.body);
                     expect(res.body).to.have.property('coupons');
                     expect(res.body.coupons).to.have.lengthOf(1);
 
                     let coupon = res.body.coupons[0];
-                    expect(coupon).to.have.property('id');
-                    expect(coupon).to.have.property('code');
+                    requiredFields.verifyCoupon(coupon);
                     expect(coupon).to.have.property('description');
                 });
         });

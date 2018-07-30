@@ -21,6 +21,7 @@ const CommerceToolsProductSearch = require('./CommerceToolsProductSearch');
 const ProductMapper = require('./ProductMapper');
 const ERROR_TYPE = require('./constants').ERROR_TYPE;
 const LanguageParser = require('@adobe/commerce-cif-commercetools-common/LanguageParser');
+const InvalidArgumentError = require('@adobe/commerce-cif-common/exception').InvalidArgumentError;
 
 /**
  * This action searches commerceTools product data (product projections) based on search and filter criteria.
@@ -92,11 +93,16 @@ function searchProducts(args) {
 }
 
 function _executeSearch(commerceToolsProductSearch, limit, offset) {
-    return commerceToolsProductSearch
-        .perPage(limit)
-        .page(offset > 0 ? (offset / limit + 1) : 1)
-        .expand('productType')
-        .search();
+    try {
+        return commerceToolsProductSearch
+            .perPage(limit)
+            .page(offset > 0 ? (offset / limit + 1) : 1)
+            .expand('productType')
+            .search();
+    } catch(err) {
+        commerceToolsProductSearch.args['response'] = { 'error': new InvalidArgumentError(err.message), 'errorType': commerceToolsProductSearch.errorType };
+        return Promise.resolve(commerceToolsProductSearch.args);
+    }
 }
 
 function _setQueryCriteria(client, language, text, filters, selectedFacets, sorts) {

@@ -33,7 +33,7 @@ class ShippingMethodMapper {
     mapShippingMethods(result) {
         if (result.body.results) { // we have a paged result set
             let pr = new PagedResponse();
-            pr.offset = result.body.offset;
+            pr.offset = result.body.offset || 0;
             pr.count = result.body.count;
             pr.total = result.body.total;
             pr.results = this._mapShippingMethods(result.body.results);

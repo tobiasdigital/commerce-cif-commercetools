@@ -23,26 +23,29 @@ const UnexpectedError = require('@adobe/commerce-cif-common/exception').Unexpect
 function respondWithCommerceToolsError(error, args, resolve, errorType) {
 
     let errorCode = null;
+    let cause = null;
 
     if(error && error.code) {
         errorCode = error.code;
+        cause = error;
     } else if (error && error.body) {
         // latest CT sdk returns a different response for certain invalid requests
         // i.e customer login with bad password
         errorCode = error.body.statusCode;
+        cause = { message: error.body.error };
     }
 
     if (errorCode === HttpStatusCodes.NOT_FOUND) {
         args['response'] =
-            {'error': new CommerceServiceResourceNotFoundError('CommerceTools resource not found', error)};
+            {'error': new CommerceServiceResourceNotFoundError('CommerceTools resource not found', cause)};
     } else if (errorCode === HttpStatusCodes.BAD_REQUEST) {
         args['response'] =
-            {'error': new CommerceServiceBadRequestError('Bad CommerceTools Request', error)};
+            {'error': new CommerceServiceBadRequestError('Bad CommerceTools Request', cause)};
     } else if (errorCode === HttpStatusCodes.FORBIDDEN) {
         args['response'] =
-            {'error': new CommerceServiceForbiddenError('Forbidden Request', error)};
+            {'error': new CommerceServiceForbiddenError('Forbidden Request', cause)};
     } else {
-        args['response'] = {'error': new UnexpectedError('Unknown error while communicating with CommerceTools', error)};
+        args['response'] = {'error': new UnexpectedError('Unknown error while communicating with CommerceTools', cause)};
     }
 
     args.response.errorType = errorType;

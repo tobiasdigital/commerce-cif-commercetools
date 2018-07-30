@@ -81,6 +81,7 @@ class CartMapper {
         const ccifIf = CcifIdentifier.buildCcifIdentifier(ctCart.id, ctCart.version);
         let cart = new Cart(cartEntries, ccifIf);
         cart.discounts = [];
+        cart.currency = ctCart.totalPrice.currencyCode;
         
         if (ctCart.taxedPrice) {
             cart.netTotalPrice = new Price(ctCart.taxedPrice.totalNet.centAmount, ctCart.taxedPrice.totalNet.currencyCode);
@@ -221,7 +222,7 @@ class CartMapper {
      */
     _mapAddress(ctAddress) {
         const address = new Address();
-        address.id = ctAddress.id;
+        address.id = ctAddress.id || "";
         address.title = ctAddress.title;
         address.salutation = ctAddress.salutation;
         address.firstName = ctAddress.firstName;

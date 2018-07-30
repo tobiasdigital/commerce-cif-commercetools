@@ -166,6 +166,17 @@ describe('commercetools getCategories', () => {
                 //                                                                    ' match');
             });
         });
+
+        it('returns an error for invalid paging parameters', () => {
+            let args = {
+                limit: -1
+            };
+            return this.execute(args).then(function(result) {
+                assert.isDefined(result.response.error);
+                assert.strictEqual(result.response.error.name, 'InvalidArgumentError');
+                assert.isDefined(result.response.errorType);
+            })
+        });
     });
 });
 

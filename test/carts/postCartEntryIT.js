@@ -21,6 +21,7 @@ const setup = require('../lib/setupIT.js').setup;
 const extractToken = require('../lib/setupIT').extractToken;
 const CcifIdentifier = require('../../src/common/CcifIdentifier');
 const expect = chai.expect;
+const requiredFields = require('../lib/requiredFields');
 const OAUTH_TOKEN_NAME = require('../../src/common/constants').OAUTH_TOKEN_NAME;
 chai.use(chaiHttp);
 
@@ -43,7 +44,7 @@ describe('commercetools postCartEntry', function() {
         const productVariantIdSecond = '90ed1673-4553-47c6-9336-5cb23947abb2-2';
 
         /** Create cart. */
-        before(function() {
+        beforeEach(function() {
             return chai.request(env.openwhiskEndpoint)
                 .post(env.cartsPackage + 'postCart')
                 .query({
@@ -82,12 +83,10 @@ describe('commercetools postCartEntry', function() {
                     expect(res.headers).to.have.property('location');
 
                     // Verify structure
-                    expect(res.body).to.have.own.property('id');
+                    requiredFields.verifyCart(res.body);
                     expect(res.body.id).to.not.be.empty;
                     expect(res.body).to.have.own.property('lastModifiedDate');
-                    expect(res.body).to.have.own.property('totalProductPrice');
                     expect(res.body).to.have.own.property('createdDate');
-                    expect(res.body).to.have.own.property('cartEntries');
                     expect(res.body.cartEntries).to.have.lengthOf(0);
                 })
                 .catch(function(err) {
@@ -112,15 +111,13 @@ describe('commercetools postCartEntry', function() {
                     expect(res.headers).to.have.property('location');
 
                     // Verify structure
-                    expect(res.body).to.have.own.property('id');
+                    requiredFields.verifyCart(res.body);
                     let ccifResId = new CcifIdentifier(res.body.id);
                     let ccifParamId = new CcifIdentifier(cartId);
                     expect(ccifResId.getCommerceToolsId()).to.equal(ccifParamId.getCommerceToolsId());
                     expect(ccifResId.getCommerceToolsVersion()).not.to.equal(ccifParamId.getCommerceToolsVersion());
                     expect(res.body).to.have.own.property('lastModifiedDate');
-                    expect(res.body).to.have.own.property('totalProductPrice');
                     expect(res.body).to.have.own.property('createdDate');
-                    expect(res.body).to.have.own.property('cartEntries');
                     expect(res.body.cartEntries).to.have.lengthOf(2);
 
                     // Verify that product was added
@@ -154,23 +151,16 @@ describe('commercetools postCartEntry', function() {
                     expect(res.headers).to.have.property('location');
 
                     // Verify structure
-                    expect(res.body).to.have.own.property('id');
+                    requiredFields.verifyCart(res.body);
                     expect(res.body.id).to.not.be.empty;
                     expect(res.body).to.have.own.property('lastModifiedDate');
-                    expect(res.body).to.have.own.property('totalProductPrice');
                     expect(res.body).to.have.own.property('createdDate');
-                    expect(res.body).to.have.own.property('cartEntries');
                     expect(res.body.cartEntries).to.have.lengthOf(1);
 
                     // Verify entry structure
                     const entry = res.body.cartEntries[0];
-                    expect(entry).to.have.own.property('id');
-                    expect(entry).to.have.own.property('quantity');
                     expect(entry.quantity).to.equal(2);
-                    expect(entry).to.have.own.property('productVariant');
                     expect(entry.productVariant.id).to.equal(productVariantId);
-                    expect(entry).to.have.own.property('cartEntryPrice');
-                    
                 })
                 .catch(function(err) {
                     throw err;
@@ -187,6 +177,8 @@ describe('commercetools postCartEntry', function() {
                 .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
+                    expect(err.response).to.be.json;
+                    requiredFields.verifyErrorResponse(err.response.body);
                 });
         });
 
@@ -202,6 +194,8 @@ describe('commercetools postCartEntry', function() {
                 .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
+                    expect(err.response).to.be.json;
+                    requiredFields.verifyErrorResponse(err.response.body);
                 });
         });
 
@@ -217,10 +211,12 @@ describe('commercetools postCartEntry', function() {
                 .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
+                    expect(err.response).to.be.json;
+                    requiredFields.verifyErrorResponse(err.response.body);
                 });
         });
 
-        it('returns a 400 error for a non existent product variand id', function() {
+        it('returns a 400 error for a non existent product variant id', function() {
             return chai.request(env.openwhiskEndpoint)
                 .post(env.cartsPackage + 'postCartEntry')
                 .query({
@@ -232,6 +228,8 @@ describe('commercetools postCartEntry', function() {
                 .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
+                    expect(err.response).to.be.json;
+                    requiredFields.verifyErrorResponse(err.response.body);
                 });
         });
 
@@ -247,6 +245,8 @@ describe('commercetools postCartEntry', function() {
                 .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.NOT_FOUND);
+                    expect(err.response).to.be.json;
+                    requiredFields.verifyErrorResponse(err.response.body);
                 });
         });
 
@@ -257,6 +257,8 @@ describe('commercetools postCartEntry', function() {
                 .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
+                    expect(err.response).to.be.json;
+                    requiredFields.verifyErrorResponse(err.response.body);
                 });
         });
 

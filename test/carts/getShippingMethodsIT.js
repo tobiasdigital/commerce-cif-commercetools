@@ -18,6 +18,7 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 const HttpStatus = require('http-status-codes');
 const setup = require('../lib/setupIT.js').setup;
+const requiredFields = require('../lib/requiredFields');
 const extractToken = require('../lib/setupIT').extractToken;
 const expect = chai.expect;
 const OAUTH_TOKEN_NAME = require('../../src/common/constants').OAUTH_TOKEN_NAME;
@@ -41,7 +42,7 @@ describe('commercetools getShippingMethods integration test for a cart', functio
         const productVariantId = '90ed1673-4553-47c6-9336-5cb23947abb2-1';
 
         /** Create cart. */
-        before(function() {
+        beforeEach(function() {
             return chai.request(env.openwhiskEndpoint)
                 .post(env.cartsPackage + 'postCart')
                 .query({
@@ -81,13 +82,18 @@ describe('commercetools getShippingMethods integration test for a cart', functio
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
+                    requiredFields.verifyCart(res.body);
                     expect(res.body).to.have.property('shippingAddress');
 
+                    // Update cart id
+                    cartId = res.body.id;
+
                     return chai.request(env.openwhiskEndpoint)
-                                .get(env.cartsPackage + 'getShippingMethods')
-                                .query({id: cartId})
-                                .set('Accept-Language', 'en-US')
-                                .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`);
+                        .get(env.cartsPackage + 'getShippingMethods')
+                        .query({id: cartId})
+                        .set('Accept-Language', 'en-US')
+                        .set('Cache-Control', 'no-cache')
+                        .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`);
                 })
                 .then(function (res) {
                     expect(res).to.be.json;
@@ -96,7 +102,8 @@ describe('commercetools getShippingMethods integration test for a cart', functio
                     // Verify structure
                     expect(res.body).to.be.an('array');
                     res.body.forEach(shippingMethod => {
-                        expect(shippingMethod).to.have.all.keys('id', 'name', 'description', 'price');
+                        requiredFields.verifyShippingMethod(shippingMethod);
+                        expect(shippingMethod).to.have.own.property('description');
                     });
                 })
                 .catch(function (err) {
@@ -120,12 +127,17 @@ describe('commercetools getShippingMethods integration test for a cart', functio
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
+                    requiredFields.verifyCart(res.body);
                     expect(res.body).to.have.property('shippingAddress');
+
+                    // Update cartId
+                    cartId = res.body.id;
 
                     return chai.request(env.openwhiskEndpoint)
                         .get(env.cartsPackage + 'getShippingMethods')
                         .query({id: cartId})
                         .set('Accept-Language', 'en-US')
+                        .set('Cache-Control', 'no-cache')
                         .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`);
                 })
                 .then(function (res) {
@@ -150,16 +162,23 @@ describe('commercetools getShippingMethods integration test for a cart', functio
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
+                    requiredFields.verifyCart(res.body);
                     expect(res.body).to.not.have.property('shippingAddress');
+
+                    // Update cartId
+                    cartId = res.body.id;
 
                     return chai.request(env.openwhiskEndpoint)
                         .get(env.cartsPackage + 'getShippingMethods')
                         .query({id: cartId})
                         .set('Accept-Language', 'en-US')
+                        .set('Cache-Control', 'no-cache')
                         .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`);
                 })
                 .catch(function (err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
+                    expect(err.response).to.be.json;
+                    requiredFields.verifyErrorResponse(err.response.body);
                 });
         });
 
@@ -167,9 +186,12 @@ describe('commercetools getShippingMethods integration test for a cart', functio
             return chai.request(env.openwhiskEndpoint)
                 .get(env.cartsPackage + 'getShippingMethods')
                 .set('Accept-Language', 'en-US')
+                .set('Cache-Control', 'no-cache')
                 .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
+                    expect(err.response).to.be.json;
+                    requiredFields.verifyErrorResponse(err.response.body);
                 });
         });
 
@@ -178,9 +200,12 @@ describe('commercetools getShippingMethods integration test for a cart', functio
                 .get(env.cartsPackage + 'getShippingMethods')
                 .query({id: 'does-not-exist'})
                 .set('Accept-Language', 'en-US')
+                .set('Cache-Control', 'no-cache')
                 .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
+                    expect(err.response).to.be.json;
+                    requiredFields.verifyErrorResponse(err.response.body);
                 });
         });
 

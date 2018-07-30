@@ -21,8 +21,8 @@ const tokenCookieMiddleware = require('./tokenCookieMiddleware.js');
 const respondWithCommerceToolsError = require('./web-response-utils').respondWithCommerceToolsError;
 const CTPerformanceMeasurement = require('./performance-measurement.js');
 const createRequestBuilder = require('@commercetools/api-request-builder').createRequestBuilder;
-const HttpStatusCodes = require('http-status-codes');
 const fetch = require('isomorphic-fetch');
+
 /**
  * Base class for commerce tools client. This should be extended for each implemented business domain api like catalog,
  * products or cart.
@@ -126,9 +126,6 @@ class CommerceToolsClientBase {
             this.mapperArgs.splice(1, 0, this.args);
             return this._handleSuccess(this.mapper.apply(this, this.mapperArgs));
         }).catch(error => {
-            if (error && error.code === HttpStatusCodes.CONFLICT) {
-                throw error;
-            }
             return this._handleError(error);
         });
     }

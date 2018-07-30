@@ -18,6 +18,7 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 const HttpStatus = require('http-status-codes');
 const setup = require('../lib/setupIT.js').setup;
+const requiredFields = require('../lib/requiredFields');
 
 const expect = chai.expect;
 
@@ -39,16 +40,14 @@ describe('commercetools getCustomerById', function() {
         it('returns a customer for a valid customer id', function() {
             return chai.request(env.openwhiskEndpoint)
                 .get(env.customersPackage + 'getCustomerById')
+                .set('Cache-Control', 'no-cache')
                 .query({id: customerId})
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
 
                     // Verify structure
-                    expect(res.body).to.have.own.property('email');
-                    expect(res.body).to.have.own.property('firstname');
-                    expect(res.body).to.have.own.property('lastname');
-                    expect(res.body).to.have.own.property('id');
+                    requiredFields.verifyCustomer(res.body);
                     expect(res.body.id).to.equal(customerId);
                     expect(res.body).to.have.own.property('createdDate');
                 })
@@ -60,9 +59,12 @@ describe('commercetools getCustomerById', function() {
         it('returns a 404 error for a non existent customer', function() {
             return chai.request(env.openwhiskEndpoint)
                 .get(env.customersPackage + 'getCustomerById')
+                .set('Cache-Control', 'no-cache')
                 .query({id: 'does-not-exist'})
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.NOT_FOUND);
+                    expect(err.response).to.be.json;
+                    requiredFields.verifyErrorResponse(err.response.body);
                 });
         });
 

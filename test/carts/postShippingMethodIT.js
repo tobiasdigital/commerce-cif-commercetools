@@ -18,6 +18,7 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 const HttpStatus = require('http-status-codes');
 const setup = require('../lib/setupIT.js').setup;
+const requiredFields = require('../lib/requiredFields');
 const extractToken = require('../lib/setupIT').extractToken;
 const expect = chai.expect;
 const OAUTH_TOKEN_NAME = require('../../src/common/constants').OAUTH_TOKEN_NAME;
@@ -74,6 +75,8 @@ describe('commercetools postShippingMethod', function () {
                 .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .catch(function (err) {
                     expect(err.response).to.have.status(HttpStatus.NOT_FOUND);
+                    expect(err.response).to.be.json;
+                    requiredFields.verifyErrorResponse(err.response.body);
                 });
         });
 
@@ -87,6 +90,8 @@ describe('commercetools postShippingMethod', function () {
                 .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .catch(function (err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
+                    expect(err.response).to.be.json;
+                    requiredFields.verifyErrorResponse(err.response.body);
                 });
         });
 
@@ -110,6 +115,11 @@ describe('commercetools postShippingMethod', function () {
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
+                    requiredFields.verifyCart(res.body);
+
+                    // Update cartId
+                    args.id = res.body.id;
+
                     return chai.request(env.openwhiskEndpoint)
                         .post(env.cartsPackage + 'postShippingMethod')
                         .query(args)
@@ -119,10 +129,9 @@ describe('commercetools postShippingMethod', function () {
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
+                    requiredFields.verifyCart(res.body);
                     expect(res.body).to.have.property('shippingInfo');
-                    expect(res.body.shippingInfo).to.have.property('id');
-                    expect(res.body.shippingInfo).to.have.property('name');
-                    expect(res.body.shippingInfo).to.have.property('price');
+                    requiredFields.verifyShippingInfo(res.body.shippingInfo);
                 });
 
         });

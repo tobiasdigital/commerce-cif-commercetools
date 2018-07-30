@@ -48,7 +48,7 @@ class ProductMapper {
      */
     mapPagedProductResponse(result, args) {
         let pr = new PagedResponse();
-        pr.offset = result.body.offset;
+        pr.offset = result.body.offset || 0;
         pr.count = result.body.count;
         pr.total = result.body.total;
         pr.results = this.mapProducts(result.body.results, args);
@@ -94,10 +94,11 @@ class ProductMapper {
 
         let masterVariantId = ctProduct.id + '-' + ctProduct.masterVariant.id;
         let p = new Product(ctProduct.id, masterVariantId, this._mapProductVariants(ctProduct));
-        p.name = this.languageParser.pickLanguage(ctProduct.name);
+        p.name = this.languageParser.pickLanguage(ctProduct.name) || "";
         if (ctProduct.description) {
             p.description = this.languageParser.pickLanguage(ctProduct.description);
         }
+        p.prices = []; // Required field
         p.createdDate = ctProduct.createdAt;
         p.lastModifiedDate = ctProduct.lastModifiedAt;
         p.categories = this._mapProductCategories(ctProduct.categories);
@@ -118,10 +119,11 @@ class ProductMapper {
         }
 
         let v = new ProductVariant(ctLineItem.productId + '-' + ctLineItem.variant.id);
+        v.name = this.languageParser.pickLanguage(ctLineItem.name) || "";
 
-        if (ctLineItem.name) {
-            v.name = this.languageParser.pickLanguage(ctLineItem.name);
-        }
+        // TODO: Get actual value from backend
+        v.available = true;
+
         v.sku = ctLineItem.variant.sku;
         v.prices = this._mapPrices(ctLineItem.variant.prices);
         v.assets = this._mapImages(ctLineItem.variant.images);
@@ -142,7 +144,7 @@ class ProductMapper {
                 if (attribute.isSearchable === true) {
                     let facet = new Facet();
                     facet.name = `variants.attributes.${attribute.name}.en`;
-                    facet.label = this.languageParser.pickLanguage(attribute.label);
+                    facet.label = this.languageParser.pickLanguage(attribute.label) || facet.name;
                     facets.push(facet);
                 }
             });
@@ -176,12 +178,14 @@ class ProductMapper {
      */
     _mapProductVariant(ctProduct, variant, attributesTypes) {
         let v = new ProductVariant(ctProduct.id + '-' + variant.id);
-        if (variant.name) {
-            v.name = this.languageParser.pickLanguage(variant.name);
-        }
+        v.name = this.languageParser.pickLanguage(variant.name) || this.languageParser.pickLanguage(ctProduct.name) || "";
         if (variant.description) {
             v.description = this.languageParser.pickLanguage(variant.description);
         }
+
+        // TODO: Get actual value from backend
+        v.available = true;
+
         v.sku = variant.sku;
         v.prices = this._mapPrices(variant.prices);
         v.assets = this._mapImages(variant.images);
@@ -282,6 +286,7 @@ class ProductMapper {
         return ctFacetNames.map(facetName => {
             cifFacet = new Facet();
             cifFacet.name = facetName;
+            cifFacet.label = this.languageParser.pickLanguage(ctFacets[facetName].label) || facetName;
             cifFacet.missed = ctFacets[facetName].missing;
             if (ctFacets[facetName].type === 'range') {
                 cifFacet.type = ctFacets[facetName].type;
@@ -328,7 +333,7 @@ class ProductMapper {
     _initProductFacet(name, label) {
         let facet = new Facet();
         facet.name = name;
-        facet.label = this.languageParser.pickLanguage(label);
+        facet.label = this.languageParser.pickLanguage(label) || facet.name;
         return facet;
     }
 

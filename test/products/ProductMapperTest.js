@@ -97,7 +97,7 @@ describe('commercetools ProductMapper', () => {
 
             assert.strictEqual(mappedVariant.id, productData.body.id + '-' + productData.body.masterVariant.id);
             assert.strictEqual(mappedVariant.sku, productData.body.masterVariant.sku);
-            assert.strictEqual(mappedVariant.name, (productData.body.masterVariant.name || {}).en);
+            assert.strictEqual(mappedVariant.name, (mappedProduct.name || ""));
             assert.strictEqual(mappedVariant.description, (productData.body.masterVariant.description || {}).en);
             assert.lengthOf(mappedVariant.prices, productData.body.masterVariant.prices.length);
 

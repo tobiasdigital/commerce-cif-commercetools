@@ -350,7 +350,11 @@ describe('commercetools CartMapper', () => {
  * @param {Address} cartDataAddress
  */
 function assertEqualAddress(mappedCartAddress, cartDataAddress) {
-    assert.strictEqual(mappedCartAddress.id, cartDataAddress.id);
+    if (cartDataAddress.id) {
+        assert.strictEqual(mappedCartAddress.id, cartDataAddress.id);
+    } else {
+        assert.isDefined(mappedCartAddress.id);
+    }
     assert.strictEqual(mappedCartAddress.title, cartDataAddress.title);
     assert.strictEqual(mappedCartAddress.salutation, cartDataAddress.salutation);
     assert.strictEqual(mappedCartAddress.firstName, cartDataAddress.firstName);

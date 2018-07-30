@@ -19,6 +19,7 @@ const CTPerformanceMeasurement = require('@adobe/commerce-cif-commercetools-comm
 const CommerceToolsCategory = require('./CommerceToolsCategory');
 const CategoryMapper = require('./CategoryMapper');
 const LanguageParser = require('@adobe/commerce-cif-commercetools-common/LanguageParser');
+const InvalidArgumentError = require('@adobe/commerce-cif-common/exception').InvalidArgumentError;
 
 /**
  * This action returns the entire category structure, a given category, or a subset of the categories depending on pagination.
@@ -51,34 +52,38 @@ function getCategories(args) {
     let categoryMapper = new CategoryMapper(languageParser)
 
     const categories = new CommerceToolsCategory(args, createClient, args.id ? categoryMapper.mapCategory.bind(categoryMapper) : categoryMapper.mapPagedCategoryResponse.bind(categoryMapper));
-    if (id) {
-        categories.byId(id);
-    }
-    else {
-        categories.perPage(limit);
-        categories.page(offset > 0 ? ((offset / limit) + 1) : 1);
-    }
-
-    sorts.forEach(sortString => {
-        let direction;
-        let field;
-
-        if (sortString.endsWith('.desc')) {
-            direction = false;
+    try {
+        if (id) {
+            categories.byId(id);
         } else {
-            direction = true;
+            categories.perPage(limit);
+            categories.page(offset > 0 ? ((offset / limit) + 1) : 1);
         }
 
-        let index = sortString.indexOf('.');
-        field = index === -1 ? sortString : sortString.substring(0, index);
+        sorts.forEach(sortString => {
+            let direction;
+            let field;
 
-        // Add localization for name and description fields
-        if (field.startsWith("name") || field.startsWith("description")) {
-            field += `.${languageParser.getFirstLanguage()}`
-        }
+            if (sortString.endsWith('.desc')) {
+                direction = false;
+            } else {
+                direction = true;
+            }
 
-        categories.sort(field, direction);
-    });
+            let index = sortString.indexOf('.');
+            field = index === -1 ? sortString : sortString.substring(0, index);
+
+            // Add localization for name and description fields
+            if (field.startsWith("name") || field.startsWith("description")) {
+                field += `.${languageParser.getFirstLanguage()}`
+            }
+
+            categories.sort(field, direction);
+        });
+    } catch(err) {
+        args['response'] = { 'error': new InvalidArgumentError(err.message), 'errorType': categories.errorType };
+        return Promise.resolve(args);
+    }
 
     return categories.getCategories(type, depth);
 }

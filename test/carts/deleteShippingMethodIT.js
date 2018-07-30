@@ -18,6 +18,7 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 const HttpStatus = require('http-status-codes');
 const setup = require('../lib/setupIT.js').setup;
+const requiredFields = require('../lib/requiredFields');
 const extractToken = require('../lib/setupIT').extractToken;
 const expect = chai.expect;
 const OAUTH_TOKEN_NAME = require('../../src/common/constants').OAUTH_TOKEN_NAME;
@@ -68,6 +69,8 @@ describe('commercetools deleteShippingMethod', function () {
                 .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .catch(function (err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
+                    expect(err.response).to.be.json;
+                    requiredFields.verifyErrorResponse(err.response.body);
                 });
         });
 
@@ -81,10 +84,32 @@ describe('commercetools deleteShippingMethod', function () {
                 .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .catch(function (err) {
                     expect(err.response).to.have.status(HttpStatus.NOT_FOUND);
+                    expect(err.response).to.be.json;
+                    requiredFields.verifyErrorResponse(err.response.body);
                 });
         });
 
         it('removes shipping method', function () {
+            const addr = {
+                title: 'Work',
+                salutation: 'Ms',
+                firstName: 'Cat Eye',
+                lastName: 'Nebulae',
+                streetName: 'Draco',
+                streetNumber: '3,262',
+                additionalStreetInfo: 'Light Years',
+                postalCode: '666666',
+                city: 'Constellation',
+                region: 'FarAway',
+                country: 'US',
+                organizationName: 'Zeus',
+                department: 'Production',
+                phone: '66666666666',
+                mobile: '66666666666',
+                email: 'cat.eye@zeus.com',
+                fax: '6666666666',
+                additionalAddressInfo: 'Diameter: ~4.5 Light Years, 26,453,814,179,326 Miles'
+            };
             const args = {
                 id: cartId,
                 shippingMethodId: '6f0b3638-73a5-4d80-8455-081d3e9f98bb'
@@ -95,14 +120,19 @@ describe('commercetools deleteShippingMethod', function () {
                     id: cartId
                 })
                 .send({
-                    address: {country: 'US'}
+                    address: addr
                 })
                 .set('Accept-Language', 'en-US')
                 .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
+                    requiredFields.verifyCart(res.body);
+                    requiredFields.verifyAddress(res.body.shippingAddress);
                     expect(res.body).to.have.property('shippingAddress');
+
+                    // Update cartId
+                    args.id = res.body.id;
 
                     return chai.request(env.openwhiskEndpoint)
                         .post(env.cartsPackage + 'postShippingMethod')
@@ -114,9 +144,14 @@ describe('commercetools deleteShippingMethod', function () {
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
+                    requiredFields.verifyCart(res.body);
                     expect(res.body).to.have.property('shippingInfo');
+                    requiredFields.verifyShippingInfo(res.body.shippingInfo);
 
-                    return  chai.request(env.openwhiskEndpoint)
+                    // Update cartId
+                    cartId = res.body.id;
+
+                    return chai.request(env.openwhiskEndpoint)
                         .post(env.cartsPackage + 'deleteShippingMethod')
                         .query({id: cartId})
                         .set('Accept-Language', 'en-US')
@@ -126,6 +161,7 @@ describe('commercetools deleteShippingMethod', function () {
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
+                    requiredFields.verifyCart(res.body);
                     expect(res.body).to.not.have.property('shippingInfo');
                 });
         });

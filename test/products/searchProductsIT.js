@@ -18,6 +18,7 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 const HttpStatus = require('http-status-codes');
 const setup = require('../lib/setupIT.js').setup;
+const requiredFields = require('../lib/requiredFields');
 
 const expect = chai.expect;
 
@@ -39,8 +40,11 @@ describe('commercetools searchProducts', function() {
             return chai.request(env.openwhiskEndpoint)
                 .get(env.productsPackage + 'searchProducts')
                 .set('Accept-Language', 'en-US')
+                .set('Cache-Control', 'no-cache')
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
+                    expect(err.response).to.be.json;
+                    requiredFields.verifyErrorResponse(err.response.body);
                 });
         });
 
@@ -52,12 +56,15 @@ describe('commercetools searchProducts', function() {
                     filter: `categories.id:"${categoryId}"`
                 })
                 .set('Accept-Language', 'en-US')
+                .set('Cache-Control', 'no-cache')
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
+                    requiredFields.verifyPagedResponse(res.body);
                     expect(res.body.count).to.equal(5);
                     expect(res.body.results).to.have.lengthOf(5);
-                    for(let result of res.body.results) {
+                    for (let result of res.body.results) {
+                        requiredFields.verifyProduct(result);
                         expect(result.categories).to.deep.include({"id": categoryId});
                     }
                 })
@@ -74,12 +81,15 @@ describe('commercetools searchProducts', function() {
                     filter: `categories.id:subtree("${subtree}")`
                 })
                 .set('Accept-Language', 'en-US')
+                .set('Cache-Control', 'no-cache')
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
+                    requiredFields.verifyPagedResponse(res.body);
                     expect(res.body.count).to.equal(24);
                     expect(res.body.results).to.have.lengthOf(24);
-                    for(let result of res.body.results) {
+                    for (let result of res.body.results) {
+                        requiredFields.verifyProduct(result);
                         expect(result.categories).to.have.lengthOf.at.least(1);
                     }
                 })
@@ -96,20 +106,19 @@ describe('commercetools searchProducts', function() {
                     filter: `variants.sku:"${sku}"`
                 })
                 .set('Accept-Language', 'en-US')
+                .set('Cache-Control', 'no-cache')
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
+                    requiredFields.verifyPagedResponse(res.body);
                     expect(res.body.count).to.equal(1);
 
                     // Verify structure
                     const product = res.body.results[0];
-                    expect(product).to.have.own.property('name');
+                    requiredFields.verifyProduct(product);
                     expect(product.name).to.equal('El Gordo Down Jacket');
-                    expect(product).to.have.own.property('masterVariantId');
                     expect(product).to.have.own.property('description');
-                    expect(product).to.have.own.property('id');
                     expect(product).to.have.own.property('categories');
-                    expect(product).to.have.own.property('variants');
                     expect(product).to.have.own.property('createdDate');
 
                     // Find variant with requested sku
@@ -132,11 +141,16 @@ describe('commercetools searchProducts', function() {
                     text: searchTerm
                 })
                 .set('Accept-Language', 'en-US')
+                .set('Cache-Control', 'no-cache')
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
+                    requiredFields.verifyPagedResponse(res.body);
                     expect(res.body.count).to.equal(4);
                     expect(res.body.results).to.have.lengthOf(4);
+                    for (let result of res.body.results) {
+                        requiredFields.verifyProduct(result);
+                    }
                     expect(res.text.split(searchTerm)).to.have.lengthOf.at.least(4);
                 })
                 .catch(function(err) {
@@ -154,11 +168,16 @@ describe('commercetools searchProducts', function() {
                     limit: 5
                 })
                 .set('Accept-Language', 'en-US')
+                .set('Cache-Control', 'no-cache')
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
+                    requiredFields.verifyPagedResponse(res.body);
                     expect(res.body.count).to.equal(5);
                     expect(res.body.results).to.have.lengthOf(5);
+                    for (let result of res.body.results) {
+                        requiredFields.verifyProduct(result);
+                    }
 
                     // Verfiy sorting
                     const names = res.body.results.map(r => r.name);
@@ -178,8 +197,11 @@ describe('commercetools searchProducts', function() {
                     sort: 'abc.asc'
                 })
                 .set('Accept-Language', 'en-US')
+                .set('Cache-Control', 'no-cache')
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
+                    expect(err.response).to.be.json;
+                    requiredFields.verifyErrorResponse(err.response.body);
                 });
         });
 
@@ -193,13 +215,18 @@ describe('commercetools searchProducts', function() {
                     offset: 20
                 })
                 .set('Accept-Language', 'en-US')
+                .set('Cache-Control', 'no-cache')
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
+                    requiredFields.verifyPagedResponse(res.body);
                     expect(res.body.offset).to.equal(20);
                     expect(res.body.count).to.equal(4);
                     expect(res.body.total).to.equal(24);
                     expect(res.body.results).to.have.lengthOf(4);
+                    for (let result of res.body.results) {
+                        requiredFields.verifyProduct(result);
+                    }
                 })
                 .catch(function(err) {
                     throw err;
@@ -215,8 +242,11 @@ describe('commercetools searchProducts', function() {
                     limit: -1
                 })
                 .set('Accept-Language', 'en-US')
+                .set('Cache-Control', 'no-cache')
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
+                    expect(err.response).to.be.json;
+                    requiredFields.verifyErrorResponse(err.response.body);
                 });
         });
 
@@ -228,9 +258,17 @@ describe('commercetools searchProducts', function() {
                     queryFacets: 'variants.attributes'
                 })
                 .set('Accept-Language', 'en-US')
+                .set('Cache-Control', 'no-cache')
                 .then(res => {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
+                    requiredFields.verifyPagedResponse(res.body);
+                    for (let facet of res.body.facets) {
+                        requiredFields.verifyFacet(facet);
+                    }
+                    for (let result of res.body.results) {
+                        requiredFields.verifyProduct(result);
+                    }
                     expect(res.body.facets).to.have.lengthOf(1);
                     expect(res.body.facets[0].facetValues).to.be.empty;
                 });
@@ -244,10 +282,18 @@ describe('commercetools searchProducts', function() {
                     queryFacets: 'auto'
                 })
                 .set('Accept-Language', 'en-US')
+                .set('Cache-Control', 'no-cache')
                 .then(res => {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
+                    requiredFields.verifyPagedResponse(res.body);
                     expect(res.body.facets).to.have.lengthOf(7);
+                    for (let facet of res.body.facets) {
+                        requiredFields.verifyFacet(facet);
+                    }
+                    for (let result of res.body.results) {
+                        requiredFields.verifyProduct(result);
+                    }
                 });
         });
 
@@ -259,10 +305,18 @@ describe('commercetools searchProducts', function() {
                     queryFacets: 'variants.attributes.color.en|variants.attributes.size.en'
                 })
                 .set('Accept-Language', 'en-US')
+                .set('Cache-Control', 'no-cache')
                 .then(res => {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
+                    requiredFields.verifyPagedResponse(res.body);
                     expect(res.body.facets).to.have.lengthOf(2);
+                    for (let facet of res.body.facets) {
+                        requiredFields.verifyFacet(facet);
+                    }
+                    for (let result of res.body.results) {
+                        requiredFields.verifyProduct(result);
+                    }
                     expect(res.body.facets[0].facetValues).to.not.be.undefined;
                     expect(res.body.facets[1].facetValues).to.not.be.undefined;
                 });
@@ -278,8 +332,11 @@ describe('commercetools searchProducts', function() {
                     productTypeId: '87238665-3388-4cf7-8a3f-bc3dd63724f4'
                 })
                 .set('Accept-Language', 'en-US')
+                .set('Cache-Control', 'no-cache')
                 .catch(err => {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
+                    expect(err.response).to.be.json;
+                    requiredFields.verifyErrorResponse(err.response.body);
                 });
         });
 
@@ -293,11 +350,19 @@ describe('commercetools searchProducts', function() {
                     productTypeId: '87238665-3388-4cf7-8a3f-bc3dd63724f4'
                 })
                 .set('Accept-Language', 'en-US')
+                .set('Cache-Control', 'no-cache')
                 .then(res => {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
+                    requiredFields.verifyPagedResponse(res.body);
                     expect(res.body.count).to.equal(1);
                     expect(res.body.results).to.have.lengthOf(1);
+                    for (let facet of res.body.facets) {
+                        requiredFields.verifyFacet(facet);
+                    }
+                    for (let result of res.body.results) {
+                        requiredFields.verifyProduct(result);
+                    }
                 });
         });
 

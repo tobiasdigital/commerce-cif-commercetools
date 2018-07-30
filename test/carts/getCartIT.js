@@ -18,6 +18,7 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 const HttpStatus = require('http-status-codes');
 const setup = require('../lib/setupIT.js').setup;
+const requiredFields = require('../lib/requiredFields');
 const extractToken = require('../lib/setupIT').extractToken;
 const expect = chai.expect;
 const OAUTH_TOKEN_NAME = require('../../src/common/constants').OAUTH_TOKEN_NAME;
@@ -41,7 +42,7 @@ describe('commercetools getCart', function() {
         const productVariantId = '90ed1673-4553-47c6-9336-5cb23947abb2-1';
 
         /** Create cart. */
-        before(function() {
+        beforeEach(function() {
             return chai.request(env.openwhiskEndpoint)
                 .post(env.cartsPackage + 'postCart')
                 .query({
@@ -70,30 +71,24 @@ describe('commercetools getCart', function() {
                 .get(env.cartsPackage + 'getCart')
                 .query({id: cartId})
                 .set('Accept-Language', 'en-US')
+                .set('Cache-Control', 'no-cache')
                 .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
 
                     // Verify structure
+                    requiredFields.verifyCart(res.body);
                     expect(res.body).to.have.own.property('lastModifiedDate');
-                    expect(res.body).to.have.own.property('totalProductPrice');
-                    expect(res.body).to.have.own.property('id');
                     expect(res.body).to.have.own.property('coupons');
                     expect(res.body.id).to.equal(cartId);
                     expect(res.body).to.have.own.property('createdDate');
-                    expect(res.body).to.have.own.property('cartEntries');
                     expect(res.body.cartEntries).to.have.lengthOf(1);
 
                     const entry = res.body.cartEntries[0];
-                    expect(entry).to.have.own.property('quantity');
                     expect(entry.quantity).to.equal(2);
-                    expect(entry).to.have.own.property('unitPrice');
-                    expect(entry).to.have.own.property('productVariant');
                     expect(entry.productVariant).to.have.own.property('id');
                     expect(entry.productVariant.id).to.equal(productVariantId);
-                    expect(entry).to.have.own.property('id');
-                    expect(entry).to.have.own.property('cartEntryPrice');
                 })
                 .catch(function(err) {
                     throw err;
@@ -104,22 +99,19 @@ describe('commercetools getCart', function() {
             const checkDiscountData = (response, statusCode) => {
                 expect(response).to.be.json;
                 expect(response).to.have.status(statusCode);
+                requiredFields.verifyCart(response.body);
                 expect(response.body.id).to.not.be.empty;
-                expect(response.body).to.have.own.property('cartEntries');
                 expect(response.body.cartEntries).to.have.lengthOf(1);
 
                 const entry = response.body.cartEntries[0];
-                expect(entry).to.have.own.property('quantity');
                 expect(entry.quantity).to.equal(71);
                 expect(entry).to.have.own.property('discountedCartEntryPrice');
                 expect(entry).to.have.own.property('discounts');
 
                 entry.discounts.forEach(discount => {
-                    expect(discount).to.have.own.property('discountedAmount');
+                    requiredFields.verifyDiscount(discount);
                     expect(discount).to.have.own.property('name');
-                    expect(discount).to.have.own.property('id');
                     expect(discount).to.have.own.property('message');
-                    expect(discount).to.have.own.property('type');
                 });
             };
 
@@ -140,6 +132,7 @@ describe('commercetools getCart', function() {
                         .get(env.cartsPackage + 'getCart')
                         .query({id: response.body.id})
                         .set('Accept-Language', 'en-US')
+                        .set('Cache-Control', 'no-cache')
                         .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`);
                 })
                 .then(response => checkDiscountData(response, HttpStatus.OK));
@@ -149,9 +142,12 @@ describe('commercetools getCart', function() {
             return chai.request(env.openwhiskEndpoint)
                 .get(env.cartsPackage + 'getCart')
                 .set('Accept-Language', 'en-US')
+                .set('Cache-Control', 'no-cache')
                 .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
+                    expect(err.response).to.be.json;
+                    requiredFields.verifyErrorResponse(err.response.body);
                 });
         });
 
@@ -160,9 +156,12 @@ describe('commercetools getCart', function() {
                 .get(env.cartsPackage + 'getCart')
                 .query({id: 'does-not-exist'})
                 .set('Accept-Language', 'en-US')
+                .set('Cache-Control', 'no-cache')
                 .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.NOT_FOUND);
+                    expect(err.response).to.be.json;
+                    requiredFields.verifyErrorResponse(err.response.body);
                 });
         });
 
@@ -182,6 +181,10 @@ describe('commercetools getCart', function() {
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
+                    requiredFields.verifyCart(res.body);
+
+                    // Update cartId
+                    args.id = res.body.id;
 
                     return chai.request(env.openwhiskEndpoint)
                         .post(env.cartsPackage + 'postShippingMethod')
@@ -192,33 +195,38 @@ describe('commercetools getCart', function() {
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
-
+                    requiredFields.verifyCart(res.body);
+                    
                     expect(res.body).to.have.property('cartTaxInfo');
                     expect(res.body).to.have.property('taxIncludedInPrices');
                     expect(res.body).to.have.property('netTotalPrice');
                     expect(res.body).to.have.property('grossTotalPrice');
+
                     let cartTaxInfo = res.body.cartTaxInfo;
-                    checkTaxInfo(cartTaxInfo);
+                    requiredFields.verifyTaxInfo(cartTaxInfo);
+                    for (let taxPortion of cartTaxInfo.taxPortions) {
+                        requiredFields.verifyTaxPortion(taxPortion);
+                    }                    
 
                     expect(res.body).to.have.property('shippingInfo');
                     expect(res.body.shippingInfo).to.have.property('shippingTaxInfo');
                     let shippingTaxInfo = res.body.shippingInfo.shippingTaxInfo;
-                    checkTaxInfo(shippingTaxInfo);
+                    requiredFields.verifyTaxInfo(shippingTaxInfo);
+                    for (let taxPortion of shippingTaxInfo.taxPortions) {
+                        requiredFields.verifyTaxPortion(taxPortion);
+                    }   
 
                     expect(res.body).to.have.property('cartEntries');
                     let cartEntries = res.body.cartEntries;
                     cartEntries.every(cartEntry => {
                         let cartEntryTaxInfo = cartEntry.cartEntryTaxInfo;
-                        checkTaxInfo(cartEntryTaxInfo);
+                        requiredFields.verifyTaxInfo(cartEntryTaxInfo);
+                        for (let taxPortion of cartEntryTaxInfo.taxPortions) {
+                            requiredFields.verifyTaxPortion(taxPortion);
+                        }   
                     });
                 });
         });
 
     });
 });
-
-function checkTaxInfo(taxItem) {
-    expect(taxItem).to.have.property('totalCentAmount');
-    expect(taxItem).to.have.property('taxPortions');
-    taxItem.taxPortions.every(taxPortion => expect(taxPortion).to.have.all.keys('name', 'centAmount'));
-}

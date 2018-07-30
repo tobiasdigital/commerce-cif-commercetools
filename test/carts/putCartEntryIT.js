@@ -21,6 +21,7 @@ const setup = require('../lib/setupIT.js').setup;
 const extractToken = require('../lib/setupIT').extractToken;
 const CcifIdentifier = require('../../src/common/CcifIdentifier');
 const expect = chai.expect;
+const requiredFields = require('../lib/requiredFields');
 const OAUTH_TOKEN_NAME = require('../../src/common/constants').OAUTH_TOKEN_NAME;
 chai.use(chaiHttp);
 
@@ -82,6 +83,7 @@ describe('commercetools putCartEntry', function() {
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
+                    requiredFields.verifyCart(res.body);
 
                     // Verify cart content
                     expect(res.body.cartEntries).to.have.lengthOf(1);
@@ -89,15 +91,12 @@ describe('commercetools putCartEntry', function() {
                     expect(res.body.cartEntries[0].quantity).to.equal(newQuantity);
 
                     // Verify structure
-                    expect(res.body).to.have.own.property('id');
                     let ccifResId = new CcifIdentifier(res.body.id);
                     let ccifParamId = new CcifIdentifier(cartId);
                     expect(ccifResId.getCommerceToolsId()).to.equal(ccifParamId.getCommerceToolsId());
                     expect(ccifResId.getCommerceToolsVersion()).not.to.equal(ccifParamId.getCommerceToolsVersion());
                     expect(res.body).to.have.own.property('lastModifiedDate');
-                    expect(res.body).to.have.own.property('totalProductPrice');
                     expect(res.body).to.have.own.property('createdDate');
-                    expect(res.body).to.have.own.property('cartEntries');
                 })
                 .catch(function(err) {
                     throw err;
@@ -117,6 +116,7 @@ describe('commercetools putCartEntry', function() {
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
+                    requiredFields.verifyCart(res.body);
 
                     expect(res.body.cartEntries).to.have.lengthOf(0);
                 })
@@ -137,6 +137,8 @@ describe('commercetools putCartEntry', function() {
                 .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
+                    expect(err.response).to.be.json;
+                    requiredFields.verifyErrorResponse(err.response.body);
                 });
         })
 
@@ -152,6 +154,8 @@ describe('commercetools putCartEntry', function() {
                 .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
+                    expect(err.response).to.be.json;
+                    requiredFields.verifyErrorResponse(err.response.body);
                 });
         });
 
@@ -167,6 +171,8 @@ describe('commercetools putCartEntry', function() {
                 .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.NOT_FOUND);
+                    expect(err.response).to.be.json;
+                    requiredFields.verifyErrorResponse(err.response.body);
                 });
         });
 
@@ -177,6 +183,8 @@ describe('commercetools putCartEntry', function() {
                 .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
+                    expect(err.response).to.be.json;
+                    requiredFields.verifyErrorResponse(err.response.body);
                 });
         });
 

@@ -17,6 +17,8 @@
 const InputValidator = require('@adobe/commerce-cif-common/input-validator');
 const CommerceToolsCart = require('./CommerceToolsCart');
 const CcifIdentifier = require('@adobe/commerce-cif-commercetools-common/CcifIdentifier');
+const ERROR_TYPE = require('./constants').ERROR_TYPE;
+
 /**
  * Helper class for posting and deleting a cart shipping or billing address.
  */
@@ -59,7 +61,7 @@ class CommerceToolsAddressHelper {
      * @private
      */
     static _post(createClient, args, cartMapper, methodName) {
-        const validator = new InputValidator(args);
+        const validator = new InputValidator(args, ERROR_TYPE);
         validator
             .checkArguments()
             .mandatoryParameter('id')
@@ -69,7 +71,7 @@ class CommerceToolsAddressHelper {
             return validator.buildErrorResponse();
         }
         
-        const addressValidator = new InputValidator(args.address);
+        const addressValidator = new InputValidator(args.address, ERROR_TYPE);
         addressValidator
             .checkArguments()
             .atLeastOneParameter(['title', 'salutation', 'firstName', 'lastName', 'email', 'phone', 'mobile',
@@ -134,7 +136,7 @@ class CommerceToolsAddressHelper {
      * @private
      */
     static _delete(createClient, args, cartMapper, methodName) {
-        const validator = new InputValidator(args);
+        const validator = new InputValidator(args, ERROR_TYPE);
         validator
             .checkArguments()
             .mandatoryParameter('id');

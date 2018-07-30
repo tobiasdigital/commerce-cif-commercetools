@@ -18,6 +18,7 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 const HttpStatus = require('http-status-codes');
 const setup = require('../lib/setupIT.js').setup;
+const requiredFields = require('../lib/requiredFields');
 
 const expect = chai.expect;
 
@@ -47,14 +48,17 @@ describe('commercetools getCategories', function() {
                     type: 'tree'
                 })
                 .set('Accept-Language', 'en-US')
+                .set('Cache-Control', 'no-cache')
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
+                    requiredFields.verifyPagedResponse(res.body);
                     expect(res.body.count).to.equal(24);
                     expect(res.body.results).to.have.lengthOf(3);
 
                     // Verify structure
                     for(let category of res.body.results) {
+                        requiredFields.verifyCategory(category);
                         expect(category).to.have.own.property('subCategories');
                         for(let subCategory of category.subCategories) {
                             expect(subCategory).to.have.own.property('parentCategories');
@@ -73,14 +77,17 @@ describe('commercetools getCategories', function() {
                     type: 'flat'
                 })
                 .set('Accept-Language', 'en-US')
+                .set('Cache-Control', 'no-cache')
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
+                    requiredFields.verifyPagedResponse(res.body);
                     expect(res.body.count).to.equal(24);
                     expect(res.body.results).to.have.lengthOf(24);
 
                     // Verify structure
                     for(let category of res.body.results) {
+                        requiredFields.verifyCategory(category);
                         expect(category).to.not.have.own.property('subCategories');
                     }
                 })
@@ -97,16 +104,17 @@ describe('commercetools getCategories', function() {
                     id: categoryId
                 })
                 .set('Accept-Language', 'en-US')
+                .set('Cache-Control', 'no-cache')
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
 
                     // Verify structure
                     const category = res.body;
+                    requiredFields.verifyCategory(category);
                     expect(category).to.have.own.property('name');
                     expect(category.name).to.equal('Men');
                     expect(category).to.have.own.property('description');
-                    expect(category).to.have.own.property('id');
                     expect(category).to.have.own.property('lastModifiedDate');
                     expect(category).to.have.own.property('createdDate');
                 })
@@ -123,9 +131,11 @@ describe('commercetools getCategories', function() {
                     depth: 0
                 })
                 .set('Accept-Language', 'en-US')
+                .set('Cache-Control', 'no-cache')
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
+                    requiredFields.verifyPagedResponse(res.body);
                     expect(res.body.count).to.equal(3);
                     expect(res.body.results).to.have.lengthOf(3);
 
@@ -135,6 +145,7 @@ describe('commercetools getCategories', function() {
 
                     // Verify structure
                     for(let category of res.body.results) {
+                        requiredFields.verifyCategory(category);
                         expect(category).to.not.have.own.property('subCategories');
                     }
                 })
@@ -151,9 +162,11 @@ describe('commercetools getCategories', function() {
                     depth: 0
                 })
                 .set('Accept-Language', 'en-US')
+                .set('Cache-Control', 'no-cache')
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
+                    requiredFields.verifyPagedResponse(res.body);
                     expect(res.body.count).to.equal(3);
                     expect(res.body.results).to.have.lengthOf(3);
 
@@ -163,6 +176,7 @@ describe('commercetools getCategories', function() {
 
                     // Verify structure
                     for(let category of res.body.results) {
+                        requiredFields.verifyCategory(category);
                         expect(category).to.not.have.own.property('subCategories');
                     }
                 })
@@ -179,9 +193,14 @@ describe('commercetools getCategories', function() {
                     sort: 'name.desc'
                 })
                 .set('Accept-Language', 'en-US')
+                .set('Cache-Control', 'no-cache')
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
+                    requiredFields.verifyPagedResponse(res.body);
+                    for (let category of res.body.results) {
+                        requiredFields.verifyCategory(category);
+                    }
 
                     // Verfiy sorting
                     const names = res.body.results.map(r => r.name.en);
@@ -200,12 +219,15 @@ describe('commercetools getCategories', function() {
                     sort: 'name.desc'
                 })
                 .set('Accept-Language', 'en-US')
+                .set('Cache-Control', 'no-cache')
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
+                    requiredFields.verifyPagedResponse(res.body);
 
                     // Verify sorting of subcategories
                     for(let category of res.body.results) {
+                        requiredFields.verifyCategory(category);
                         const subnames = category.subCategories.map(r => r.name.en);
                         expect(subnames).to.have.ordered.members(subnames.sort().reverse());
                     }
@@ -223,9 +245,14 @@ describe('commercetools getCategories', function() {
                     sort: 'name.desc'
                 })
                 .set('Accept-Language', 'en-US')
+                .set('Cache-Control', 'no-cache')
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
+                    requiredFields.verifyPagedResponse(res.body);
+                    for (let category of res.body.results) {
+                        requiredFields.verifyCategory(category);
+                    }
 
                     // Verfiy sorting
                     const names = res.body.results.map(r => r.name.en);
@@ -239,11 +266,15 @@ describe('commercetools getCategories', function() {
         it('returns a 400 error for invalid sorting parameters', function() {
             return chai.request(env.openwhiskEndpoint)
                 .get(env.categoriesPackage + 'getCategories')
+                .set('Accept-Language', 'en-US')
+                .set('Cache-Control', 'no-cache')
                 .query({
                     sort: 'abc.asc'
                 })
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
+                    expect(err.response).to.be.json;
+                    requiredFields.verifyErrorResponse(err.response.body);
                 });
         });
 
@@ -256,9 +287,14 @@ describe('commercetools getCategories', function() {
                     offset: 10
                 })
                 .set('Accept-Language', 'en-US')
+                .set('Cache-Control', 'no-cache')
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
+                    requiredFields.verifyPagedResponse(res.body);
+                    for (let category of res.body.results) {
+                        requiredFields.verifyCategory(category);
+                    }
                     expect(res.body.offset).to.equal(10);
                     expect(res.body.count).to.equal(5);
                     expect(res.body.total).to.equal(24);
@@ -278,9 +314,14 @@ describe('commercetools getCategories', function() {
                     offset: 14
                 })
                 .set('Accept-Language', 'en-US')
+                .set('Cache-Control', 'no-cache')
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
+                    requiredFields.verifyPagedResponse(res.body);
+                    for (let category of res.body.results) {
+                        requiredFields.verifyCategory(category);
+                    }
                     expect(res.body.offset).to.equal(14);
                     expect(res.body.count).to.equal(7);
                     expect(res.body.total).to.equal(24);
@@ -297,17 +338,23 @@ describe('commercetools getCategories', function() {
                 .query({
                     limit: -7,
                 })
+                .set('Cache-Control', 'no-cache')
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
+                    expect(err.response).to.be.json;
+                    requiredFields.verifyErrorResponse(err.response.body);
                 });
         });
 
         it('returns a 404 error for a non existent category', function() {
             return chai.request(env.openwhiskEndpoint)
                 .get(env.categoriesPackage + 'getCategories')
+                .set('Cache-Control', 'no-cache')
                 .query({id: '526dc571-104f-XXXX-b761-71781a97910b'})
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.NOT_FOUND);
+                    expect(err.response).to.be.json;
+                    requiredFields.verifyErrorResponse(err.response.body);
                 });
         });
 

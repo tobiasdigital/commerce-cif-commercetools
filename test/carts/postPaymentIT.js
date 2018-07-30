@@ -18,6 +18,7 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 const HttpStatus = require('http-status-codes');
 const setup = require('../lib/setupIT.js').setup;
+const requiredFields = require('../lib/requiredFields');
 const extractToken = require('../lib/setupIT').extractToken;
 const expect = chai.expect;
 const OAUTH_TOKEN_NAME = require('../../src/common/constants').OAUTH_TOKEN_NAME;
@@ -87,6 +88,8 @@ describe('commercetools postPayment', function () {
                 .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .catch(function (err) {
                     expect(err.response).to.have.status(HttpStatus.NOT_FOUND);
+                    expect(err.response).to.be.json;
+                    requiredFields.verifyErrorResponse(err.response.body);
                 });
         });
 
@@ -100,6 +103,8 @@ describe('commercetools postPayment', function () {
                 .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .catch(function (err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
+                    expect(err.response).to.be.json;
+                    requiredFields.verifyErrorResponse(err.response.body);
                 });
         });
 
@@ -116,14 +121,13 @@ describe('commercetools postPayment', function () {
                 .set('Accept-Language', 'en-US')
                 .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
                 .then(function(res) {
-                    let payment = res.body.payment;
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
-                    expect(payment).to.have.property('id');
-                    expect(payment).to.have.property('method');
+                    requiredFields.verifyCart(res.body);
+                    let payment = res.body.payment;
+                    requiredFields.verifyPayment(payment);
                     expect(payment).to.have.property('amount');
-                    expect(payment.amount).to.have.property('currency');
-                    expect(payment.amount).to.have.property('centAmount');
+                    requiredFields.verifyPrice(payment.amount);
                     expect(payment).to.have.property('createdDate');
                     expect(payment).to.have.property('lastModifiedDate');
                 });
@@ -141,7 +145,9 @@ describe('commercetools postPayment', function () {
                 })
                 .set('Accept-Language', 'en-US')
                 .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
-                .then(function() {
+                .then(function(res) {
+                    // Update cart id
+                    args.id = res.body.id;
                     return chai.request(env.openwhiskEndpoint)
                         .post(env.cartsPackage + 'postPayment')
                         .query(args)
@@ -149,6 +155,8 @@ describe('commercetools postPayment', function () {
                 })
                 .catch(err => {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
+                    expect(err.response).to.be.json;
+                    requiredFields.verifyErrorResponse(err.response.body);
                 });
         });
     });

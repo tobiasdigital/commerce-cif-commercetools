@@ -18,6 +18,7 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 const HttpStatus = require('http-status-codes');
 const setup = require('../lib/setupIT.js').setup;
+const requiredFields = require('../lib/requiredFields');
 const extractToken = require('../lib/setupIT').extractToken;
 const expect = chai.expect;
 const OAUTH_TOKEN_NAME = require('../../src/common/constants').OAUTH_TOKEN_NAME;
@@ -74,7 +75,7 @@ describe('commercetools postCustomerLogin', function() {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
 
-                    expect(res.body).to.have.own.property('customer');
+                    requiredFields.verifyLoginResult(res.body);
                     expect(res.body.customer.email).to.equal(email);
                 })
                 .catch(function(err) {
@@ -91,6 +92,8 @@ describe('commercetools postCustomerLogin', function() {
                 })
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
+                    expect(err.response).to.be.json;
+                    requiredFields.verifyErrorResponse(err.response.body);
                 });
         });
 
@@ -102,8 +105,9 @@ describe('commercetools postCustomerLogin', function() {
                     password: password
                 })
                 .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
-                .then(function(result) {
-                    expect(accessToken).not.to.equal(extractToken(result));
+                .then(function(res) {
+                    requiredFields.verifyLoginResult(res.body);
+                    expect(accessToken).not.to.equal(extractToken(res));
                 });
         });
 

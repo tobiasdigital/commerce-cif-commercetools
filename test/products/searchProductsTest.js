@@ -203,6 +203,21 @@ describe('commercetools searchProducts', () => {
             });
         });
 
+        it('returns an error for invalid paging parameters', () => {
+            let args = {
+                text: 'jacket',
+                limit: -1,
+                __ow_headers: {
+                    'accept-language': 'en-US'
+                }
+            };
+            return this.execute(args).then(function(result) {
+                assert.isDefined(result.response.error);
+                assert.strictEqual(result.response.error.name, 'InvalidArgumentError');
+                assert.isDefined(result.response.errorType);
+            })
+        });
+
     });
 });
 

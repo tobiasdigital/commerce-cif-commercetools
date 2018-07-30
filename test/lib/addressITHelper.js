@@ -19,6 +19,7 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 const HttpStatus = require('http-status-codes');
 const expect = chai.expect;
+const requiredFields = require('../lib/requiredFields');
 const extractToken = require('../lib/setupIT').extractToken;
 const OAUTH_TOKEN_NAME = require('../../src/common/constants').OAUTH_TOKEN_NAME;
 chai.use(chaiHttp);
@@ -76,12 +77,13 @@ module.exports.tests = function (ctx, addressType) {
      * @param path  post URI path. Passed as parameter to be reused from any address IT (post or delete).
      */
     that.missingCart = function (path) {
-        return chai
-            .request(env.openwhiskEndpoint)
+        return chai.request(env.openwhiskEndpoint)
             .post(path)
             .query({})
             .catch(function (err) {
                 expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
+                expect(err.response).to.be.json;
+                requiredFields.verifyErrorResponse(err.response.body);
             });
     };
     /**
@@ -91,28 +93,30 @@ module.exports.tests = function (ctx, addressType) {
      * @param path  post URI path. Passed as parameter to be reused from any address IT (post or delete).
      */
     that.nonExistingCart = function (path) {
-        return chai
-            .request(env.openwhiskEndpoint)
+        return chai.request(env.openwhiskEndpoint)
             .post(path)
             .query({id: 'non-existing-cart-id'})
             .set('Accept-Language', 'en-US')
             .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
             .catch(function (err) {
                 expect(err.response).to.have.status(HttpStatus.NOT_FOUND);
+                expect(err.response).to.be.json;
+                requiredFields.verifyErrorResponse(err.response.body);
             });
     };
     /**
      * Verifies that a bad request is returned when country is empty. Used only from post address ITs.
      */
     that.postAddressWithNoCountry = function () {
-        return chai
-            .request(env.openwhiskEndpoint)
+        return chai.request(env.openwhiskEndpoint)
             .post(that.postAddressPath)
             .query({id: cartId, title: 'Home'})
             .set('Accept-Language', 'en-US')
             .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
             .catch(function (err) {
                 expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
+                expect(err.response).to.be.json;
+                requiredFields.verifyErrorResponse(err.response.body);
             });
     };
 
@@ -157,27 +161,22 @@ module.exports.tests = function (ctx, addressType) {
                 expect(res).to.be.json;
                 expect(res).to.have.status(HttpStatus.OK);
                 expect(res.body).to.have.property(that.addressPropertyName);
+                requiredFields.verifyAddress(addressBodyPropertyName);
                 expect(addressBodyPropertyName).to.have.property('title');
                 expect(addressBodyPropertyName.title).to.equal(addr.title);
                 expect(addressBodyPropertyName).to.have.property('salutation');
                 expect(addressBodyPropertyName.salutation).to.equal(addr.salutation);
-                expect(addressBodyPropertyName).to.have.property('firstName');
                 expect(addressBodyPropertyName.firstName).to.equal(addr.firstName);
-                expect(addressBodyPropertyName).to.have.property('lastName');
                 expect(addressBodyPropertyName.lastName).to.equal(addr.lastName);
-                expect(addressBodyPropertyName).to.have.property('streetName');
                 expect(addressBodyPropertyName.streetName).to.equal(addr.streetName);
                 expect(addressBodyPropertyName).to.have.property('streetNumber');
                 expect(addressBodyPropertyName.streetNumber).to.equal(addr.streetNumber);
                 expect(addressBodyPropertyName).to.have.property('additionalStreetInfo');
                 expect(addressBodyPropertyName.additionalStreetInfo).to.equal(addr.additionalStreetInfo);
-                expect(addressBodyPropertyName).to.have.property('postalCode');
                 expect(addressBodyPropertyName.postalCode).to.equal(addr.postalCode);
-                expect(addressBodyPropertyName).to.have.property('city');
                 expect(addressBodyPropertyName.city).to.equal(addr.city);
                 expect(addressBodyPropertyName).to.have.property('region');
                 expect(addressBodyPropertyName.region).to.equal(addr.region);
-                expect(addressBodyPropertyName).to.have.property('country');
                 expect(addressBodyPropertyName.country).to.equal(addr.country);
                 expect(addressBodyPropertyName).to.have.property('organizationName');
                 expect(addressBodyPropertyName.organizationName).to.equal(addr.organizationName);
@@ -224,6 +223,10 @@ module.exports.tests = function (ctx, addressType) {
                 expect(res).to.be.json;
                 expect(res).to.have.status(HttpStatus.OK);
                 expect(res.body).to.have.property(that.addressPropertyName);
+
+                // Update cartId
+                cartId = res.body.id;
+
                 return chai.request(env.openwhiskEndpoint)
                     .post(that.deleteAddressPath)
                     .query({id: cartId})

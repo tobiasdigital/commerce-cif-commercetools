@@ -18,6 +18,7 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 const HttpStatus = require('http-status-codes');
 const setup = require('../lib/setupIT.js').setup;
+const requiredFields = require('../lib/requiredFields');
 
 const expect = chai.expect;
 
@@ -43,19 +44,17 @@ describe('commercetools getProduct', function() {
                 .get(env.productsPackage + 'getProductById')
                 .query({id: productId})
                 .set('Accept-Language', 'en-US')
+                .set('Cache-Control', 'no-cache')
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
 
                     // Verify structure
-                    expect(res.body).to.have.own.property('name');
+                    requiredFields.verifyProduct(res.body);
                     expect(res.body.name).to.equal('El Gordo Down Jacket');
-                    expect(res.body).to.have.own.property('masterVariantId');
                     expect(res.body).to.have.own.property('description');
-                    expect(res.body).to.have.own.property('id');
                     expect(res.body.id).to.equal(productId);
                     expect(res.body).to.have.own.property('categories');
-                    expect(res.body).to.have.own.property('variants');
                     expect(res.body).to.have.own.property('createdDate');
                 })
                 .catch(function(err) {
@@ -68,12 +67,12 @@ describe('commercetools getProduct', function() {
                 .get(env.productsPackage + 'getProductById')
                 .query({id: variantId})
                 .set('Accept-Language', 'en-US')
+                .set('Cache-Control', 'no-cache')
                 .then(function (res) {
                     expect(res).to.be.json;
                     expect(res).to.have.status(HttpStatus.OK);
-                    expect(res.body).to.have.own.property('name');
+                    requiredFields.verifyProduct(res.body);
                     expect(res.body.name).to.equal('El Gordo Down Jacket');
-                    expect(res.body).to.have.own.property('id');
                     expect(res.body.id).to.equal(productId);
                 })
                 .catch(function(err) {
@@ -84,9 +83,12 @@ describe('commercetools getProduct', function() {
         it('returns a 404 error for a non existent product', function() {
             return chai.request(env.openwhiskEndpoint)
                 .get(env.productsPackage + 'getProductById')
+                .set('Cache-Control', 'no-cache')
                 .query({id: 'does-not-exist'})
                 .catch(function(err) {
                     expect(err.response).to.have.status(HttpStatus.NOT_FOUND);
+                    expect(err.response).to.be.json;
+                    requiredFields.verifyErrorResponse(err.response.body);
                 });
         });
 

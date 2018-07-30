@@ -43,6 +43,7 @@ describe('commercetools common', function() {
                 .set('Perf-Activate', 'YES')
                 .set('Perf-Action-Id', 'my-id')
                 .set('Cache-Control', 'no-cache, no-store, no-transform, must-revalidate')
+                .set('Cache-Control', 'no-cache')
                 .then(function (res) {
                     expect(res).to.have.header('perf-activate', 'YES');
                     expect(res).to.have.header('perf-action-id', 'my-id');
