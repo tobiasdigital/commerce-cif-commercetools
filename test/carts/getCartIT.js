@@ -183,9 +183,6 @@ describe('commercetools getCart', function() {
                     expect(res).to.have.status(HttpStatus.OK);
                     requiredFields.verifyCart(res.body);
 
-                    // Update cartId
-                    args.id = res.body.id;
-
                     return chai.request(env.openwhiskEndpoint)
                         .post(env.cartsPackage + 'postShippingMethod')
                         .query(args)

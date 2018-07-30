@@ -224,9 +224,6 @@ module.exports.tests = function (ctx, addressType) {
                 expect(res).to.have.status(HttpStatus.OK);
                 expect(res.body).to.have.property(that.addressPropertyName);
 
-                // Update cartId
-                cartId = res.body.id;
-
                 return chai.request(env.openwhiskEndpoint)
                     .post(that.deleteAddressPath)
                     .query({id: cartId})

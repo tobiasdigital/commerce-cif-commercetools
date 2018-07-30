@@ -131,9 +131,6 @@ describe('commercetools deleteShippingMethod', function () {
                     requiredFields.verifyAddress(res.body.shippingAddress);
                     expect(res.body).to.have.property('shippingAddress');
 
-                    // Update cartId
-                    args.id = res.body.id;
-
                     return chai.request(env.openwhiskEndpoint)
                         .post(env.cartsPackage + 'postShippingMethod')
                         .query(args)
@@ -147,9 +144,6 @@ describe('commercetools deleteShippingMethod', function () {
                     requiredFields.verifyCart(res.body);
                     expect(res.body).to.have.property('shippingInfo');
                     requiredFields.verifyShippingInfo(res.body.shippingInfo);
-
-                    // Update cartId
-                    cartId = res.body.id;
 
                     return chai.request(env.openwhiskEndpoint)
                         .post(env.cartsPackage + 'deleteShippingMethod')

@@ -130,9 +130,6 @@ describe('commercetools getShippingMethods integration test for a cart', functio
                     requiredFields.verifyCart(res.body);
                     expect(res.body).to.have.property('shippingAddress');
 
-                    // Update cartId
-                    cartId = res.body.id;
-
                     return chai.request(env.openwhiskEndpoint)
                         .get(env.cartsPackage + 'getShippingMethods')
                         .query({id: cartId})
@@ -164,9 +161,6 @@ describe('commercetools getShippingMethods integration test for a cart', functio
                     expect(res).to.have.status(HttpStatus.OK);
                     requiredFields.verifyCart(res.body);
                     expect(res.body).to.not.have.property('shippingAddress');
-
-                    // Update cartId
-                    cartId = res.body.id;
 
                     return chai.request(env.openwhiskEndpoint)
                         .get(env.cartsPackage + 'getShippingMethods')

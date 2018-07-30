@@ -107,9 +107,6 @@ describe('commercetools deleteCartEntry', function() {
                     expect(res).to.have.status(HttpStatus.CREATED);
                     requiredFields.verifyCart(res.body);
 
-                    // Update cartId
-                    cartId = res.body.id;
-
                     // Verify that two products are in the cart
                     expect(res.body.cartEntries).to.have.lengthOf(2);
 
