@@ -31,7 +31,6 @@ const LanguageParser = require('@adobe/commerce-cif-commercetools-common/Languag
  *
  * @param   {string}  args.id                  cart id
  * @param   {Address} args.address             a CCIF address object
- * @param   {string}  args.customerId          an optional customer id that is checked against the cart's customer id
  *
  * @return  {Promise}                          the cart with the billing address;
  */

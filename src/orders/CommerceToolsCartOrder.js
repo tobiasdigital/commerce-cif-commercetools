@@ -41,10 +41,9 @@ class CommerceToolsCartOrder extends CommerceToolsCartVersion {
      * Creates a order based on cart id.
      *
      * @param cartId         cart id
-     * @param customerId     customer id
      * @return {Promise}
      */
-    postOrder(cartId, customerId) {
+    postOrder(cartId) {
         let ccifId = new CcifIdentifier(cartId);
         this.requestBuilder.byId(ccifId.getCommerceToolsId());
         const baseUrl = this._buildBaseUrl();
@@ -54,14 +53,14 @@ class CommerceToolsCartOrder extends CommerceToolsCartVersion {
         };
         //if cached cart version should not be used first load the cart version and then post the order data.
         if (typeof this.args.USE_CACHED_CART_VERSION === 'boolean' && !this.args.USE_CACHED_CART_VERSION) {
-            return this._ctCartById(baseUrl, customerId).then(result => {
+            return this._ctCartById(baseUrl).then(result => {
                 data.version = result.body.version;
-                return this._handlePostOrder(baseUrl, data, customerId);
+                return this._handlePostOrder(baseUrl, data);
             }).catch(error => {
                 return this._handleError(error);
             });
         } else {
-            return this._handlePostOrder(baseUrl, data, customerId).catch((error) => {
+            return this._handlePostOrder(baseUrl, data).catch((error) => {
                 return this._handleError(error);
             });
         }
@@ -71,13 +70,12 @@ class CommerceToolsCartOrder extends CommerceToolsCartVersion {
      * Internal helper method for post order.
      * @param baseUrl
      * @param data
-     * @param customerId
      * @private
      */
-    _handlePostOrder(baseUrl, data, customerId) {
+    _handlePostOrder(baseUrl, data) {
         return this.orderClient.post(data).catch((error) => {
             if (error && error.code === HttpStatusCodes.CONFLICT) {
-                return this._ctCartById(baseUrl, customerId).then(result => {
+                return this._ctCartById(baseUrl).then(result => {
                     data.version = result.body.version;
                     return this.orderClient.post(data);
                 });

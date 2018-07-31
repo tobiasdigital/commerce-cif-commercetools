@@ -34,7 +34,6 @@ const ERROR_TYPE = require('./constants').ERROR_TYPE;
  *
  * @param   {string} args.id                   cart id
  * @param   {string} args.code                 coupon code
- * @param   {string} args.customerId           an optional customer id that is checked against the cart's customer id
  *
  * @return  {Promise}                          the cart with the coupon applied
  */
@@ -65,7 +64,7 @@ function postCoupon(args) {
     let ccifId = new CcifIdentifier(args.id);
     return new CommerceToolsCart(args, createClient, cartMapper.mapCart.bind(cartMapper))
         .byId(ccifId.getCommerceToolsId())
-        .postCartData(args.id, data, args.customerId);
+        .postCartData(args.id, data);
 }
 
 module.exports.main = CTPerformanceMeasurement.decorateActionForSequence(postCoupon);

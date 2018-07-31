@@ -33,7 +33,6 @@ const ERROR_TYPE = require('./constants').ERROR_TYPE;
  *
  * @param   {string} args.id                   cart id
  * @param   {string} args.cartEntryId          cart entry id
- * @param   {string} args.customerId           an optional customer id to check that cart operations are permitted
  *
  * @return  {Promise}                          the cart containing the remaining cart entries
  */
@@ -61,7 +60,7 @@ function deleteCartEntry(args) {
                 }
             ]
         };
-    return cart.postCartData(args.id, data, args.customerId);
+    return cart.postCartData(args.id, data);
 
 }
 

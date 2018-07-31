@@ -33,7 +33,6 @@ const ERROR_TYPE = require('./constants').ERROR_TYPE;
  *
  * @param   {string} args.id                    cart id;
  * @param   {string} args.shippingMethodId      shipping method identifier;
- * @param   {string} args.customerId            an optional customer id that is checked against the cart's customer id.
  *
  * @return  {Promise}                           the CCIF cart;
  */
@@ -66,7 +65,7 @@ function postShippingMethod(args) {
 
     return cart
         .byId(args.id)
-        .postCartData(args.id, data, args.customerId);
+        .postCartData(args.id, data);
 }
 
 module.exports.main = CTPerformanceMeasurement.decorateActionForSequence(postShippingMethod);

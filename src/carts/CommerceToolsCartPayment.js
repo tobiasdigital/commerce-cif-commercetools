@@ -75,8 +75,7 @@ class CommerceToolsCartPayment extends CommerceToolsCart {
      * @private
      */
     _createPayment(baseUrl, payment) {
-        let customerId = payment.customer ? payment.customer.id : null;
-        return this._getCartVersion(baseUrl, customerId).then(() => {
+        return this._getCartVersion(baseUrl).then(() => {
             let paymentDraft = this.paymentDrafMapper(payment);
             return this.paymentClient.post(paymentDraft);
         });
@@ -87,12 +86,11 @@ class CommerceToolsCartPayment extends CommerceToolsCart {
      * Gets the cart version (required to set the new payment to the cart). If a payment already exists, the request is rejected.
      *
      * @param baseUrl       the base url for this request
-     * @param customerId    customer id
      * @return {Promise}
      * @private
      */
-    _getCartVersion(baseUrl, customerId) {
-        return this._ctCartById(baseUrl, customerId).then(result => {
+    _getCartVersion(baseUrl) {
+        return this._ctCartById(baseUrl).then(result => {
             this.cartVersion = result.body.version;
             if (result.body.paymentInfo && result.body.paymentInfo.payments.length >= 1) {
                 return Promise.reject(Error.PAYMENT_ALREADY_SET_ERROR());
@@ -106,14 +104,13 @@ class CommerceToolsCartPayment extends CommerceToolsCart {
      * Deletes a payment from cart and from commerce tools payments.
      *
      * @param id                cart id
-     * @param customerId        customer id
      * @return {Promise}
      */
-    deletePayment(id, customerId) {
+    deletePayment(id) {
         let ccifId = new CcifIdentifier(id);
         this.requestBuilder.byId(ccifId.getCommerceToolsId());
         const baseUrl = this._buildBaseUrl();
-        return this._getCartPaymentIdentifier(baseUrl, customerId).then(payment => {
+        return this._getCartPaymentIdentifier(baseUrl).then(payment => {
             const data = {
                 actions: [{action: 'removePayment', payment: {id: payment.id, version: payment.version}}]
             };
@@ -132,13 +129,12 @@ class CommerceToolsCartPayment extends CommerceToolsCart {
      * Get's the payment id and version based on cart id. If no payment exists reject the request.
      *
      * @param id            cart id
-     * @param customerId    customer id
      * @return {Promise}    the payment id and version for the payment
      * @private
      */
-    _getCartPaymentIdentifier(baseUrl, customerId) {
+    _getCartPaymentIdentifier(baseUrl) {
 
-        return this._ctCartById(baseUrl, customerId).then(result => {
+        return this._ctCartById(baseUrl).then(result => {
             const paymentInfo = result.body.paymentInfo;
             this.cartVersion = result.body.version;
             if (!paymentInfo || paymentInfo.payments.length != 1) {

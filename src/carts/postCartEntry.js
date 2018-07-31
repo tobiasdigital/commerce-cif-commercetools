@@ -35,7 +35,6 @@ const ERROR_TYPE = require('./constants').ERROR_TYPE;
  * @param   {string} args.currency             cart entry selected currency
  * @param   {string} args.productVariantId     id of the product variant
  * @param   {string} args.quantity             quantity for the product variant
- * @param   {string} args.customerId           an optional customer id to either create a customer cart or check that cart operations are permitted
  */
 function postCartEntry(args) {
     const validator = new InputValidator(args, ERROR_TYPE);
@@ -86,11 +85,6 @@ function postCartEntry(args) {
     }
 
     let data = {};
-    
-    // If we create a new cart, create a customer cart if 'customerId' is set
-    if (args.customerId && actionState !== ActionStateEnum.ADD_ENTRY_2_CART) {
-        data.customerId = args.customerId;
-    }
 
     switch (actionState) {
         case ActionStateEnum.NEW_EMPTY_CART:
@@ -111,7 +105,7 @@ function postCartEntry(args) {
                 variantId: variantId,
                 quantity: quantity
             }];
-            return cart.postCartData(id, data, args.customerId).then(result => {
+            return cart.postCartData(id, data).then(result => {
                 if (result.response.statusCode === 200) {
                     result.response.statusCode = 201;
                     let entry = result.response.body.cartEntries.find(entry => (entry.productVariant.id === `${productId}-${variantId}`));

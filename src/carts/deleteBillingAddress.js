@@ -30,7 +30,6 @@ const CartMapper = require('./CartMapper');
  * @param   {string} args.CT_AUTH_HOST         optional commerceTools AUTH host uri
  *
  * @param   {string} args.id                    cart id;
- * @param   {string} args.customerId            an optional customer id that is checked against the cart's customer id.
  *
  * @return  {Promise}                           the cart without a billing address;
  */

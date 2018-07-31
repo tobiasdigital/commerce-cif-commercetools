@@ -101,7 +101,7 @@ class CommerceToolsAddressHelper {
         let ccifId = new CcifIdentifier(args.id);
         return cart
             .byId(ccifId.getCommerceToolsId())
-            .postCartData(args.id, data, args.customerId);
+            .postCartData(args.id, data);
     }
 
     /**
@@ -155,7 +155,7 @@ class CommerceToolsAddressHelper {
             ]
         };
 
-        return cart.postCartData(args.id, data, args.customerId);
+        return cart.postCartData(args.id, data);
     }
 }
 

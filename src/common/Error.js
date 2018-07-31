@@ -21,13 +21,6 @@ const HttpStatusCodes = require('http-status-codes');
  */
 class Error {
 
-    static CUSTOMER_NOT_ALLOWED_ERROR() {
-        return {
-            code: HttpStatusCodes.FORBIDDEN,
-            message: 'Cart entry operation is not allowed without valid customer id.'
-        };
-    }
-
     static PAYMENT_ALREADY_SET_ERROR() {
         return {
             code: HttpStatusCodes.BAD_REQUEST,

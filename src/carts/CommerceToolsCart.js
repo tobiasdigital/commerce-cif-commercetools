@@ -17,7 +17,6 @@
 const CommerceToolsClientBase = require('@adobe/commerce-cif-commercetools-common/CommerceToolsClientBase');
 const HttpStatusCodes = require('http-status-codes');
 const CcifIdentifier = require('@adobe/commerce-cif-commercetools-common/CcifIdentifier');
-const Error = require('@adobe/commerce-cif-commercetools-common/Error');
 const ERROR_TYPE = require('./constants').ERROR_TYPE;
 
 /**
@@ -66,25 +65,24 @@ class CommerceToolsCart extends CommerceToolsClientBase {
      *
      * @param id           The cart id.
      * @param data         The  data to be updated.
-     * @param customerId   An optional customer id that must be set to perform operations on a customer cart.
      *
      * @return {Promise}
      */
-    postCartData(id, data, customerId) {
+    postCartData(id, data) {
         let ccifId = new CcifIdentifier(id);
         this.requestBuilder.byId(ccifId.getCommerceToolsId());
         const baseUrl = this._buildBaseUrl();
         data.version = ccifId.getCommerceToolsVersion();
         //if cached version should not be use first get cart and then post data.
         if (typeof this.args.USE_CACHED_CART_VERSION === 'boolean' && !this.args.USE_CACHED_CART_VERSION) {
-            return this._ctCartById(baseUrl, customerId).then(result => {
+            return this._ctCartById(baseUrl).then(result => {
                 data.version = result.body.version;
-                return this._handlePostCart(baseUrl, data, customerId);
+                return this._handlePostCart(baseUrl, data);
             }).catch(error => {
                 return this._handleError(error);
             });
         } else {
-            return this._handlePostCart(baseUrl, data, customerId).catch(error => {
+            return this._handlePostCart(baseUrl, data).catch(error => {
                 return this._handleError(error);
             });
         }
@@ -95,20 +93,13 @@ class CommerceToolsCart extends CommerceToolsClientBase {
      *
      * @param baseUrl
      * @param data
-     * @param customerId
      * @private
      */
-    _handlePostCart(baseUrl, data, customerId) {
-        return this._handle(baseUrl, 'POST', data).then(result => {
-            if (result.response.statusCode === HttpStatusCodes.OK && customerId != result.response.body.customerId) {
-                return Promise.reject(Error.CUSTOMER_NOT_ALLOWED_ERROR());
-            } else {
-                return result;
-            }
-        }).catch((error) => {
+    _handlePostCart(baseUrl, data) {
+        return this._handle(baseUrl, 'POST', data).catch((error) => {
             //check again for error code conflict. could be customer not allowed error.
-            if(error && error.code === HttpStatusCodes.CONFLICT) {
-                return this._ctCartById(baseUrl, customerId).then(result => {
+            if (error && error.code === HttpStatusCodes.CONFLICT) {
+                return this._ctCartById(baseUrl).then(result => {
                     data.version = result.body.version;
                     return this._handle(baseUrl, 'POST', data);
                 });
@@ -128,7 +119,7 @@ class CommerceToolsCart extends CommerceToolsClientBase {
         let ccifId = new CcifIdentifier(id);
         this.requestBuilder.byId(ccifId.getCommerceToolsId());
         const baseUrl = this._buildBaseUrl();
-        return this._ctCartById(baseUrl, args.customerId).then(result => {
+        return this._ctCartById(baseUrl).then(result => {
             return this._handleSuccess(this.mapper(result, args));
         }).catch(error => {
             return this._handleError(error);
@@ -139,19 +130,11 @@ class CommerceToolsCart extends CommerceToolsClientBase {
      * Gets a commerce tools cart by id
      *
      * @param id          Cart id.
-     * @param customerId  Customer id.
      * @return {Request}  CommerceTools response.
      * @protected
      */
-    _ctCartById(baseUrl, customerId) {
-        return this._execute(baseUrl, 'GET').then(result => {
-            // do NOT change to !==, this should return false for all combinations of null and undefined
-            if (customerId != result.body.customerId) {
-                return Promise.reject(Error.CUSTOMER_NOT_ALLOWED_ERROR());
-            } else {
-                return result;
-            }
-        });
+    _ctCartById(baseUrl) {
+        return this._execute(baseUrl, 'GET');
     }
 
 }

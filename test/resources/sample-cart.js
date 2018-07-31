@@ -21,6 +21,7 @@ module.exports = {
         'version': 7,
         'createdAt': '2017-07-11T13:23:18.080Z',
         'lastModifiedAt': '2017-07-11T13:23:54.111Z',
+        'customerId': 'bf93aa8c-3d3c-48e3-802a-18fb19dfd5ed',
         'lineItems': [
             {
                 'id': 'a1a94c6b-9ae0-454b-83c8-dfb112165967',

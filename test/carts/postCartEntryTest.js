@@ -20,9 +20,6 @@ const samplecart1 = require('../resources/sample-cart');
 const samplecart404 = require('../resources/sample-cart-404');
 const config = require('../lib/config').config;
 
-// Used to test a cart with a customer id
-const sampleCustomerCart = JSON.parse(JSON.stringify(samplecart1));
-
 /**
  * Describes the unit tests for commerce tools add cart entry operation.
  */
@@ -282,22 +279,5 @@ describe('commercetools postCartEntry', () => {
                        });
         });
 
-        it('POST /cart/{id} HTTP 403 - existing cart with missing customer id', () => {
-            const args = {
-                'id': '12345-1',
-                'currency': 'USD',
-                'productVariantId': '526dc571-104f-40fb-b761-71781a97910b-1',
-                'quantity': 2,
-                __ow_headers: {
-                    'accept-language': 'en-US'
-                }
-            };
-            sampleCustomerCart.body.customerId = '1234';
-            return this.prepareResolve(sampleCustomerCart)
-                       .execute(args)
-                       .then(result => {
-                           assert.strictEqual(result.response.error.name, 'CommerceServiceForbiddenError');
-                       });
-        });
     });
 });

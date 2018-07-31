@@ -21,9 +21,6 @@ const samplecart404 = require('../resources/sample-cart-404');
 const samplecartentry400 = require('../resources/sample-cart-entry-400');
 const config = require('../lib/config').config;
 
-// Used to test a cart with a customer id
-const sampleCustomerCart = JSON.parse(JSON.stringify(samplecart1));
-
 /**
  * Describes the unit tests for commerce tools put cart entry operation.
  */
@@ -168,17 +165,6 @@ describe('commercetools putCartEntry', () => {
                            assert.isDefined(result.response);
                            assert.isDefined(result.response.error);
                            assert.strictEqual(result.response.error.name, 'CommerceServiceBadRequestError');
-                       });
-        });
-
-        it('POST /cart/{id} HTTP 403 - existing cart with missing customer id', () => {
-            sampleCustomerCart.body.customerId = '1234';
-            return this.prepareResolve(sampleCustomerCart)
-                       .execute({'id': '12345-7', 'cartEntryId': '12345', 'quantity': 1})
-                       .then(result => {
-                           assert.isDefined(result.response);
-                           assert.isDefined(result.response.error);
-                           assert.strictEqual(result.response.error.name, 'CommerceServiceForbiddenError');
                        });
         });
 

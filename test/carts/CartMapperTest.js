@@ -68,7 +68,7 @@ describe('commercetools CartMapper', () => {
             assert.strictEqual(mappedCart.cartEntries.length, cartData.body.lineItems.length);
             assert.strictEqual(mappedCart.createdDate, cartData.body.createdAt);
             assert.strictEqual(mappedCart.lastModifiedDate, cartData.body.lastModifiedAt);
-
+            assert.strictEqual(mappedCart.customerId, cartData.body.customerId);
             //asserts shipping and billing address
             assertEqualAddress(mappedCart['shippingAddress'], cartData.body['shippingAddress']);
             assertEqualAddress(mappedCart['billingAddress'], cartData.body['billingAddress']);

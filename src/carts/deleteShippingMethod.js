@@ -32,7 +32,6 @@ const ERROR_TYPE = require('./constants').ERROR_TYPE;
  * @param   {string} args.CT_AUTH_HOST         optional commerceTools AUTH host uri
  *
  * @param   {string} args.id                    cart id;
- * @param   {string} args.customerId            an optional customer id that is checked against the cart's customer id.
  *
  * @return  {Promise}                           the CCIF cart;
  */
@@ -59,7 +58,7 @@ function deleteShippingMethod(args) {
 
     return cart
         .byId(args.id)
-        .postCartData(args.id, data, args.customerId);
+        .postCartData(args.id, data);
 }
 
 module.exports.main = CTPerformanceMeasurement.decorateActionForSequence(deleteShippingMethod);

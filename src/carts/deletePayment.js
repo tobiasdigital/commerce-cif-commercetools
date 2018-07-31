@@ -33,8 +33,6 @@ const ERROR_TYPE = require('./constants').ERROR_TYPE;
  * @param   {string} args.CT_AUTH_HOST         optional commerceTools AUTH host uri
  *
  * @param   {string} args.id                   cart id;
- * @param   {string} args.customerId           an optional customer id to either create a customer cart or check that
- *     cart operations are permitted
  *
  */
 function deletePayment(args) {
@@ -51,7 +49,7 @@ function deletePayment(args) {
     let paymentMapper = new PaymentMapper();
 
     let cartPaymentClient = new CommerceToolsCartPayment(args, createClient, cartMapper.mapCart.bind(cartMapper), paymentMapper.mapPayment.bind(paymentMapper), paymentMapper.mapPaymentDraft.bind(paymentMapper));
-    return cartPaymentClient.deletePayment(args.id, args.customerId);
+    return cartPaymentClient.deletePayment(args.id);
 }
 
 module.exports.main = CTPerformanceMeasurement.decorateActionForSequence(deletePayment);

@@ -34,7 +34,6 @@ const ERROR_TYPE = require('./constants').ERROR_TYPE;
  * @param   {string} args.id                   cart id;
  * @param   {string} args.cartEntryId          cart entry id;
  * @param   {string} args.quantity             quantity for the product variant
- * @param   {string} args.customerId           an optional customer id to check that cart operations are permitted
  *
  * @return  {Promise}                          the cart with update entries and any not updated entry
  */
@@ -67,7 +66,7 @@ function putCartEntry(args) {
         ]
     };
 
-    return cart.postCartData(args.id, data, args.customerId);
+    return cart.postCartData(args.id, data);
 }
 
 module.exports.main = CTPerformanceMeasurement.decorateActionForSequence(putCartEntry);

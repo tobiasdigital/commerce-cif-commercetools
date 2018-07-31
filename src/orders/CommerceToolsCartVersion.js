@@ -15,7 +15,6 @@
 'use strict';
 
 const CommerceToolsClientBase = require('@adobe/commerce-cif-commercetools-common/CommerceToolsClientBase');
-const Error = require('@adobe/commerce-cif-commercetools-common/Error');
 const ERROR_TYPE = require('./constants').ERROR_TYPE;
 
 /**
@@ -40,19 +39,11 @@ class CommerceToolsCartVersion extends CommerceToolsClientBase {
      * Gets a commerce tools cart by id
      *
      * @param id          Cart id.
-     * @param customerId  Customer id.
      * @return {Request}  CommerceTools response.
      * @protected
      */
-    _ctCartById(baseUrl, customerId) {
-        return this._execute(baseUrl, 'GET').then(result => {
-            // do NOT change to !==, this should return false for all combinations of null and undefined
-            if (customerId != result.body.customerId) {
-                return Promise.reject(Error.CUSTOMER_NOT_ALLOWED_ERROR());
-            } else {
-                return result;
-            }
-        });
+    _ctCartById(baseUrl) {
+        return this._execute(baseUrl, 'GET');
     }
 
 }

@@ -30,7 +30,6 @@ const ERROR_TYPE = require('./constants').ERROR_TYPE;
  * @param   {string} args.CT_AUTH_HOST         optional commerceTools AUTH host uri
  *
  * @param   {string} args.cartId               cart id from which the order is created
- * @param   {string} args.customerId           an optional customer id to check that order operations are permitted
  */
 function postOrder(args) {
     const validator = new InputValidator(args, ERROR_TYPE);
@@ -44,7 +43,7 @@ function postOrder(args) {
     let orderMapper = new OrderMapper();
 
     const cartOrderClient = new CommerceToolsCartOrder(args, createClient, orderMapper.mapOrder.bind(orderMapper));
-    return cartOrderClient.postOrder(args.cartId, args.customerId).then(result => {
+    return cartOrderClient.postOrder(args.cartId).then(result => {
         if (result.response.statusCode === 200) {
             result.response.statusCode = 201;
             result.response.headers = {'Location': `orders/${result.response.body.id}`};
