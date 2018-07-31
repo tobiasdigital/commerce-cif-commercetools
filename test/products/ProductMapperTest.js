@@ -46,8 +46,8 @@ describe('commercetools ProductMapper', () => {
             assert.lengthOf(mappedPrices, sampleProduct1.body.masterVariant.prices.length);
 
             mappedPrices.forEach(price => {
-                assert.hasAnyKeys(price, ['centAmount', 'currency', 'country']);
-                assert.isNumber(price.centAmount);
+                assert.hasAnyKeys(price, ['amount', 'currency', 'country']);
+                assert.isNumber(price.amount);
             });
 
             assert.isUndefined(mappedPrices[0].country);
@@ -70,8 +70,8 @@ describe('commercetools ProductMapper', () => {
             assert.strictEqual(mappedProduct.masterVariantId, productData.body.id + '-' + productData.body.masterVariant.id);
             assert.strictEqual(mappedProduct.name, productData.body.name.en);
             assert.strictEqual(mappedProduct.description, productData.body.description.en);
-            assert.strictEqual(mappedProduct.createdDate, productData.body.createdAt);
-            assert.strictEqual(mappedProduct.lastModifiedDate, productData.body.lastModifiedAt);
+            assert.strictEqual(mappedProduct.createdAt, productData.body.createdAt);
+            assert.strictEqual(mappedProduct.lastModifiedAt, productData.body.lastModifiedAt);
             assert.lengthOf(mappedProduct.variants, productData.body.variants.length + 1);
             assert.lengthOf(mappedProduct.categories, productData.body.categories.length);
         });
@@ -134,7 +134,7 @@ describe('commercetools ProductMapper', () => {
                 assert.isDefined(sampleFacet.type);
                 if (sampleFacet.type === 'range') {
                     assert.strictEqual(facet.missed, sampleFacet.missing);
-                    facet.facetValues.forEach((facetValue, idx) => {
+                    facet.values.forEach((facetValue, idx) => {
                         let range = sampleFacet.ranges[idx];
                         assert.strictEqual(facetValue.value, `${range.from}-${range.to}`);
                         assert.strictEqual(facetValue.occurrences, range.productCount);
@@ -142,7 +142,7 @@ describe('commercetools ProductMapper', () => {
                     });
                 } else {
                     assert.strictEqual(facet.missed, sampleFacet.missing);
-                    facet.facetValues.forEach((facetValue, idx) => {
+                    facet.values.forEach((facetValue, idx) => {
                         let term = sampleFacet.terms[idx];
                         assert.strictEqual(facetValue.value, term.term);
                         assert.strictEqual(facetValue.occurrences, term.productCount);
@@ -164,14 +164,14 @@ describe('commercetools ProductMapper', () => {
             mappedProduct.facets.forEach((facet) => {
                 let sampleFacet = sampleFacets[facet.name];
                 if (sampleFacet.type === 'range') {
-                    facet.facetValues.forEach((facetValue) => {
+                    facet.values.forEach((facetValue) => {
                         if (facetValue.value === '5000-15000') {
                             assert.isDefined(facetValue.selected);
                             assert.strictEqual(facetValue.selected, true);
                         }
                     });
                 } else {
-                    facet.facetValues.forEach((facetValue) => {
+                    facet.values.forEach((facetValue) => {
                         if (facetValue === 'purple') {
                             assert.isDefined(facetValue.selected);
                             assert.strictEqual(facetValue.selected, true);

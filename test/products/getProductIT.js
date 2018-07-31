@@ -55,7 +55,7 @@ describe('commercetools getProduct', function() {
                     expect(res.body).to.have.own.property('description');
                     expect(res.body.id).to.equal(productId);
                     expect(res.body).to.have.own.property('categories');
-                    expect(res.body).to.have.own.property('createdDate');
+                    expect(res.body).to.have.own.property('createdAt');
                 })
                 .catch(function(err) {
                     throw err;

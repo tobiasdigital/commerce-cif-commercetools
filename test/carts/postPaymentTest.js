@@ -135,7 +135,7 @@ describe('commercetools post payment test', () => {
                     assert.strictEqual(result.response.statusCode, 200);
                     assert.isDefined(result.response.body);
                     assert.isDefined(result.response.body.id);
-                    assert.isDefined(result.response.body.cartEntries);
+                    assert.isDefined(result.response.body.entries);
                     assert.isDefined(result.response.body.payment);
                 });
         });

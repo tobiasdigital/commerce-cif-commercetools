@@ -87,22 +87,22 @@ class CategoryMapper {
         let orphans = [];
         
         for (let cat of categoryMap.values()) {
-            if (cat.parentCategories) {
+            if (cat.parents) {
                 // in CommerceTools, a category only has one parent
-                let parentId = cat.parentCategories[0].id;
+                let parentId = cat.parents[0].id;
                 if (categoryMap.has(parentId)) {
                     let parent = categoryMap.get(parentId);
-                    if (!parent.subCategories) {
-                        parent.subCategories = [];
+                    if (!parent.children) {
+                        parent.children = [];
                     }
-                    parent.subCategories.push(cat);
+                    parent.children.push(cat);
                 } else {
                     orphans.push(cat);
                 }
             }
         }
         
-        return categories.filter(cat => !cat.parentCategories).concat(orphans);
+        return categories.filter(cat => !cat.parents).concat(orphans);
     }
     
     /**
@@ -140,12 +140,12 @@ class CategoryMapper {
         
         if (ctCategory.parent) {
             let parentCategory = new Category(ctCategory.parent.id);
-            // category.mainParentCategoryId = parentCategory.id;
-            category.parentCategories = [parentCategory];
+            // category.mainParentId = parentCategory.id;
+            category.parents = [parentCategory];
         }
 
-        category.createdDate = ctCategory.createdAt;
-        category.lastModifiedDate = ctCategory.lastModifiedAt;
+        category.createdAt = ctCategory.createdAt;
+        category.lastModifiedAt = ctCategory.lastModifiedAt;
         
         return category;
     }

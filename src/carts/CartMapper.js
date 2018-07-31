@@ -79,17 +79,16 @@ class CartMapper {
             cartEntries = this._mapCartEntries(ctCart.lineItems);
         }
         const ccifIf = CcifIdentifier.buildCcifIdentifier(ctCart.id, ctCart.version);
-        let cart = new Cart(cartEntries, ccifIf);
+        let cart = new Cart(ctCart.totalPrice.currencyCode, cartEntries, ccifIf);
         cart.discounts = [];
-        cart.currency = ctCart.totalPrice.currencyCode;
         
         if (ctCart.taxedPrice) {
             cart.netTotalPrice = new Price(ctCart.taxedPrice.totalNet.centAmount, ctCart.taxedPrice.totalNet.currencyCode);
             cart.grossTotalPrice = new Price(ctCart.taxedPrice.totalGross.centAmount, ctCart.taxedPrice.totalGross.currencyCode);
         }
         
-        cart.createdDate = ctCart.createdAt;
-        cart.lastModifiedDate = ctCart.lastModifiedAt;
+        cart.createdAt = ctCart.createdAt;
+        cart.lastModifiedAt = ctCart.lastModifiedAt;
         cart.customerId = ctCart.customerId;
         if (ctCart.shippingAddress) {
             cart.shippingAddress = this._mapAddress(ctCart.shippingAddress);
@@ -112,7 +111,7 @@ class CartMapper {
             cart.payment = this._mapPayments(ctCart.paymentInfo.payments);
         }
         if (ctCart.taxedPrice) {
-            cart.cartTaxInfo = this._mapCartTaxInfo(ctCart.taxedPrice);
+            cart.taxInfo = this._mapTaxInfo(ctCart.taxedPrice);
             if (ctCart.lineItems && ctCart.lineItems.length > 0) {
                 if (ctCart.lineItems[0].taxRate) {
                     cart.taxIncludedInPrices = ctCart.lineItems[0].taxRate.includedInPrice;
@@ -127,12 +126,12 @@ class CartMapper {
      * @private
      */
     _calculateTotalProductPrice(cart, ctCart) {
-        cart.totalProductPrice = new Price(ctCart.totalPrice.centAmount, ctCart.totalPrice.currencyCode);
+        cart.productTotalPrice = new Price(ctCart.totalPrice.centAmount, ctCart.totalPrice.currencyCode);
         if (cart.shippingInfo) {
             if (cart.shippingInfo.discountedPrice) {
-                cart.totalProductPrice.centAmount -= cart.shippingInfo.discountedPrice.centAmount;
+                cart.productTotalPrice.amount -= cart.shippingInfo.discountedPrice.amount;
             } else {
-                cart.totalProductPrice.centAmount -= cart.shippingInfo.price.centAmount;
+                cart.productTotalPrice.amount -= cart.shippingInfo.price.amount;
             }
         }
     }
@@ -142,22 +141,19 @@ class CartMapper {
      */
     _mapCartEntries(lineItems) {
         return lineItems.map(lineItem => {
+            const type = (lineItem.lineItemMode ===  CartMapper.GIFT_LINE_ITEM ? CartEntryType.PROMOTION : CartEntryType.REGULAR);
+            const unitPrice = new Price(lineItem.price.value.centAmount, lineItem.price.value.currencyCode);
+            const price = new Price(lineItem.price.value.centAmount * lineItem.quantity, lineItem.totalPrice.currencyCode);
             const productVariant = this.productMapper.mapProductVariant(lineItem);
-            const cartEntry = new CartEntry(lineItem.id, productVariant, lineItem.quantity);
-            cartEntry.unitPrice = new Price(lineItem.price.value.centAmount, lineItem.price.value.currencyCode);
-            cartEntry.type = (lineItem.lineItemMode ===  CartMapper.GIFT_LINE_ITEM ? CartEntryType.PROMOTION : CartEntryType.REGULAR);
+            const cartEntry = new CartEntry(lineItem.id, price, productVariant, lineItem.quantity, type, unitPrice);
+            
             if (lineItem.discountedPricePerQuantity && lineItem.discountedPricePerQuantity.length > 0) {
-
                 cartEntry.discounts = this._mapCartEntryDiscounts(lineItem.discountedPricePerQuantity);
-                cartEntry.discountedCartEntryPrice =
-                    new Price(lineItem.totalPrice.centAmount, lineItem.totalPrice.currencyCode);
+                cartEntry.discountedPrice = new Price(lineItem.totalPrice.centAmount, lineItem.totalPrice.currencyCode);
             }
 
-            cartEntry.cartEntryPrice =
-                new Price(lineItem.price.value.centAmount * lineItem.quantity, lineItem.totalPrice.currencyCode);
-
             if (lineItem.taxedPrice && lineItem.taxRate) {
-                cartEntry.cartEntryTaxInfo = this._mapItemTaxInfo(lineItem.taxedPrice, lineItem.taxRate);
+                cartEntry.taxInfo = this._mapItemTaxInfo(lineItem.taxedPrice, lineItem.taxRate);
             }
 
             return cartEntry;
@@ -180,10 +176,10 @@ class CartMapper {
                 let id = includedDiscount.discount.id;
                 if (!map.has(id)) {
                     const discount = this._mapDiscount(includedDiscount, DiscountType.CART_ENTRY);
-                    discount.discountedAmount.centAmount = 0;
+                    discount.amount.amount = 0;
                     map.set(id, discount);
                 }
-                map.get(id).discountedAmount.centAmount += includedDiscount.discountedAmount.centAmount * quantity;
+                map.get(id).amount.amount += includedDiscount.discountedAmount.centAmount * quantity;
             });
         });
 
@@ -207,7 +203,7 @@ class CartMapper {
                 discount.name = this.languageParser.pickLanguage(includedDiscount.discount.obj.name);
             }
             if (includedDiscount.discount.obj.description) {
-                discount.message = this.languageParser.pickLanguage(includedDiscount.discount.obj.description);
+                discount.description = this.languageParser.pickLanguage(includedDiscount.discount.obj.description);
             }
         }
 
@@ -275,7 +271,7 @@ class CartMapper {
                                                      ctShippingInfo.discountedPrice.value.currencyCode);
         }
         if (ctShippingInfo.taxedPrice && ctShippingInfo.taxRate) {
-            shippingInfo.shippingTaxInfo = this._mapItemTaxInfo(ctShippingInfo.taxedPrice, ctShippingInfo.taxRate);
+            shippingInfo.taxInfo = this._mapItemTaxInfo(ctShippingInfo.taxedPrice, ctShippingInfo.taxRate);
         }
         return shippingInfo;
     }
@@ -324,11 +320,11 @@ class CartMapper {
         let taxPortion = new TaxPortion();
 
         taxPortion.name = ctTaxRate.name;
-        taxPortion.centAmount = ctTaxedPrice.totalGross.centAmount - ctTaxedPrice.totalNet.centAmount;
+        taxPortion.amount = ctTaxedPrice.totalGross.centAmount - ctTaxedPrice.totalNet.centAmount;
 
-        taxInfo.totalCentAmount = taxPortion.centAmount;
-        taxInfo.taxPortions = [];
-        taxInfo.taxPortions.push(taxPortion);
+        taxInfo.amount = taxPortion.amount;
+        taxInfo.portions = [];
+        taxInfo.portions.push(taxPortion);
 
         return taxInfo;
     }
@@ -342,17 +338,17 @@ class CartMapper {
      * @return {TaxInfo}    Commerce Integration Framework tax info.
      * @private
      */
-    _mapCartTaxInfo(ctTaxedPrice) {
+    _mapTaxInfo(ctTaxedPrice) {
         let taxInfo = new TaxInfo();
 
-        taxInfo.taxPortions = [];
-        taxInfo.totalCentAmount = ctTaxedPrice.totalGross.centAmount - ctTaxedPrice.totalNet.centAmount;
+        taxInfo.portions = [];
+        taxInfo.amount = ctTaxedPrice.totalGross.centAmount - ctTaxedPrice.totalNet.centAmount;
 
-        if (ctTaxedPrice.taxPortions) {
-            taxInfo.taxPortions.push(...ctTaxedPrice.taxPortions.map(ctTaxPortion => {
+        if (ctTaxedPrice.portions) {
+            taxInfo.portions.push(...ctTaxedPrice.portions.map(ctTaxPortion => {
                 let taxPortion = new TaxPortion();
                 taxPortion.name = ctTaxPortion.name;
-                taxPortion.centAmount = ctTaxPortion.amount.centAmount;
+                taxPortion.amount = ctTaxPortion.amount.centAmount;
                 return taxPortion;
             }));
         }

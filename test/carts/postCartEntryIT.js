@@ -85,9 +85,9 @@ describe('commercetools postCartEntry', function() {
                     // Verify structure
                     requiredFields.verifyCart(res.body);
                     expect(res.body.id).to.not.be.empty;
-                    expect(res.body).to.have.own.property('lastModifiedDate');
-                    expect(res.body).to.have.own.property('createdDate');
-                    expect(res.body.cartEntries).to.have.lengthOf(0);
+                    expect(res.body).to.have.own.property('lastModifiedAt');
+                    expect(res.body).to.have.own.property('createdAt');
+                    expect(res.body.entries).to.have.lengthOf(0);
                 })
                 .catch(function(err) {
                     throw err;
@@ -116,13 +116,13 @@ describe('commercetools postCartEntry', function() {
                     let ccifParamId = new CcifIdentifier(cartId);
                     expect(ccifResId.getCommerceToolsId()).to.equal(ccifParamId.getCommerceToolsId());
                     expect(ccifResId.getCommerceToolsVersion()).not.to.equal(ccifParamId.getCommerceToolsVersion());
-                    expect(res.body).to.have.own.property('lastModifiedDate');
-                    expect(res.body).to.have.own.property('createdDate');
-                    expect(res.body.cartEntries).to.have.lengthOf(2);
+                    expect(res.body).to.have.own.property('lastModifiedAt');
+                    expect(res.body).to.have.own.property('createdAt');
+                    expect(res.body.entries).to.have.lengthOf(2);
 
                     // Verify that product was added
                     let addedEntry;
-                    for(let entry of res.body.cartEntries) {
+                    for(let entry of res.body.entries) {
                         if(entry.productVariant.id == productVariantIdSecond) {
                             addedEntry = entry;
                         }
@@ -153,12 +153,12 @@ describe('commercetools postCartEntry', function() {
                     // Verify structure
                     requiredFields.verifyCart(res.body);
                     expect(res.body.id).to.not.be.empty;
-                    expect(res.body).to.have.own.property('lastModifiedDate');
-                    expect(res.body).to.have.own.property('createdDate');
-                    expect(res.body.cartEntries).to.have.lengthOf(1);
+                    expect(res.body).to.have.own.property('lastModifiedAt');
+                    expect(res.body).to.have.own.property('createdAt');
+                    expect(res.body.entries).to.have.lengthOf(1);
 
                     // Verify entry structure
-                    const entry = res.body.cartEntries[0];
+                    const entry = res.body.entries[0];
                     expect(entry.quantity).to.equal(2);
                     expect(entry.productVariant.id).to.equal(productVariantId);
                 })

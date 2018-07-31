@@ -119,7 +119,7 @@ describe('commercetools searchProducts', function() {
                     expect(product.name).to.equal('El Gordo Down Jacket');
                     expect(product).to.have.own.property('description');
                     expect(product).to.have.own.property('categories');
-                    expect(product).to.have.own.property('createdDate');
+                    expect(product).to.have.own.property('createdAt');
 
                     // Find variant with requested sku
                     let found = false;
@@ -270,7 +270,7 @@ describe('commercetools searchProducts', function() {
                         requiredFields.verifyProduct(result);
                     }
                     expect(res.body.facets).to.have.lengthOf(1);
-                    expect(res.body.facets[0].facetValues).to.be.empty;
+                    expect(res.body.facets[0].values).to.be.empty;
                 });
         });
 
@@ -317,8 +317,8 @@ describe('commercetools searchProducts', function() {
                     for (let result of res.body.results) {
                         requiredFields.verifyProduct(result);
                     }
-                    expect(res.body.facets[0].facetValues).to.not.be.undefined;
-                    expect(res.body.facets[1].facetValues).to.not.be.undefined;
+                    expect(res.body.facets[0].values).to.not.be.undefined;
+                    expect(res.body.facets[1].values).to.not.be.undefined;
                 });
         });
 

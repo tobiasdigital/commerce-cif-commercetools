@@ -46,7 +46,7 @@ describe('commercetools postPayment', function () {
             statusCode: '1',
             status: 'Paid',
             amount: {
-                centAmount: 17900,
+                amount: 17900,
                 currency: 'USD'
             }
         };
@@ -128,8 +128,8 @@ describe('commercetools postPayment', function () {
                     requiredFields.verifyPayment(payment);
                     expect(payment).to.have.property('amount');
                     requiredFields.verifyPrice(payment.amount);
-                    expect(payment).to.have.property('createdDate');
-                    expect(payment).to.have.property('lastModifiedDate');
+                    expect(payment).to.have.property('createdAt');
+                    expect(payment).to.have.property('lastModifiedAt');
                 });
         });
         

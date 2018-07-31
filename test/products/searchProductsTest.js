@@ -113,10 +113,10 @@ describe('commercetools searchProducts', () => {
                 assert.isDefined(result);
                 assert.isDefined(result.response.body.facets);
                 result.response.body.facets.forEach(facet => {
-                    assert.isDefined(facet.name)
-                    facet.facetValues.forEach(facetValue => {
+                    assert.isDefined(facet.id)
+                    facet.values.forEach(facetValue => {
                         assert.isDefined(facetValue.id);
-                        assert.equal(facetValue.id, `${facet.name}.${facetValue.value}`);
+                        assert.equal(facetValue.id, `${facet.id}.${facetValue.value}`);
                         assert.isDefined(facetValue.value);
                         assert.isDefined(facetValue.occurrences);
                     });
@@ -151,7 +151,7 @@ describe('commercetools searchProducts', () => {
                 assert.strictEqual(result.response.body.facets.length, 1);
                 let colorFacet = result.response.body.facets[0];
                 assert.strictEqual(colorFacet.type, 'text');
-                colorFacet.facetValues.forEach(facetValue => {
+                colorFacet.values.forEach(facetValue => {
                     assert.isDefined(facetValue.id);
                     assert.equal(facetValue.id, `${colorFacet.name}.${facetValue.value}`);
                     assert.isDefined(facetValue.value);
@@ -189,7 +189,7 @@ describe('commercetools searchProducts', () => {
                 assert.strictEqual(result.response.body.facets.length, 1);
                 let colorFacet = result.response.body.facets[0];
                 assert.strictEqual(colorFacet.type, 'text');
-                colorFacet.facetValues.forEach(facetValue => {
+                colorFacet.values.forEach(facetValue => {
                     assert.isDefined(facetValue.id);
                     assert.equal(facetValue.id, `${colorFacet.name}.${facetValue.value}`);
                     assert.isDefined(facetValue.value);

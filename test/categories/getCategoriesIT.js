@@ -59,9 +59,9 @@ describe('commercetools getCategories', function() {
                     // Verify structure
                     for(let category of res.body.results) {
                         requiredFields.verifyCategory(category);
-                        expect(category).to.have.own.property('subCategories');
-                        for(let subCategory of category.subCategories) {
-                            expect(subCategory).to.have.own.property('parentCategories');
+                        expect(category).to.have.own.property('children');
+                        for(let subCategory of category.children) {
+                            expect(subCategory).to.have.own.property('parents');
                         }
                     }
                 })
@@ -88,7 +88,7 @@ describe('commercetools getCategories', function() {
                     // Verify structure
                     for(let category of res.body.results) {
                         requiredFields.verifyCategory(category);
-                        expect(category).to.not.have.own.property('subCategories');
+                        expect(category).to.not.have.own.property('children');
                     }
                 })
                 .catch(function(err) {
@@ -115,8 +115,8 @@ describe('commercetools getCategories', function() {
                     expect(category).to.have.own.property('name');
                     expect(category.name).to.equal('Men');
                     expect(category).to.have.own.property('description');
-                    expect(category).to.have.own.property('lastModifiedDate');
-                    expect(category).to.have.own.property('createdDate');
+                    expect(category).to.have.own.property('lastModifiedAt');
+                    expect(category).to.have.own.property('createdAt');
                 })
                 .catch(function(err) {
                     throw err;
@@ -146,7 +146,7 @@ describe('commercetools getCategories', function() {
                     // Verify structure
                     for(let category of res.body.results) {
                         requiredFields.verifyCategory(category);
-                        expect(category).to.not.have.own.property('subCategories');
+                        expect(category).to.not.have.own.property('children');
                     }
                 })
                 .catch(function(err) {
@@ -177,7 +177,7 @@ describe('commercetools getCategories', function() {
                     // Verify structure
                     for(let category of res.body.results) {
                         requiredFields.verifyCategory(category);
-                        expect(category).to.not.have.own.property('subCategories');
+                        expect(category).to.not.have.own.property('children');
                     }
                 })
                 .catch(function(err) {
@@ -228,7 +228,7 @@ describe('commercetools getCategories', function() {
                     // Verify sorting of subcategories
                     for(let category of res.body.results) {
                         requiredFields.verifyCategory(category);
-                        const subnames = category.subCategories.map(r => r.name.en);
+                        const subnames = category.children.map(r => r.name.en);
                         expect(subnames).to.have.ordered.members(subnames.sort().reverse());
                     }
                 })

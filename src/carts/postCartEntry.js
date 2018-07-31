@@ -108,7 +108,7 @@ function postCartEntry(args) {
             return cart.postCartData(id, data).then(result => {
                 if (result.response.statusCode === 200) {
                     result.response.statusCode = 201;
-                    let entry = result.response.body.cartEntries.find(entry => (entry.productVariant.id === `${productId}-${variantId}`));
+                    let entry = result.response.body.entries.find(entry => (entry.productVariant.id === `${productId}-${variantId}`));
                     if (entry) {
                         result.response.headers = result.response.headers || {};
                         result.response.headers.Location = `carts/${id}/entries/${entry.id}`;
@@ -127,7 +127,7 @@ function postCartEntry(args) {
             return cart.create(data).then(result => {
                 if (result.response.statusCode === 200) {
                     result.response.statusCode = 201;
-                    let entry = result.response.body.cartEntries.find(entry => (entry.productVariant.id === `${productId}-${variantId}`));
+                    let entry = result.response.body.entries.find(entry => (entry.productVariant.id === `${productId}-${variantId}`));
                     if (entry) {
                         result.response.headers = result.response.headers || {};
                         result.response.headers.Location = `carts/${result.response.body.id}/entries/${entry.id}`;

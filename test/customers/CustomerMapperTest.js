@@ -37,10 +37,10 @@ describe('commercetools CustomerMapper', () => {
             let customer = customerMapper.mapCustomer({body: sampleCustomer});
             assert.strictEqual(sampleCustomer.id, customer.id);
             assert.strictEqual(sampleCustomer.email, customer.email);
-            assert.strictEqual(sampleCustomer.firstName, customer.firstname);
-            assert.strictEqual(sampleCustomer.lastName, customer.lastname);
-            assert.strictEqual(sampleCustomer.createdAt, customer.createdDate);
-            assert.strictEqual(sampleCustomer.lastModifiedAt, customer.lastModifiedDate);
+            assert.strictEqual(sampleCustomer.firstName, customer.firstName);
+            assert.strictEqual(sampleCustomer.lastName, customer.lastName);
+            assert.strictEqual(sampleCustomer.createdAt, customer.createdAt);
+            assert.strictEqual(sampleCustomer.lastModifiedAt, customer.lastModifiedAt);
         });
         
         it('customer public method - invalid object', () => {
@@ -51,10 +51,10 @@ describe('commercetools CustomerMapper', () => {
             let customer = customerMapper._mapCustomer(sampleCustomer);
             assert.strictEqual(sampleCustomer.id, customer.id);
             assert.strictEqual(sampleCustomer.email, customer.email);
-            assert.strictEqual(sampleCustomer.firstName, customer.firstname);
-            assert.strictEqual(sampleCustomer.lastName, customer.lastname);
-            assert.strictEqual(sampleCustomer.createdAt, customer.createdDate);
-            assert.strictEqual(sampleCustomer.lastModifiedAt, customer.lastModifiedDate);
+            assert.strictEqual(sampleCustomer.firstName, customer.firstName);
+            assert.strictEqual(sampleCustomer.lastName, customer.lastName);
+            assert.strictEqual(sampleCustomer.createdAt, customer.createdAt);
+            assert.strictEqual(sampleCustomer.lastModifiedAt, customer.lastModifiedAt);
         });
         
         it('customer private method - invalid object', () => {

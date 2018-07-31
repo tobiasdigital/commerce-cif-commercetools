@@ -80,7 +80,7 @@ function searchProducts(args) {
             result.response.body.map(facet => {
                 //by default CommerceTools facet count is for product variant; including option 'counting products' to
                 //get facet count for product as well. 
-                commerceToolsProductSearch.facet(`${facet.name} counting products`)
+                commerceToolsProductSearch.facet(`${facet.id} counting products`)
             });
             return _executeSearch(commerceToolsProductSearch, limit, offset);
         });

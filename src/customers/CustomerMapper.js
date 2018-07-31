@@ -57,12 +57,9 @@ class CustomerMapper {
             throw new MissingPropertyException('invalid customer object received from commerce tools');
         }
 
-        let customer = new Customer(ctCustomer.id);
-        customer.email = ctCustomer.email;
-        customer.firstname = ctCustomer.firstName;
-        customer.lastname = ctCustomer.lastName;
-        customer.createdDate = ctCustomer.createdAt;
-        customer.lastModifiedDate = ctCustomer.lastModifiedAt;
+        let customer = new Customer(ctCustomer.email, ctCustomer.firstName, ctCustomer.id, ctCustomer.lastName);
+        customer.createdAt = ctCustomer.createdAt;
+        customer.lastModifiedAt = ctCustomer.lastModifiedAt;
         return customer;
     }
 

@@ -112,7 +112,7 @@ describe('commercetools getCategories', () => {
                 let expectedFirstLevelSize = sampleCategories.body.results.filter(
                     cat => cat.ancestors && cat.ancestors.length == 1).length;
                 let levelOneCategories = 0;
-                pagedResponse.results.forEach(cat => levelOneCategories += cat.subCategories.length);
+                pagedResponse.results.forEach(cat => levelOneCategories += cat.children.length);
                 assert.strictEqual(expectedFirstLevelSize, levelOneCategories,
                                    'The number of level 1 categories does not match');
             });

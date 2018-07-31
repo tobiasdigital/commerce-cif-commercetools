@@ -59,8 +59,8 @@ class PaymentMapper {
         ccifPayment.token = ctPayment.externalId;
         ccifPayment.statusCode = ctPayment.paymentStatus.interfaceCode;
         ccifPayment.status = ctPayment.paymentStatus.interfaceText;
-        ccifPayment.createdDate = ctPayment.createdAt;
-        ccifPayment.lastModifiedDate = ctPayment.lastModifiedAt;
+        ccifPayment.createdAt = ctPayment.createdAt;
+        ccifPayment.lastModifiedAt = ctPayment.lastModifiedAt;
         ccifPayment.amount = new Price(ctPayment.amountPlanned.centAmount, ctPayment.amountPlanned.currencyCode);
         
         return ccifPayment;
@@ -85,7 +85,7 @@ class PaymentMapper {
         
         if (payment.amount) {
             paymentDraft.amountPlanned = {};
-            paymentDraft.amountPlanned.centAmount = payment.amount.centAmount;
+            paymentDraft.amountPlanned.centAmount = payment.amount.amount;
             paymentDraft.amountPlanned.currencyCode = payment.amount.currency;
         }
         

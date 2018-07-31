@@ -79,13 +79,13 @@ describe('commercetools getCart', function() {
 
                     // Verify structure
                     requiredFields.verifyCart(res.body);
-                    expect(res.body).to.have.own.property('lastModifiedDate');
+                    expect(res.body).to.have.own.property('lastModifiedAt');
                     expect(res.body).to.have.own.property('coupons');
                     expect(res.body.id).to.equal(cartId);
-                    expect(res.body).to.have.own.property('createdDate');
-                    expect(res.body.cartEntries).to.have.lengthOf(1);
+                    expect(res.body).to.have.own.property('createdAt');
+                    expect(res.body.entries).to.have.lengthOf(1);
 
-                    const entry = res.body.cartEntries[0];
+                    const entry = res.body.entries[0];
                     expect(entry.quantity).to.equal(2);
                     expect(entry.productVariant).to.have.own.property('id');
                     expect(entry.productVariant.id).to.equal(productVariantId);
@@ -101,17 +101,17 @@ describe('commercetools getCart', function() {
                 expect(response).to.have.status(statusCode);
                 requiredFields.verifyCart(response.body);
                 expect(response.body.id).to.not.be.empty;
-                expect(response.body.cartEntries).to.have.lengthOf(1);
+                expect(response.body.entries).to.have.lengthOf(1);
 
-                const entry = response.body.cartEntries[0];
+                const entry = response.body.entries[0];
                 expect(entry.quantity).to.equal(71);
-                expect(entry).to.have.own.property('discountedCartEntryPrice');
+                expect(entry).to.have.own.property('discountedPrice');
                 expect(entry).to.have.own.property('discounts');
 
                 entry.discounts.forEach(discount => {
                     requiredFields.verifyDiscount(discount);
                     expect(discount).to.have.own.property('name');
-                    expect(discount).to.have.own.property('message');
+                    expect(discount).to.have.own.property('description');
                 });
             };
 
@@ -194,31 +194,31 @@ describe('commercetools getCart', function() {
                     expect(res).to.have.status(HttpStatus.OK);
                     requiredFields.verifyCart(res.body);
                     
-                    expect(res.body).to.have.property('cartTaxInfo');
+                    expect(res.body).to.have.property('taxInfo');
                     expect(res.body).to.have.property('taxIncludedInPrices');
                     expect(res.body).to.have.property('netTotalPrice');
                     expect(res.body).to.have.property('grossTotalPrice');
 
-                    let cartTaxInfo = res.body.cartTaxInfo;
-                    requiredFields.verifyTaxInfo(cartTaxInfo);
-                    for (let taxPortion of cartTaxInfo.taxPortions) {
+                    let taxInfo = res.body.taxInfo;
+                    requiredFields.verifyTaxInfo(taxInfo);
+                    for (let taxPortion of taxInfo.portions) {
                         requiredFields.verifyTaxPortion(taxPortion);
                     }                    
 
                     expect(res.body).to.have.property('shippingInfo');
-                    expect(res.body.shippingInfo).to.have.property('shippingTaxInfo');
-                    let shippingTaxInfo = res.body.shippingInfo.shippingTaxInfo;
-                    requiredFields.verifyTaxInfo(shippingTaxInfo);
-                    for (let taxPortion of shippingTaxInfo.taxPortions) {
+                    expect(res.body.shippingInfo).to.have.property('taxInfo');
+                    let shippingTaxaxInfo = res.body.shippingInfo.taxInfo;
+                    requiredFields.verifyTaxInfo(shippingTaxaxInfo);
+                    for (let taxPortion of shippingTaxaxInfo.portions) {
                         requiredFields.verifyTaxPortion(taxPortion);
                     }   
 
-                    expect(res.body).to.have.property('cartEntries');
-                    let cartEntries = res.body.cartEntries;
+                    expect(res.body).to.have.property('entries');
+                    let cartEntries = res.body.entries;
                     cartEntries.every(cartEntry => {
-                        let cartEntryTaxInfo = cartEntry.cartEntryTaxInfo;
+                        let cartEntryTaxInfo = cartEntry.taxInfo;
                         requiredFields.verifyTaxInfo(cartEntryTaxInfo);
-                        for (let taxPortion of cartEntryTaxInfo.taxPortions) {
+                        for (let taxPortion of cartEntryTaxInfo.portions) {
                             requiredFields.verifyTaxPortion(taxPortion);
                         }   
                     });

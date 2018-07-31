@@ -49,7 +49,7 @@ describe('commercetools getCustomerById', function() {
                     // Verify structure
                     requiredFields.verifyCustomer(res.body);
                     expect(res.body.id).to.equal(customerId);
-                    expect(res.body).to.have.own.property('createdDate');
+                    expect(res.body).to.have.own.property('createdAt');
                 })
                 .catch(function(err) {
                     throw err;

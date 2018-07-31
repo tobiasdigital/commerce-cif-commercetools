@@ -25,7 +25,7 @@ describe('commercetools PaymentMapper', () => {
         statusCode: '1',
         status: 'Paid',
         amount: {
-            centAmount: 17900,
+            amount: 17900,
             currency: 'USD'
         }
     };

@@ -60,7 +60,7 @@ describe('commercetools deleteCartEntry', function() {
                     // Store cart id
                     cartId = res.body.id;
                     // Store cart entry id
-                    cartEntryId = res.body.cartEntries[0].id;
+                    cartEntryId = res.body.entries[0].id;
                     // Store token to access the anonymous session
                     accessToken = extractToken(res);
                 })
@@ -83,7 +83,7 @@ describe('commercetools deleteCartEntry', function() {
                     expect(res).to.have.status(HttpStatus.OK);
                     requiredFields.verifyCart(res.body);
 
-                    expect(res.body.cartEntries).to.have.lengthOf(0);
+                    expect(res.body.entries).to.have.lengthOf(0);
                 })
                 .catch(function(err) {
                     throw err;
@@ -108,9 +108,9 @@ describe('commercetools deleteCartEntry', function() {
                     requiredFields.verifyCart(res.body);
 
                     // Verify that two products are in the cart
-                    expect(res.body.cartEntries).to.have.lengthOf(2);
+                    expect(res.body.entries).to.have.lengthOf(2);
 
-                    for(let entry of res.body.cartEntries) {
+                    for(let entry of res.body.entries) {
                         if(entry.productVariant.id == productVariantIdSecond) {
                             cartEntryIdSecond = entry.id;
                         }
@@ -132,8 +132,8 @@ describe('commercetools deleteCartEntry', function() {
                     requiredFields.verifyCart(res.body);
 
                     // Verify that only original product is still in the cart
-                    expect(res.body.cartEntries).to.have.lengthOf(1);
-                    expect(res.body.cartEntries[0].id).to.equal(cartEntryId);
+                    expect(res.body.entries).to.have.lengthOf(1);
+                    expect(res.body.entries[0].id).to.equal(cartEntryId);
                 })
                 .catch(function(err) {
                     throw err;

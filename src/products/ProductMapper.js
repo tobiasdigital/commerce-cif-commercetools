@@ -93,14 +93,13 @@ class ProductMapper {
         }
 
         let masterVariantId = ctProduct.id + '-' + ctProduct.masterVariant.id;
-        let p = new Product(ctProduct.id, masterVariantId, this._mapProductVariants(ctProduct));
-        p.name = this.languageParser.pickLanguage(ctProduct.name) || "";
+        let name = this.languageParser.pickLanguage(ctProduct.name) || "";
+        let p = new Product(ctProduct.id, masterVariantId, name, [], this._mapProductVariants(ctProduct));
         if (ctProduct.description) {
             p.description = this.languageParser.pickLanguage(ctProduct.description);
         }
-        p.prices = []; // Required field
-        p.createdDate = ctProduct.createdAt;
-        p.lastModifiedDate = ctProduct.lastModifiedAt;
+        p.createdAt = ctProduct.createdAt;
+        p.lastModifiedAt = ctProduct.lastModifiedAt;
         p.categories = this._mapProductCategories(ctProduct.categories);
         return p;
     }
@@ -118,14 +117,13 @@ class ProductMapper {
             attributesTypes = this._extractAttributesTypes(ctLineItem);
         }
 
-        let v = new ProductVariant(ctLineItem.productId + '-' + ctLineItem.variant.id);
-        v.name = this.languageParser.pickLanguage(ctLineItem.name) || "";
-
         // TODO: Get actual value from backend
-        v.available = true;
+        let available = true;
+        let name = this.languageParser.pickLanguage(ctLineItem.name) || "";
+        let prices = this._mapPrices(ctLineItem.variant.prices);
 
-        v.sku = ctLineItem.variant.sku;
-        v.prices = this._mapPrices(ctLineItem.variant.prices);
+        let v = new ProductVariant(available, ctLineItem.productId + '-' + ctLineItem.variant.id, name, prices, ctLineItem.variant.sku);
+
         v.assets = this._mapImages(ctLineItem.variant.images);
         v.attributes = this._mapAttributes(attributesTypes, ctLineItem.variant.attributes);
         return v;
@@ -143,8 +141,8 @@ class ProductMapper {
             result.body.results[0].productType.obj.attributes.forEach(attribute => {
                 if (attribute.isSearchable === true) {
                     let facet = new Facet();
-                    facet.name = `variants.attributes.${attribute.name}.en`;
-                    facet.label = this.languageParser.pickLanguage(attribute.label) || facet.name;
+                    facet.id = `variants.attributes.${attribute.name}.en`;
+                    facet.name = this.languageParser.pickLanguage(attribute.label) || facet.id;
                     facets.push(facet);
                 }
             });
@@ -177,17 +175,17 @@ class ProductMapper {
      * @private
      */
     _mapProductVariant(ctProduct, variant, attributesTypes) {
-        let v = new ProductVariant(ctProduct.id + '-' + variant.id);
-        v.name = this.languageParser.pickLanguage(variant.name) || this.languageParser.pickLanguage(ctProduct.name) || "";
+        // TODO: Get actual value from backend
+        let available = true;
+        let name = this.languageParser.pickLanguage(variant.name) || this.languageParser.pickLanguage(ctProduct.name) || "";
+        let prices = this._mapPrices(variant.prices);
+
+        let v = new ProductVariant(available, ctProduct.id + '-' + variant.id, name, prices, variant.sku);
+
         if (variant.description) {
             v.description = this.languageParser.pickLanguage(variant.description);
         }
 
-        // TODO: Get actual value from backend
-        v.available = true;
-
-        v.sku = variant.sku;
-        v.prices = this._mapPrices(variant.prices);
         v.assets = this._mapImages(variant.images);
         v.attributes = this._mapAttributes(attributesTypes, variant.attributes);
         return v;
@@ -285,19 +283,19 @@ class ProductMapper {
         let ctFacetNames = Object.keys(ctFacets);
         return ctFacetNames.map(facetName => {
             cifFacet = new Facet();
-            cifFacet.name = facetName;
-            cifFacet.label = this.languageParser.pickLanguage(ctFacets[facetName].label) || facetName;
+            cifFacet.id = facetName;
+            cifFacet.name = this.languageParser.pickLanguage(ctFacets[facetName].label) || facetName;
             cifFacet.missed = ctFacets[facetName].missing;
             if (ctFacets[facetName].type === 'range') {
                 cifFacet.type = ctFacets[facetName].type;
-                cifFacet.facetValues = ctFacets[facetName].ranges.map(range => {
+                cifFacet.values = ctFacets[facetName].ranges.map(range => {
                     let facetValue = `${range.from}-${range.to}`;
-                    return this._getCifFacetValue(`${facetName}.${facetValue}`, facetValue, cifFacet.name, range.productCount, args);
+                    return this._getCifFacetValue(`${facetName}.${facetValue}`, facetValue, cifFacet.id, range.productCount, args);
                 });
             } else {
                 cifFacet.type = ctFacets[facetName].dataType;
-                cifFacet.facetValues = ctFacets[facetName].terms.map(ctTerm => {
-                    return this._getCifFacetValue(`${facetName}.${ctTerm.term}`, ctTerm.term, cifFacet.name, ctTerm.productCount, args);
+                cifFacet.values = ctFacets[facetName].terms.map(ctTerm => {
+                    return this._getCifFacetValue(`${facetName}.${ctTerm.term}`, ctTerm.term, cifFacet.id, ctTerm.productCount, args);
                 });
             }
             return cifFacet;
@@ -332,8 +330,8 @@ class ProductMapper {
      */
     _initProductFacet(name, label) {
         let facet = new Facet();
-        facet.name = name;
-        facet.label = this.languageParser.pickLanguage(label) || facet.name;
+        facet.id = name;
+        facet.name = this.languageParser.pickLanguage(label) || facet.id;
         return facet;
     }
 

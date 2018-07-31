@@ -12,7 +12,7 @@
     "@commercetools/sdk-client": "1.4.1",
     "@adobe/commerce-cif-commercetools-common": "0.1.19",
     "@adobe/commerce-cif-common": "0.1.17",
-    "@adobe/commerce-cif-model": "0.1.123"
+    "@adobe/commerce-cif-model": "0.1.124"
   },
   "devDependencies": {
     "eslint": "3.19.0",

@@ -45,7 +45,7 @@ describe('commercetools deletePayment', function () {
             statusCode: '1',
             status: 'Paid',
             amount: {
-                centAmount: 17900,
+                amount: 17900,
                 currency: 'USD'
             }
         };
@@ -136,9 +136,9 @@ describe('commercetools deletePayment', function () {
                     requiredFields.verifyPayment(payment);
                     expect(payment).to.have.property('amount');
                     expect(payment.amount).to.have.property('currency');
-                    expect(payment.amount).to.have.property('centAmount');
-                    expect(payment).to.have.property('createdDate');
-                    expect(payment).to.have.property('lastModifiedDate');
+                    expect(payment.amount).to.have.property('amount');
+                    expect(payment).to.have.property('createdAt');
+                    expect(payment).to.have.property('lastModifiedAt');
 
                     // Update cart id
                     cartId = res.body.id;
