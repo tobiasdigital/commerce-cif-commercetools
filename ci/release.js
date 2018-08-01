@@ -15,20 +15,14 @@
 'use strict';
 
 const cp = require('child_process');
+const fs = require('fs');
 const CI = require('./ci.js');
 const ci = new CI();
 
-// Modules in this repository
-const releaseableModules = {
-    'commerce-cif-commercetools-cart': 'src/carts',
-    'commerce-cif-commercetools-category': 'src/categories',
-    'commerce-cif-commercetools-common': 'src/common',
-    'commerce-cif-commercetools-customer': 'src/customer',
-    'commerce-cif-commercetools-order': 'src/orders',
-    'commerce-cif-commercetools-product': 'src/products'
-}
-
 ci.context();
+
+// Modules in this repository
+const releaseableModules = JSON.parse(fs.readFileSync('ci/modules.json'));
 
 // Check for tag
 let gitTag = process.env.CIRCLE_TAG;
@@ -37,7 +31,7 @@ if (!gitTag) {
 }
 
 // Find module that should be release
-let moduleToRelease = ci.parseReleaseModule(gitTag, releaseableModules);
+let moduleToRelease = ci.parseModuleFromReleaseTag(gitTag, releaseableModules);
 if (!moduleToRelease) {
     throw new Error('Invalid release tag.');
 }
@@ -74,7 +68,8 @@ try {
             ci.sh(`git commit -m "@releng Release: @adobe/${moduleToRelease}-${newVersion}"`);
 
             // Add tag
-            ci.sh(`git tag -a @adobe/${moduleToRelease}-${newVersion} -m "@adobe/${moduleToRelease}-${newVersion}"`);
+            let versionTag = `@adobe/${moduleToRelease}-${newVersion}`;
+            ci.sh(`git tag -a ${versionTag} -m "${versionTag}"`);
 
             // Publish to npm
             ci.sh('npm publish --access public');
