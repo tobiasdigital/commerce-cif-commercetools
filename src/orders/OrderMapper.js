@@ -28,11 +28,12 @@ class OrderMapper {
      * @returns {Order}         CCIF Order representation.
      */
     mapOrder(ctOrder) {
-        const ccifOrder = new Order();
         if(!ctOrder.body.id) {
             throw new Error("No order id in Commerce Tools response.");
         }
-        ccifOrder.id = ctOrder.body.id;
+        const ccifOrder = new Order.Builder()
+            .withId(ctOrder.body.id)
+            .build();
         return ccifOrder;
     }
 }

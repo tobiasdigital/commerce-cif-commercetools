@@ -57,7 +57,12 @@ class CustomerMapper {
             throw new MissingPropertyException('invalid customer object received from commerce tools');
         }
 
-        let customer = new Customer(ctCustomer.email, ctCustomer.firstName, ctCustomer.id, ctCustomer.lastName);
+        let customer = new Customer.Builder()
+            .withId(ctCustomer.id)
+            .withEmail(ctCustomer.email)
+            .withFirstName(ctCustomer.firstName)
+            .withLastName(ctCustomer.lastName)
+            .build();
         customer.createdAt = ctCustomer.createdAt;
         customer.lastModifiedAt = ctCustomer.lastModifiedAt;
         return customer;
@@ -75,9 +80,9 @@ class CustomerMapper {
             throw new MissingPropertyException('invalid customer response received from commerce tools');
         }
 
-        let loginResult = new LoginResult();
-        loginResult.customer = this._mapCustomer(ctResult.body.customer);
 
+        let customer = this._mapCustomer(ctResult.body.customer);
+        let loginResult = new LoginResult.Builder().withCustomer(customer).build();
         if (ctResult.body.cart) {
             loginResult.cart = this.cartMapper._mapCart(ctResult.body.cart);
         }

@@ -52,16 +52,20 @@ class PaymentMapper {
      * @private
      */
     _mapPayment(ctPayment) {
-        let ccifPayment = new Payment();
-        
-        ccifPayment.id = ctPayment.id;
-        ccifPayment.method = ctPayment.paymentMethodInfo.method;
+        let ccifPayment = new Payment.Builder()
+            .withId(ctPayment.id)
+            .withMethod(ctPayment.paymentMethodInfo.method)
+            .build();
+
         ccifPayment.token = ctPayment.externalId;
         ccifPayment.statusCode = ctPayment.paymentStatus.interfaceCode;
         ccifPayment.status = ctPayment.paymentStatus.interfaceText;
         ccifPayment.createdAt = ctPayment.createdAt;
         ccifPayment.lastModifiedAt = ctPayment.lastModifiedAt;
-        ccifPayment.amount = new Price(ctPayment.amountPlanned.centAmount, ctPayment.amountPlanned.currencyCode);
+        ccifPayment.amount = new Price.Builder()
+            .withAmount(ctPayment.amountPlanned.centAmount)
+            .withCurrency(ctPayment.amountPlanned.currencyCode)
+            .build();
         
         return ccifPayment;
     }

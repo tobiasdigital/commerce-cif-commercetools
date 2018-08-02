@@ -39,13 +39,13 @@ class CouponMapper {
      */
     mapCoupon(ctCoupon) {
 
-        let cifCoupon = new Coupon();
-
         assert(ctCoupon.id, "Coupon id is not set.");
-        cifCoupon.id = ctCoupon.id;
-
         assert(ctCoupon.code, "Coupon code is not set.");
-        cifCoupon.code = ctCoupon.code;
+
+        let cifCoupon = new Coupon.Builder()
+            .withId(ctCoupon.id)
+            .withCode(ctCoupon.code)
+            .build();
 
         if (ctCoupon.description) {
             cifCoupon.description = this.languageParser.pickLanguage(ctCoupon.description);

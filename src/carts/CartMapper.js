@@ -78,13 +78,30 @@ class CartMapper {
         if (ctCart.lineItems && ctCart.lineItems.length > 0) {
             cartEntries = this._mapCartEntries(ctCart.lineItems);
         }
-        const ccifIf = CcifIdentifier.buildCcifIdentifier(ctCart.id, ctCart.version);
-        let cart = new Cart(ctCart.totalPrice.currencyCode, cartEntries, ccifIf);
+        const cifId = CcifIdentifier.buildCcifIdentifier(ctCart.id, ctCart.version);
+        let productTotalPrice = new Price.Builder()
+            .withAmount(ctCart.totalPrice.centAmount)
+            .withCurrency(ctCart.totalPrice.currencyCode)
+            .build();
+
+        let cart  = new Cart.Builder()
+            .withId(cifId)
+            .withEntries(cartEntries)
+            .withCurrency(ctCart.totalPrice.currencyCode)
+            .withProductTotalPrice(productTotalPrice)
+            .build();
+
         cart.discounts = [];
         
         if (ctCart.taxedPrice) {
-            cart.netTotalPrice = new Price(ctCart.taxedPrice.totalNet.centAmount, ctCart.taxedPrice.totalNet.currencyCode);
-            cart.grossTotalPrice = new Price(ctCart.taxedPrice.totalGross.centAmount, ctCart.taxedPrice.totalGross.currencyCode);
+            cart.netTotalPrice = new Price.Builder()
+                .withAmount(ctCart.taxedPrice.totalNet.centAmount)
+                .withCurrency(ctCart.taxedPrice.totalNet.currencyCode)
+                .build();
+            cart.grossTotalPrice = new Price.Builder()
+                .withAmount(ctCart.taxedPrice.totalGross.centAmount)
+                .withCurrency(ctCart.taxedPrice.totalGross.currencyCode)
+                .build();
         }
         
         cart.createdAt = ctCart.createdAt;
@@ -118,15 +135,14 @@ class CartMapper {
                 }
             }
         }
-        this._calculateTotalProductPrice(cart, ctCart); // MUST be called after shippingInfo is added to the cart
+        this._calculateTotalProductPrice(cart); // MUST be called after shippingInfo is added to the cart
         return cart;
     }
 
     /**
      * @private
      */
-    _calculateTotalProductPrice(cart, ctCart) {
-        cart.productTotalPrice = new Price(ctCart.totalPrice.centAmount, ctCart.totalPrice.currencyCode);
+    _calculateTotalProductPrice(cart) {
         if (cart.shippingInfo) {
             if (cart.shippingInfo.discountedPrice) {
                 cart.productTotalPrice.amount -= cart.shippingInfo.discountedPrice.amount;
@@ -142,14 +158,30 @@ class CartMapper {
     _mapCartEntries(lineItems) {
         return lineItems.map(lineItem => {
             const type = (lineItem.lineItemMode ===  CartMapper.GIFT_LINE_ITEM ? CartEntryType.PROMOTION : CartEntryType.REGULAR);
-            const unitPrice = new Price(lineItem.price.value.centAmount, lineItem.price.value.currencyCode);
-            const price = new Price(lineItem.price.value.centAmount * lineItem.quantity, lineItem.totalPrice.currencyCode);
+            const unitPrice = new Price.Builder()
+                .withAmount(lineItem.price.value.centAmount)
+                .withCurrency(lineItem.price.value.currencyCode)
+                .build();
+            const price = new Price.Builder()
+                .withAmount(lineItem.price.value.centAmount * lineItem.quantity)
+                .withCurrency(lineItem.totalPrice.currencyCode)
+                .build();
             const productVariant = this.productMapper.mapProductVariant(lineItem);
-            const cartEntry = new CartEntry(lineItem.id, price, productVariant, lineItem.quantity, type, unitPrice);
+            const cartEntry = new CartEntry.Builder()
+                .withId(lineItem.id)
+                .withPrice(price)
+                .withProductVariant(productVariant)
+                .withQuantity(lineItem.quantity)
+                .withType(type)
+                .withUnitPrice(unitPrice)
+                .build();
             
             if (lineItem.discountedPricePerQuantity && lineItem.discountedPricePerQuantity.length > 0) {
                 cartEntry.discounts = this._mapCartEntryDiscounts(lineItem.discountedPricePerQuantity);
-                cartEntry.discountedPrice = new Price(lineItem.totalPrice.centAmount, lineItem.totalPrice.currencyCode);
+                cartEntry.discountedPrice = new Price.Builder()
+                    .withAmount(lineItem.totalPrice.centAmount)
+                    .withCurrency(lineItem.totalPrice.currencyCode)
+                    .build();
             }
 
             if (lineItem.taxedPrice && lineItem.taxRate) {
@@ -194,9 +226,15 @@ class CartMapper {
      * @private
      */
     _mapDiscount(includedDiscount, type) {
-        const price = new Price(includedDiscount.discountedAmount.centAmount,
-                                includedDiscount.discountedAmount.currencyCode);
-        const discount = new Discount(price, includedDiscount.discount.id, type);
+        const price = new Price.Builder()
+            .withAmount(includedDiscount.discountedAmount.centAmount)
+            .withCurrency(includedDiscount.discountedAmount.currencyCode)
+            .build();
+        const discount = new Discount.Builder()
+            .withAmount(price)
+            .withId(includedDiscount.discount.id)
+            .withType(type)
+            .build();
 
         if (includedDiscount.discount.obj) {
             if (includedDiscount.discount.obj.name) {
@@ -217,19 +255,20 @@ class CartMapper {
      * @private
      */
     _mapAddress(ctAddress) {
-        const address = new Address();
-        address.id = ctAddress.id || "";
+        const address = new Address.Builder()
+            .withCity(ctAddress.city)
+            .withCountry(ctAddress.country)
+            .withFirstName(ctAddress.firstName)
+            .withId(ctAddress.id || '')
+            .withLastName(ctAddress.lastName)
+            .withPostalCode(ctAddress.postalCode)
+            .withStreetName(ctAddress.streetName)
+            .build();
         address.title = ctAddress.title;
         address.salutation = ctAddress.salutation;
-        address.firstName = ctAddress.firstName;
-        address.lastName = ctAddress.lastName;
-        address.streetName = ctAddress.streetName;
         address.streetNumber = ctAddress.streetNumber;
         address.additionalStreetInfo = ctAddress.additionalStreetInfo;
-        address.postalCode = ctAddress.postalCode;
-        address.city = ctAddress.city;
         address.region = ctAddress.region;
-        address.country = ctAddress.country;
         address.organizationName = ctAddress.company;
         address.department = ctAddress.department;
         address.phone = ctAddress.phone;
@@ -260,19 +299,36 @@ class CartMapper {
      * @private
      */
     _mapShippingInfo(ctShippingInfo) {
-        let shippingInfo = new ShippingInfo();
+        let id = null;
+        let taxInfo = null;
+
+        let price = new Price.Builder()
+            .withAmount(ctShippingInfo.price.centAmount)
+            .withCurrency(ctShippingInfo.price.currencyCode)
+            .build();
+
         if (ctShippingInfo.shippingMethod) {
-            shippingInfo.id = ctShippingInfo.shippingMethod.id;
+            id = ctShippingInfo.shippingMethod.id;
         }
-        shippingInfo.name = ctShippingInfo.shippingMethodName;
-        shippingInfo.price = new Price(ctShippingInfo.price.centAmount, ctShippingInfo.price.currencyCode);
-        if (ctShippingInfo.discountedPrice) {
-            shippingInfo.discountedPrice = new Price(ctShippingInfo.discountedPrice.value.centAmount,
-                                                     ctShippingInfo.discountedPrice.value.currencyCode);
-        }
+
         if (ctShippingInfo.taxedPrice && ctShippingInfo.taxRate) {
-            shippingInfo.taxInfo = this._mapItemTaxInfo(ctShippingInfo.taxedPrice, ctShippingInfo.taxRate);
+            taxInfo = this._mapItemTaxInfo(ctShippingInfo.taxedPrice, ctShippingInfo.taxRate);
         }
+
+        let shippingInfo = new ShippingInfo.Builder()
+            .withId(id)
+            .withName(ctShippingInfo.shippingMethodName)
+            .withPrice(price)
+            .withTaxInfo(taxInfo)
+            .build();
+
+        if (ctShippingInfo.discountedPrice) {
+            shippingInfo.discountedPrice = new Price.Builder()
+                .withAmount(ctShippingInfo.discountedPrice.value.centAmount)
+                .withCurrency(ctShippingInfo.discountedPrice.value.currencyCode)
+                .build();
+        }
+
         return shippingInfo;
     }
 
@@ -316,13 +372,15 @@ class CartMapper {
      * @private
      */
     _mapItemTaxInfo(ctTaxedPrice, ctTaxRate) {
-        let taxInfo = new TaxInfo();
-        let taxPortion = new TaxPortion();
+        let name = ctTaxRate.name;
+        let amount = ctTaxedPrice.totalGross.centAmount - ctTaxedPrice.totalNet.centAmount;
 
-        taxPortion.name = ctTaxRate.name;
-        taxPortion.amount = ctTaxedPrice.totalGross.centAmount - ctTaxedPrice.totalNet.centAmount;
-
-        taxInfo.amount = taxPortion.amount;
+        let taxInfo = new TaxInfo.Builder()
+            .withAmount(amount).build();
+        let taxPortion = new TaxPortion.Builder()
+            .withAmount(amount)
+            .withName(name)
+            .build();
         taxInfo.portions = [];
         taxInfo.portions.push(taxPortion);
 
@@ -339,17 +397,18 @@ class CartMapper {
      * @private
      */
     _mapTaxInfo(ctTaxedPrice) {
-        let taxInfo = new TaxInfo();
 
+        let amount = ctTaxedPrice.totalGross.centAmount - ctTaxedPrice.totalNet.centAmount;
+        let taxInfo = new TaxInfo.Builder()
+            .withAmount(amount).build();
         taxInfo.portions = [];
-        taxInfo.amount = ctTaxedPrice.totalGross.centAmount - ctTaxedPrice.totalNet.centAmount;
 
         if (ctTaxedPrice.portions) {
             taxInfo.portions.push(...ctTaxedPrice.portions.map(ctTaxPortion => {
-                let taxPortion = new TaxPortion();
-                taxPortion.name = ctTaxPortion.name;
-                taxPortion.amount = ctTaxPortion.amount.centAmount;
-                return taxPortion;
+                return new TaxPortion.Builder()
+                    .withAmount(ctTaxPortion.amount.centAmount)
+                    .withName(ctTaxPortion.name)
+                    .build();
             }));
         }
 

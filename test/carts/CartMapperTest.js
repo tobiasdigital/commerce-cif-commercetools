@@ -84,9 +84,16 @@ describe('commercetools CartMapper', () => {
                                cartData.body.shippingInfo.discountedPrice.value.centAmount);
 
             cartData.body.shippingInfo.discountedPrice.includedDiscounts.forEach((ctDiscount) => {
-                let needlePrice = new Price(ctDiscount.discountedAmount.centAmount,
-                                            ctDiscount.discountedAmount.currencyCode);
-                let needleDiscount = new Discount(needlePrice, ctDiscount.discount.id, DiscountType.SHIPPING);
+                let needlePrice = new Price.Builder()
+                    .withAmount(ctDiscount.discountedAmount.centAmount)
+                    .withCurrency(ctDiscount.discountedAmount.currencyCode)
+                    .build();
+                let needleDiscount = new Discount.Builder()
+                        .withAmount(needlePrice)
+                        .withId(ctDiscount.discount.id)
+                        .withType(DiscountType.SHIPPING)
+                        .build();
+
                 if (ctDiscount.discount.obj.name) {
                     needleDiscount.name = ctDiscount.discount.obj.name.en;
                 }

@@ -32,12 +32,13 @@ class ShippingMethodMapper {
      */
     mapShippingMethods(result) {
         if (result.body.results) { // we have a paged result set
-            let pr = new PagedResponse();
-            pr.offset = result.body.offset || 0;
-            pr.count = result.body.count;
-            pr.total = result.body.total;
-            pr.results = this._mapShippingMethods(result.body.results);
-            return pr;
+            let results = this._mapShippingMethods(result.body.results);
+            return new PagedResponse.Builder()
+                .withOffset(result.body.offset || 0)
+                .withCount(result.body.count)
+                .withTotal(result.body.total)
+                .withResults(results)
+                .build();
         } else { // we have a simple array only
             return this._mapShippingMethods(result.body);
         }
@@ -54,10 +55,13 @@ class ShippingMethodMapper {
      * @private
      */
     _mapShippingMethod(ctShippingMethod) {
-        let shippingMethod = new ShippingMethod(ctShippingMethod.id);
-        shippingMethod.name = ctShippingMethod.name;
+        let shippingMethod = new ShippingMethod.Builder()
+            .withId(ctShippingMethod.id)
+            .withName(ctShippingMethod.name)
+            .withPrice(this._mapShippingMethodPrice(ctShippingMethod.zoneRates))
+            .build();
+
         shippingMethod.description = ctShippingMethod.description;
-        shippingMethod.price = this._mapShippingMethodPrice(ctShippingMethod.zoneRates);
         return shippingMethod;
     }
 
@@ -85,7 +89,10 @@ class ShippingMethodMapper {
             }
         }
         if (ctShippingRate) {
-            let p = new Price(ctShippingRate.price.centAmount, ctShippingRate.price.currencyCode);
+            let p = new Price.Builder()
+                .withAmount(ctShippingRate.price.centAmount)
+                .withCurrency(ctShippingRate.price.currencyCode)
+                .build();
             p.country = ctShippingRate.price.country;
             return p;
         }

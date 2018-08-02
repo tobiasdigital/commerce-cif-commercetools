@@ -49,11 +49,18 @@ class CategoryMapper {
             ctResult.body.results = ctResult.body.results.filter(cat => !cat.ancestors || cat.ancestors.length <= depth);
         }
 
-        let pr = new PagedResponse();
+        let results = (type === 'tree') ? this._mapCategoriesTree(ctResult) : this._mapCategories(ctResult);
+
+        let pr = new PagedResponse.Builder()
+            .withOffset(ctResult.body.offset)
+            .withCount(ctResult.body.count)
+            .withTotal(ctResult.body.total)
+            .withResults(results)
+            .build();
         pr.offset = ctResult.body.offset || 0;
         pr.count = ctResult.body.results ? ctResult.body.results.length : 1;
         pr.total = ctResult.body.total || 1;
-        pr.results = (type === 'tree') ? this._mapCategoriesTree(ctResult) : this._mapCategories(ctResult);
+
         return pr;
     }
     
@@ -130,7 +137,9 @@ class CategoryMapper {
      * @returns {Category}   A CCIF category
      */
     _mapCategory(ctCategory) {
-        let category = new Category(ctCategory.id);
+        let category = new Category.Builder()
+            .withId(ctCategory.id)
+            .build();
         
         category.name = this.languageParser.pickLanguage(ctCategory.name);
 
@@ -139,8 +148,9 @@ class CategoryMapper {
         }
         
         if (ctCategory.parent) {
-            let parentCategory = new Category(ctCategory.parent.id);
-            // category.mainParentId = parentCategory.id;
+            let parentCategory = new Category.Builder()
+                .withId(ctCategory.parent.id)
+                .build();
             category.parents = [parentCategory];
         }
 
