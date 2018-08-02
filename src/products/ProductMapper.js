@@ -243,7 +243,7 @@ class ProductMapper {
                 return {
                     id: attribute.name,
                     name: this.languageParser.pickLanguage(attribute.label),
-                    variantAttribute: this._isVariantAttributeConstraint(attribute.attributeConstraint)
+                    isVariantAxis: this._isVariantAttributeConstraint(attribute.attributeConstraint)
                 }
             });
     }
@@ -298,7 +298,7 @@ class ProductMapper {
                         .withName(types[0].name)
                         .withValue(this.languageParser.pickLanguage(attribute.value))
                         .build();
-                    attr.variantAttribute = types[0].variantAttribute;
+                    attr.isVariantAxis = types[0].isVariantAxis;
                     return attr;
                 } else {
                     return new Attribute.Builder()

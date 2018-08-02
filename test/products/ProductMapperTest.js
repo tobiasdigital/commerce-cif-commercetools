@@ -105,7 +105,7 @@ describe('commercetools ProductMapper', () => {
             assert.lengthOf(mappedVariant.attributes, productData.body.masterVariant.attributes.length);
             
             let length = productData.body.productType.obj.attributes.filter(attr => !simpleConstraints.includes(attr.attributeConstraint)).length;
-            assert.lengthOf(mappedVariant.attributes.filter(attr => attr.variantAttribute), length);
+            assert.lengthOf(mappedVariant.attributes.filter(attr => attr.isVariantAxis), length);
         });
 
         it('maps product variant attributes', () => {
@@ -114,9 +114,9 @@ describe('commercetools ProductMapper', () => {
                 variant.attributes.forEach(attr => {
                     assert.hasAnyKeys(attr, ['id', 'value', 'name']);
                     if (attr.id === 'color' || attr.id === 'size') {
-                        assert.isTrue(attr.variantAttribute);
+                        assert.isTrue(attr.isVariantAxis);
                     } else {
-                        assert.isTrue(attr.variantAttribute === undefined || attr.variantAttribute === false);
+                        assert.isTrue(attr.isVariantAxis === undefined || attr.isVariantAxis === false);
                     }
                 });
             })
