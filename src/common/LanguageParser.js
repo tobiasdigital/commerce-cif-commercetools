@@ -29,6 +29,7 @@ class LanguageParser {
      */
     constructor(args) {
         this.acceptedLanguage = this.parseAcceptedLanguages(args.__ow_headers[HEADER_ACCEPT_LANGUAGE.toLowerCase()]);
+        this.hasWildcard = this.acceptedLanguage.find(o => o.code == '*') !== undefined;
     }
 
     /**
@@ -50,7 +51,8 @@ class LanguageParser {
             return;
         }
         let language = alp.pick(Object.keys(attribute), this.acceptedLanguage, { loose: true });
-        return attribute[language];
+        let value = language ? attribute[language] : null;
+        return value ? value : (this.hasWildcard ? attribute[Object.keys(attribute)[0]] : undefined);
     }
 
     /**

@@ -76,5 +76,32 @@ describe('commercetools LanguageParser', () => {
             assert.isUndefined(languageParser.getFirstLanguage());
         });
 
+        it('returns a fallback value for an accept-language string with wildcard', () => {
+            let args = {
+                __ow_headers: {
+                    'accept-language': 'en-US,*'
+                }
+            };
+            let localizedString = {
+                de: "Blume",
+                fr: "Fleur"
+            };
+            let languageParser = new LanguageParser(args);
+            assert.equal(languageParser.pickLanguage(localizedString), "Blume");
+        });
+
+        it('returns null for a missing requested language', () => {
+            let args = {
+                __ow_headers: {
+                    'accept-language': 'en-US'
+                }
+            };
+            let localizedString = {
+                de: "Blume",
+                fr: "Fleur"
+            };
+            let languageParser = new LanguageParser(args);
+            assert.isUndefined(languageParser.pickLanguage(localizedString));
+        });
     });
 });
