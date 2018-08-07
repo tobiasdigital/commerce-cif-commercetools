@@ -11,7 +11,7 @@
   "dependencies": {
     "@adobe/commerce-cif-commercetools-common": "0.1.19",
     "@adobe/commerce-cif-common": "0.1.17",
-    "@adobe/commerce-cif-model": "0.1.126",
+    "@adobe/commerce-cif-model": "1.0.0",
     "@commercetools/sdk-client": "1.4.1"
   },
   "devDependencies": {

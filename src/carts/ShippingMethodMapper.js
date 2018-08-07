@@ -16,7 +16,7 @@
 
 const ShippingMethod = require('@adobe/commerce-cif-model').ShippingMethod;
 const PagedResponse = require('@adobe/commerce-cif-model').PagedResponse;
-const Price = require('@adobe/commerce-cif-model').Price;
+const MoneyValue = require('@adobe/commerce-cif-model').MoneyValue;
 
 /**
  * Utility class to map commercetools objects to CCIF objects. Private marked methods should not be used outside
@@ -58,7 +58,7 @@ class ShippingMethodMapper {
         let shippingMethod = new ShippingMethod.Builder()
             .withId(ctShippingMethod.id)
             .withName(ctShippingMethod.name)
-            .withPrice(this._mapShippingMethodPrice(ctShippingMethod.zoneRates))
+            .withCost(this._mapShippingMethodPrice(ctShippingMethod.zoneRates))
             .build();
 
         shippingMethod.description = ctShippingMethod.description;
@@ -89,7 +89,7 @@ class ShippingMethodMapper {
             }
         }
         if (ctShippingRate) {
-            let p = new Price.Builder()
+            let p = new MoneyValue.Builder()
                 .withAmount(ctShippingRate.price.centAmount)
                 .withCurrency(ctShippingRate.price.currencyCode)
                 .build();

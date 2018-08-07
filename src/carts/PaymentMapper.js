@@ -15,7 +15,7 @@
 'use strict';
 
 const Payment = require('@adobe/commerce-cif-model').Payment;
-const Price = require('@adobe/commerce-cif-model').Price;
+const MoneyValue = require('@adobe/commerce-cif-model').MoneyValue;
 
 /**
  * Utility class to map commercetools objects to CCIF objects. Private marked methods should not be used outside
@@ -62,7 +62,7 @@ class PaymentMapper {
         ccifPayment.status = ctPayment.paymentStatus.interfaceText;
         ccifPayment.createdAt = ctPayment.createdAt;
         ccifPayment.lastModifiedAt = ctPayment.lastModifiedAt;
-        ccifPayment.amount = new Price.Builder()
+        ccifPayment.amount = new MoneyValue.Builder()
             .withAmount(ctPayment.amountPlanned.centAmount)
             .withCurrency(ctPayment.amountPlanned.currencyCode)
             .build();

@@ -43,7 +43,7 @@ describe('commercetools ShippingMethodMapper', () => {
             assert.lengthOf(mappedShippingMethods.results, sampleShippingMethods.body.results.length);
 
             mappedShippingMethods.results.forEach(shippingMethod => {
-                assert.containsAllKeys(shippingMethod, ['id', 'name', 'description', 'price']);
+                assert.containsAllKeys(shippingMethod, ['id', 'name', 'description', 'cost']);
             });
         });
 
@@ -54,7 +54,7 @@ describe('commercetools ShippingMethodMapper', () => {
             assert.lengthOf(mappedShippingMethods, sampleShippingMethodsForCart.body.length);
 
             mappedShippingMethods.forEach(shippingMethod => {
-                assert.containsAllKeys(shippingMethod, ['id', 'name', 'description', 'price']);
+                assert.containsAllKeys(shippingMethod, ['id', 'name', 'description', 'cost']);
             });
         });
 

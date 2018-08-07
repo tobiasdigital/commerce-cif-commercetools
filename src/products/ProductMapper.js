@@ -15,7 +15,7 @@
 'use strict';
 
 const Product = require('@adobe/commerce-cif-model').Product;
-const Price = require('@adobe/commerce-cif-model').Price;
+const MoneyValue = require('@adobe/commerce-cif-model').MoneyValue;
 const Asset = require('@adobe/commerce-cif-model').Asset;
 const Attribute = require('@adobe/commerce-cif-model').Attribute;
 const ProductVariant = require('@adobe/commerce-cif-model').ProductVariant;
@@ -254,7 +254,7 @@ class ProductMapper {
     _mapPrices(prices) {
         if (prices) {
             return prices.map(price => {
-                let p = new Price.Builder()
+                let p = new MoneyValue.Builder()
                     .withAmount(price.value.centAmount)
                     .withCurrency(price.value.currencyCode)
                     .build();

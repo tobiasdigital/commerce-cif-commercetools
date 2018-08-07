@@ -24,7 +24,7 @@ const sampleSimpleCart = require('../resources/sample-simple-cart');
 const sampleCartWithCoupon = require('../resources/sample-cart-with-coupon');
 const MissingProperty = require('@adobe/commerce-cif-common').MissingPropertyException;
 const utils = require('../lib/utils');
-const Price = require('@adobe/commerce-cif-model').Price;
+const MoneyValue = require('@adobe/commerce-cif-model').MoneyValue;
 const Discount = require('@adobe/commerce-cif-model').Discount;
 const DiscountType = require('@adobe/commerce-cif-common/model').DiscountType;
 const LanguageParser = require('../../src/common/LanguageParser');
@@ -76,20 +76,20 @@ describe('commercetools CartMapper', () => {
 
             assert.strictEqual(mappedCart.shippingInfo.id, cartData.body.shippingInfo.shippingMethod.id);
             assert.strictEqual(mappedCart.shippingInfo.name, cartData.body.shippingInfo.shippingMethodName);
-            assert.strictEqual(mappedCart.shippingInfo.price.currency, cartData.body.shippingInfo.price.currencyCode);
-            assert.strictEqual(mappedCart.shippingInfo.price.amount, cartData.body.shippingInfo.price.centAmount);
+            assert.strictEqual(mappedCart.shippingInfo.cost.currency, cartData.body.shippingInfo.price.currencyCode);
+            assert.strictEqual(mappedCart.shippingInfo.cost.amount, cartData.body.shippingInfo.price.centAmount);
             assert.strictEqual(mappedCart.shippingInfo.discountedPrice.currency,
                                cartData.body.shippingInfo.discountedPrice.value.currencyCode);
             assert.strictEqual(mappedCart.shippingInfo.discountedPrice.amount,
                                cartData.body.shippingInfo.discountedPrice.value.centAmount);
 
             cartData.body.shippingInfo.discountedPrice.includedDiscounts.forEach((ctDiscount) => {
-                let needlePrice = new Price.Builder()
+                let needleValue = new MoneyValue.Builder()
                     .withAmount(ctDiscount.discountedAmount.centAmount)
                     .withCurrency(ctDiscount.discountedAmount.currencyCode)
                     .build();
                 let needleDiscount = new Discount.Builder()
-                        .withAmount(needlePrice)
+                        .withValue(needleValue)
                         .withId(ctDiscount.discount.id)
                         .withType(DiscountType.SHIPPING)
                         .build();
@@ -145,7 +145,7 @@ describe('commercetools CartMapper', () => {
             delete cartDataNoDiscountedShipping.body.shippingInfo.discountedPrice;
             let mappedCart = cartMapper.mapCart(cartDataNoDiscountedShipping, args);
 
-            let calculatedProductPrice = mappedCart.grossTotalPrice.amount - mappedCart.shippingInfo.price.amount;
+            let calculatedProductPrice = mappedCart.grossTotalPrice.amount - mappedCart.shippingInfo.cost.amount;
             assert.strictEqual(mappedCart.productTotalPrice.amount, calculatedProductPrice);
             assert.strictEqual(mappedCart.productTotalPrice.currency, cartDataNoDiscountedShipping.body.totalPrice.currencyCode);
         });
@@ -190,10 +190,10 @@ describe('commercetools CartMapper', () => {
                                    lineItem.discountedPricePerQuantity[0].discountedPrice.includedDiscounts[0].discount.obj.name.en);
                 assert.strictEqual(cartEntry.discounts[0].description,
                                    lineItem.discountedPricePerQuantity[0].discountedPrice.includedDiscounts[0].discount.obj.description.en);
-                assert.strictEqual(cartEntry.discounts[0].amount.amount,
+                assert.strictEqual(cartEntry.discounts[0].value.amount,
                     lineItem.discountedPricePerQuantity[0].discountedPrice.includedDiscounts[0].discountedAmount.centAmount *
                     lineItem.quantity);
-                assert.strictEqual(cartEntry.discounts[0].amount.currency,
+                assert.strictEqual(cartEntry.discounts[0].value.currency,
                                    lineItem.discountedPricePerQuantity[0].discountedPrice.includedDiscounts[0].discountedAmount.currencyCode);
             });
         });
@@ -225,20 +225,20 @@ describe('commercetools CartMapper', () => {
             assert.strictEqual(mappedCart.entries[0].discounts[1].id, '80ac44bd-bcb9-414f-afb7-fe48207a2834');
             assert.strictEqual(mappedCart.entries[1].discounts[1].id, '80ac44bd-bcb9-414f-afb7-fe48207a2834');
 
-            assert.strictEqual(mappedCart.entries[0].discounts[0].amount.amount,
+            assert.strictEqual(mappedCart.entries[0].discounts[0].value.amount,
                 lineItem0.discountedPricePerQuantity[0].quantity *
                 lineItem0.discountedPricePerQuantity[0].discountedPrice.includedDiscounts[0].discountedAmount.centAmount +
                 lineItem0.discountedPricePerQuantity[1].quantity *
                 lineItem0.discountedPricePerQuantity[1].discountedPrice.includedDiscounts[0].discountedAmount.centAmount);
-            assert.strictEqual(mappedCart.entries[0].discounts[1].amount.amount,
+            assert.strictEqual(mappedCart.entries[0].discounts[1].value.amount,
                 lineItem0.discountedPricePerQuantity[0].quantity *
                 lineItem0.discountedPricePerQuantity[0].discountedPrice.includedDiscounts[1].discountedAmount.centAmount +
                 lineItem0.discountedPricePerQuantity[1].quantity *
                 lineItem0.discountedPricePerQuantity[1].discountedPrice.includedDiscounts[1].discountedAmount.centAmount);
-            assert.strictEqual(mappedCart.entries[1].discounts[0].amount.amount,
+            assert.strictEqual(mappedCart.entries[1].discounts[0].value.amount,
                 lineItem1.discountedPricePerQuantity[0].quantity *
                 lineItem1.discountedPricePerQuantity[0].discountedPrice.includedDiscounts[0].discountedAmount.centAmount);
-            assert.strictEqual(mappedCart.entries[1].discounts[1].amount.amount,
+            assert.strictEqual(mappedCart.entries[1].discounts[1].value.amount,
                 lineItem1.discountedPricePerQuantity[0].quantity *
                 lineItem1.discountedPricePerQuantity[0].discountedPrice.includedDiscounts[1].discountedAmount.centAmount);
         });
@@ -273,10 +273,10 @@ describe('commercetools CartMapper', () => {
             let ctShippingInfoTaxedPrice = sampleCartWithTax.body.shippingInfo.taxedPrice;
             let ctShippingInfoTaxRate = sampleCartWithTax.body.shippingInfo.taxRate;
 
-            assert.strictEqual(mappedCart.shippingInfo.taxInfo.amount, ctShippingInfoTaxedPrice.totalGross.centAmount - ctShippingInfoTaxedPrice.totalNet.centAmount);
+            assert.strictEqual(mappedCart.shippingInfo.taxInfo.value.amount, ctShippingInfoTaxedPrice.totalGross.centAmount - ctShippingInfoTaxedPrice.totalNet.centAmount);
             mappedCart.shippingInfo.taxInfo.portions.forEach(cifTaxPortion => {
                 assert.strictEqual(cifTaxPortion.name, ctShippingInfoTaxRate.name);
-                assert.strictEqual(cifTaxPortion.amount, ctShippingInfoTaxedPrice.totalGross.centAmount - ctShippingInfoTaxedPrice.totalNet.centAmount);
+                assert.strictEqual(cifTaxPortion.value.amount, ctShippingInfoTaxedPrice.totalGross.centAmount - ctShippingInfoTaxedPrice.totalNet.centAmount);
             });
 
             assert.strictEqual(mappedCart.netTotalPrice.amount, sampleCartWithTax.body.taxedPrice.totalNet.centAmount);
@@ -305,10 +305,10 @@ describe('commercetools CartMapper', () => {
                 ctCartEntryTaxedPrice = sampleCartWithTax.body.lineItems[index].taxedPrice;
                 ctCartEntryTaxRate = sampleCartWithTax.body.lineItems[index].taxRate;
                 assert.isDefined(cartEntry.taxInfo);
-                assert.strictEqual(cartEntry.taxInfo.amount, ctCartEntryTaxedPrice.totalGross.centAmount - ctCartEntryTaxedPrice.totalNet.centAmount);
+                assert.strictEqual(cartEntry.taxInfo.value.amount, ctCartEntryTaxedPrice.totalGross.centAmount - ctCartEntryTaxedPrice.totalNet.centAmount);
                 cartEntry.taxInfo.portions.forEach(cifTaxPortion => {
                     assert.strictEqual(cifTaxPortion.name, ctCartEntryTaxRate.name);
-                    assert.strictEqual(cifTaxPortion.amount, ctCartEntryTaxedPrice.totalGross.centAmount - ctCartEntryTaxedPrice.totalNet.centAmount);
+                    assert.strictEqual(cifTaxPortion.value.amount, ctCartEntryTaxedPrice.totalGross.centAmount - ctCartEntryTaxedPrice.totalNet.centAmount);
                 });
             });
 
@@ -320,13 +320,13 @@ describe('commercetools CartMapper', () => {
             assert.isDefined(mappedCart.taxInfo);
             assert.isDefined(mappedCart.taxIncludedInPrices);
             let ctTaxedPrice = sampleCartWithTax.body.taxedPrice;
-            assert.strictEqual(mappedCart.taxInfo.amount, ctTaxedPrice.totalGross.centAmount - ctTaxedPrice.totalNet.centAmount);
+            assert.strictEqual(mappedCart.taxInfo.value.amount, ctTaxedPrice.totalGross.centAmount - ctTaxedPrice.totalNet.centAmount);
 
             let ctCartTaxPortion;
             mappedCart.taxInfo.portions.forEach( (cifTaxPortion, index) => {
                 ctCartTaxPortion = sampleCartWithTax.body.taxedPrice.portions[index];
                 assert.strictEqual(cifTaxPortion.name, ctCartTaxPortion.name);
-                assert.strictEqual(cifTaxPortion.amount, ctCartTaxPortion.amount.centAmount);
+                assert.strictEqual(cifTaxPortion.value.amount, ctCartTaxPortion.amount.centAmount);
             });
         });
 
