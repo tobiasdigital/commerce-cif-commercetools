@@ -50,7 +50,7 @@ describe('commercetools putCartEntry', () => {
                        });
         });
 
-        it('PUT /cart/{id}/entries/{id} HTTP 400 - missing cart id', () => {
+        it('PUT /cart/{id}/entries/{id} HTTP 400 - missing cart entry id', () => {
             return this.execute({'id': '12345', 'quantity': 0})
                        .then(result => {
                            assert.isDefined(result.response);
@@ -68,24 +68,16 @@ describe('commercetools putCartEntry', () => {
                        });
         });
 
-        it('PUT /cart/{id}/entries/{id} HTTP 400 - invalid double quantity', () => {
-            return this.execute({'id': '12345', 'cartEntryId': '12345', 'quantity': 2.2})
-                       .then(result => {
-                           assert.isDefined(result.response);
-                           assert.isDefined(result.response.error);
-                           assert.strictEqual(result.response.error.message,
-                                              'Parameter \'quantity\' must be an integer');
-                       });
-        });
-
-        it('PUT /cart/{id}/entries/{id} HTTP 400 - invalid NaN quantity', () => {
-            return this.execute({'id': '12345', 'cartEntryId': '12345', 'quantity': 'z'})
-                       .then(result => {
-                           assert.isDefined(result.response);
-                           assert.isDefined(result.response.error);
-                           assert.strictEqual(result.response.error.message,
-                                              'Parameter \'quantity\' must be an integer');
-                       });
+        ['x', 2.2, -1].forEach(invalidQuantity => {
+            it(`PUT /cart/{id}/entries/{id} HTTP 400 - invalid quantity ${invalidQuantity}`, () => {
+                return this.execute({'id': '12345', 'cartEntryId': '12345', 'quantity': invalidQuantity})
+                        .then(result => {
+                            assert.isDefined(result.response);
+                            assert.isDefined(result.response.error);
+                            let msgs = [`Parameter 'quantity' must be an integer`, `Parameter 'quantity' must be greater or equal to 0`];
+                            assert.isTrue(msgs.includes(result.response.error.message));
+                        });
+            });
         });
 
         it('PUT /cart/{id}/entries/{id} HTTP 200 ', () => {

@@ -68,7 +68,7 @@ describe('commercetools postCartEntry', () => {
             });
         });
 
-        ['x', 2.2].forEach(invalidQuantity => {
+        ['x', 2.2, 0].forEach(invalidQuantity => {
             it(`POST /cart/{id} HTTP 400 - invalid quantity: ${invalidQuantity}`, () => {
                 const args = {
                     id: '12345',
@@ -82,7 +82,8 @@ describe('commercetools postCartEntry', () => {
                 return this.execute(args).then(result => {
                     assert.isDefined(result.response.error);
                     assert.strictEqual(result.response.error.name, 'InvalidArgumentError');
-                    assert.strictEqual(result.response.error.message, `Parameter 'quantity' must be an integer`);
+                    let msgs = [`Parameter 'quantity' must be an integer`, `Parameter 'quantity' must be greater or equal to 1`];
+                    assert.isTrue(msgs.includes(result.response.error.message));
                 });
             });
         });
@@ -200,7 +201,7 @@ describe('commercetools postCartEntry', () => {
         it('POST /cart/ HTTP 201 - new cart with one entry', () => {
             const args = {
                 'currency': 'USD',
-                'productVariantId': '526dc571-104f-40fb-b761-71781a97910b-1',
+                'productVariantId': 'a60fe100-4121-4b74-b55b-18886579e202-1',
                 'quantity': 2,
                 __ow_headers: {
                     'accept-language': 'en-US'
@@ -210,7 +211,7 @@ describe('commercetools postCartEntry', () => {
                 uri: encodeURI(`/${config.CT_PROJECTKEY}/me/carts?${config.CART_EXPAND_QS}`),
                 headers: undefined,
                 method: 'POST',
-                body: '{"currency":"USD","lineItems":[{"productId":"526dc571-104f-40fb-b761-71781a97910b","variantId":1,"quantity":2}]}'
+                body: '{"currency":"USD","lineItems":[{"productId":"a60fe100-4121-4b74-b55b-18886579e202","variantId":1,"quantity":2}]}'
             };
             return this.prepareResolve(samplecart1, expectedArgs)
                        .execute(args)
@@ -218,6 +219,8 @@ describe('commercetools postCartEntry', () => {
                            assert.isDefined(result.response);
                            assert.strictEqual(result.response.statusCode, 201);
                            assert.isDefined(result.response.body);
+                           let cart = result.response.body;
+                           assert.strictEqual(result.response.headers.Location, `carts/${cart.id}/entries/${cart.entries[0].id}`);
                        });
         });
 
@@ -254,7 +257,7 @@ describe('commercetools postCartEntry', () => {
             const args = {
                 'id': '12345-7',
                 'currency': 'USD1',
-                'productVariantId': '526dc571-104f-40fb-b761-71781a97910b-1',
+                'productVariantId': 'a60fe100-4121-4b74-b55b-18886579e202-1',
                 'quantity': 2,
                 'USE_CACHED_CART_VERSION': false,
                 __ow_headers: {
@@ -269,7 +272,7 @@ describe('commercetools postCartEntry', () => {
                 uri: encodeURI(`/${config.CT_PROJECTKEY}/me/carts/12345?${config.CART_EXPAND_QS}`),
                 headers: undefined,
                 method: 'POST',
-                body: '{"actions":[{"action":"addLineItem","productId":"526dc571-104f-40fb-b761-71781a97910b","variantId":1,"quantity":2}],"version":7}'
+                body: '{"actions":[{"action":"addLineItem","productId":"a60fe100-4121-4b74-b55b-18886579e202","variantId":1,"quantity":2}],"version":7}'
             }];
             return this.prepareResolve(samplecart1, expectedArgs)
                        .execute(args)
@@ -277,8 +280,9 @@ describe('commercetools postCartEntry', () => {
                            assert.isDefined(result.response);
                            assert.strictEqual(result.response.statusCode, 201);
                            assert.isDefined(result.response.body);
+                           let cart = result.response.body;
+                           assert.strictEqual(result.response.headers.Location, `carts/${cart.id}/entries/${cart.entries[0].id}`);
                        });
         });
-
     });
 });

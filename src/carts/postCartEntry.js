@@ -66,14 +66,15 @@ function postCartEntry(args) {
 
     validator.checkArguments();
     if (actionState !== ActionStateEnum.ADD_ENTRY_2_CART) {
-        validator.mandatoryParameter('currency');
-        validator.isCurrencyCode('currency');
+        validator.mandatoryParameter('currency')
+            .isCurrencyCode('currency');
     }
     if (actionState !== ActionStateEnum.NEW_EMPTY_CART) {
-        validator.mandatoryParameter('productVariantId');
-        validator.mandatoryParameter('quantity');
-        validator.matchRegexp('productVariantId', InputValidator.PRODUCT_VARIANT_ID_REGEXP);
-        validator.isInteger('quantity');
+        validator.mandatoryParameter('productVariantId')
+            .matchRegexp('productVariantId', InputValidator.PRODUCT_VARIANT_ID_REGEXP)
+            .mandatoryParameter('quantity')
+            .isInteger('quantity')
+            .isInsideInterval('quantity', 1);
     }
 
     if (validator.error) {
@@ -114,7 +115,7 @@ function postCartEntry(args) {
                     let entry = result.response.body.entries.find(entry => (entry.productVariant.id === `${productId}-${variantId}`));
                     if (entry) {
                         result.response.headers = result.response.headers || {};
-                        result.response.headers.Location = `carts/${id}/entries/${entry.id}`;
+                        result.response.headers.Location = `carts/${result.response.body.id}/entries/${entry.id}`;
                     }
                 }
                 return Promise.resolve(result);

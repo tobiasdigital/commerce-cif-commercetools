@@ -9,7 +9,7 @@
     "url": "https://github.com/adobe/commerce-cif-commercetools.git"
   },
   "dependencies": {
-    "@adobe/commerce-cif-common": "0.1.17",
+    "@adobe/commerce-cif-common": "1.0.0",
     "@adobe/commerce-cif-model": "1.0.0",
     "http-status-codes": "1.1.6",
     "@commercetools/api-request-builder": "4.0.1",
