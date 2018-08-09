@@ -58,9 +58,6 @@ describe('commercetools postCustomerLogin', function() {
 
                     // Store token to access the anonymous session
                     accessToken = extractToken(res);
-                })
-                .catch(function(err) {
-                    throw err;
                 });
         });
 
@@ -77,9 +74,6 @@ describe('commercetools postCustomerLogin', function() {
 
                     requiredFields.verifyLoginResult(res.body);
                     expect(res.body.customer.email).to.equal(email);
-                })
-                .catch(function(err) {
-                    throw err;
                 });
         });
 
@@ -90,10 +84,10 @@ describe('commercetools postCustomerLogin', function() {
                     email: email,
                     password: 'bad-password'
                 })
-                .catch(function(err) {
-                    expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
-                    expect(err.response).to.be.json;
-                    requiredFields.verifyErrorResponse(err.response.body);
+                .then(function(res) {
+                    expect(res).to.have.status(HttpStatus.BAD_REQUEST);
+                    expect(res).to.be.json;
+                    requiredFields.verifyErrorResponse(res.body);
                 });
         });
 

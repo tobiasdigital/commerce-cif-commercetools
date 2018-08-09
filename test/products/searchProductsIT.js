@@ -41,10 +41,10 @@ describe('commercetools searchProducts', function() {
                 .get(env.productsPackage + 'searchProducts')
                 .set('Accept-Language', 'en-US')
                 .set('Cache-Control', 'no-cache')
-                .catch(function(err) {
-                    expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
-                    expect(err.response).to.be.json;
-                    requiredFields.verifyErrorResponse(err.response.body);
+                .then(function(res) {
+                    expect(res).to.have.status(HttpStatus.BAD_REQUEST);
+                    expect(res).to.be.json;
+                    requiredFields.verifyErrorResponse(res.body);
                 });
         });
 
@@ -67,9 +67,6 @@ describe('commercetools searchProducts', function() {
                         requiredFields.verifyProduct(result);
                         expect(result.categories).to.deep.include({"id": categoryId});
                     }
-                })
-                .catch(function(err) {
-                    throw err;
                 });
         });
 
@@ -92,9 +89,6 @@ describe('commercetools searchProducts', function() {
                         requiredFields.verifyProduct(result);
                         expect(result.categories).to.have.lengthOf.at.least(1);
                     }
-                })
-                .catch(function(err) {
-                    throw err;
                 });
         });
 
@@ -127,9 +121,6 @@ describe('commercetools searchProducts', function() {
                         if (variant.sku === sku) found = true;
                     }
                     expect(found).to.be.true;
-                })
-                .catch(function(err) {
-                    throw err;
                 });
         });
 
@@ -152,9 +143,6 @@ describe('commercetools searchProducts', function() {
                         requiredFields.verifyProduct(result);
                     }
                     expect(res.text.split(searchTerm)).to.have.lengthOf.at.least(4);
-                })
-                .catch(function(err) {
-                    throw err;
                 });
         });
 
@@ -182,9 +170,6 @@ describe('commercetools searchProducts', function() {
                     // Verfiy sorting
                     const names = res.body.results.map(r => r.name);
                     expect(names).to.have.ordered.members(names.sort().reverse());
-                })
-                .catch(function(err) {
-                    throw err;
                 });
         });
 
@@ -198,10 +183,10 @@ describe('commercetools searchProducts', function() {
                 })
                 .set('Accept-Language', 'en-US')
                 .set('Cache-Control', 'no-cache')
-                .catch(function(err) {
-                    expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
-                    expect(err.response).to.be.json;
-                    requiredFields.verifyErrorResponse(err.response.body);
+                .then(function(res) {
+                    expect(res).to.have.status(HttpStatus.BAD_REQUEST);
+                    expect(res).to.be.json;
+                    requiredFields.verifyErrorResponse(res.body);
                 });
         });
 
@@ -227,9 +212,6 @@ describe('commercetools searchProducts', function() {
                     for (let result of res.body.results) {
                         requiredFields.verifyProduct(result);
                     }
-                })
-                .catch(function(err) {
-                    throw err;
                 });
         });
 
@@ -243,10 +225,10 @@ describe('commercetools searchProducts', function() {
                 })
                 .set('Accept-Language', 'en-US')
                 .set('Cache-Control', 'no-cache')
-                .catch(function(err) {
-                    expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
-                    expect(err.response).to.be.json;
-                    requiredFields.verifyErrorResponse(err.response.body);
+                .then(function(res) {
+                    expect(res).to.have.status(HttpStatus.BAD_REQUEST);
+                    expect(res).to.be.json;
+                    requiredFields.verifyErrorResponse(res.body);
                 });
         });
 
@@ -333,10 +315,10 @@ describe('commercetools searchProducts', function() {
                 })
                 .set('Accept-Language', 'en-US')
                 .set('Cache-Control', 'no-cache')
-                .catch(err => {
-                    expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
-                    expect(err.response).to.be.json;
-                    requiredFields.verifyErrorResponse(err.response.body);
+                .then(res => {
+                    expect(res).to.have.status(HttpStatus.BAD_REQUEST);
+                    expect(res).to.be.json;
+                    requiredFields.verifyErrorResponse(res.body);
                 });
         });
 

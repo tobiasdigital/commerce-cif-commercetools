@@ -63,9 +63,6 @@ describe('commercetools deleteCartEntry', function() {
                     cartEntryId = res.body.entries[0].id;
                     // Store token to access the anonymous session
                     accessToken = extractToken(res);
-                })
-                .catch(function(err) {
-                    throw err;
                 });
         });
 
@@ -84,9 +81,6 @@ describe('commercetools deleteCartEntry', function() {
                     requiredFields.verifyCart(res.body);
 
                     expect(res.body.entries).to.have.lengthOf(0);
-                })
-                .catch(function(err) {
-                    throw err;
                 });
         });
 
@@ -134,9 +128,6 @@ describe('commercetools deleteCartEntry', function() {
                     // Verify that only original product is still in the cart
                     expect(res.body.entries).to.have.lengthOf(1);
                     expect(res.body.entries[0].id).to.equal(cartEntryId);
-                })
-                .catch(function(err) {
-                    throw err;
                 });
             // Add another product, remove original product, verify that added product is still there
         });
@@ -150,10 +141,10 @@ describe('commercetools deleteCartEntry', function() {
                 })
                 .set('Accept-Language', 'en-US')
                 .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
-                .catch(function(err) {
-                    expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
-                    expect(err.response).to.be.json;
-                    requiredFields.verifyErrorResponse(err.response.body);
+                .then(function(res) {
+                    expect(res).to.have.status(HttpStatus.BAD_REQUEST);
+                    expect(res).to.be.json;
+                    requiredFields.verifyErrorResponse(res.body);
                 });
         });
 
@@ -166,10 +157,10 @@ describe('commercetools deleteCartEntry', function() {
                 })
                 .set('Accept-Language', 'en-US')
                 .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
-                .catch(function(err) {
-                    expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
-                    expect(err.response).to.be.json;
-                    requiredFields.verifyErrorResponse(err.response.body);
+                .then(function(res) {
+                    expect(res).to.have.status(HttpStatus.BAD_REQUEST);
+                    expect(res).to.be.json;
+                    requiredFields.verifyErrorResponse(res.body);
                 });
         });
 
@@ -182,10 +173,10 @@ describe('commercetools deleteCartEntry', function() {
                 })
                 .set('Accept-Language', 'en-US')
                 .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
-                .catch(function(err) {
-                    expect(err.response).to.have.status(HttpStatus.NOT_FOUND);
-                    expect(err.response).to.be.json;
-                    requiredFields.verifyErrorResponse(err.response.body);
+                .then(function(res) {
+                    expect(res).to.have.status(HttpStatus.NOT_FOUND);
+                    expect(res).to.be.json;
+                    requiredFields.verifyErrorResponse(res.body);
                 });
         });
 
@@ -194,10 +185,10 @@ describe('commercetools deleteCartEntry', function() {
                 .post(env.cartsPackage + 'deleteCartEntry')
                 .set('Accept-Language', 'en-US')
                 .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
-                .catch(function(err) {
-                    expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
-                    expect(err.response).to.be.json;
-                    requiredFields.verifyErrorResponse(err.response.body);
+                .then(function(res) {
+                    expect(res).to.have.status(HttpStatus.BAD_REQUEST);
+                    expect(res).to.be.json;
+                    requiredFields.verifyErrorResponse(res.body);
                 });
         });
 

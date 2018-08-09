@@ -60,9 +60,6 @@ describe('commercetools getShippingMethods integration test for a cart', functio
                     cartId = res.body.id;
                     // Store token to access the anonymous session
                     accessToken = extractToken(res);
-                })
-                .catch(function (err) {
-                    throw err;
                 });
         });
 
@@ -105,9 +102,6 @@ describe('commercetools getShippingMethods integration test for a cart', functio
                         requiredFields.verifyShippingMethod(shippingMethod);
                         expect(shippingMethod).to.have.own.property('description');
                     });
-                })
-                .catch(function (err) {
-                    throw err;
                 });
         });
 
@@ -143,9 +137,6 @@ describe('commercetools getShippingMethods integration test for a cart', functio
 
                     // Verify structure
                     expect(res.body).to.be.an('array').that.is.empty;
-                })
-                .catch(function (err) {
-                    throw err;
                 });
         });
 
@@ -169,10 +160,10 @@ describe('commercetools getShippingMethods integration test for a cart', functio
                         .set('Cache-Control', 'no-cache')
                         .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`);
                 })
-                .catch(function (err) {
-                    expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
-                    expect(err.response).to.be.json;
-                    requiredFields.verifyErrorResponse(err.response.body);
+                .then(function (res) {
+                    expect(res).to.have.status(HttpStatus.BAD_REQUEST);
+                    expect(res).to.be.json;
+                    requiredFields.verifyErrorResponse(res.body);
                 });
         });
 
@@ -182,10 +173,10 @@ describe('commercetools getShippingMethods integration test for a cart', functio
                 .set('Accept-Language', 'en-US')
                 .set('Cache-Control', 'no-cache')
                 .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
-                .catch(function(err) {
-                    expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
-                    expect(err.response).to.be.json;
-                    requiredFields.verifyErrorResponse(err.response.body);
+                .then(function(res) {
+                    expect(res).to.have.status(HttpStatus.BAD_REQUEST);
+                    expect(res).to.be.json;
+                    requiredFields.verifyErrorResponse(res.body);
                 });
         });
 
@@ -196,10 +187,10 @@ describe('commercetools getShippingMethods integration test for a cart', functio
                 .set('Accept-Language', 'en-US')
                 .set('Cache-Control', 'no-cache')
                 .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
-                .catch(function(err) {
-                    expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
-                    expect(err.response).to.be.json;
-                    requiredFields.verifyErrorResponse(err.response.body);
+                .then(function(res) {
+                    expect(res).to.have.status(HttpStatus.BAD_REQUEST);
+                    expect(res).to.be.json;
+                    requiredFields.verifyErrorResponse(res.body);
                 });
         });
 

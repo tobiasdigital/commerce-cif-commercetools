@@ -66,9 +66,12 @@ function postCartEntry(args) {
 
     validator.checkArguments();
     if (actionState !== ActionStateEnum.ADD_ENTRY_2_CART) {
+        validator.mandatoryParameter('currency');
         validator.isCurrencyCode('currency');
     }
     if (actionState !== ActionStateEnum.NEW_EMPTY_CART) {
+        validator.mandatoryParameter('productVariantId');
+        validator.mandatoryParameter('quantity');
         validator.matchRegexp('productVariantId', InputValidator.PRODUCT_VARIANT_ID_REGEXP);
         validator.isInteger('quantity');
     }

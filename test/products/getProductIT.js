@@ -56,9 +56,6 @@ describe('commercetools getProduct', function() {
                     expect(res.body.id).to.equal(productId);
                     expect(res.body).to.have.own.property('categories');
                     expect(res.body).to.have.own.property('createdAt');
-                })
-                .catch(function(err) {
-                    throw err;
                 });
         });
 
@@ -74,9 +71,6 @@ describe('commercetools getProduct', function() {
                     requiredFields.verifyProduct(res.body);
                     expect(res.body.name).to.equal('El Gordo Down Jacket');
                     expect(res.body.id).to.equal(productId);
-                })
-                .catch(function(err) {
-                    throw err;
                 });
         });
 
@@ -85,10 +79,10 @@ describe('commercetools getProduct', function() {
                 .get(env.productsPackage + 'getProductById')
                 .set('Cache-Control', 'no-cache')
                 .query({id: 'does-not-exist'})
-                .catch(function(err) {
-                    expect(err.response).to.have.status(HttpStatus.NOT_FOUND);
-                    expect(err.response).to.be.json;
-                    requiredFields.verifyErrorResponse(err.response.body);
+                .then(function(res) {
+                    expect(res).to.have.status(HttpStatus.NOT_FOUND);
+                    expect(res).to.be.json;
+                    requiredFields.verifyErrorResponse(res.body);
                 });
         });
 

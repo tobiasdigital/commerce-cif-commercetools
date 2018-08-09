@@ -66,9 +66,6 @@ module.exports.tests = function (ctx, addressType) {
                 cartId = res.body.id;
                 // Store token to access the anonymous session
                 accessToken = extractToken(res);
-            })
-            .catch(function (err) {
-                throw err;
             });
     });
     /**
@@ -80,10 +77,10 @@ module.exports.tests = function (ctx, addressType) {
         return chai.request(env.openwhiskEndpoint)
             .post(path)
             .query({})
-            .catch(function (err) {
-                expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
-                expect(err.response).to.be.json;
-                requiredFields.verifyErrorResponse(err.response.body);
+            .then(function (res) {
+                expect(res).to.have.status(HttpStatus.BAD_REQUEST);
+                expect(res).to.be.json;
+                requiredFields.verifyErrorResponse(res.body);
             });
     };
     /**
@@ -98,10 +95,10 @@ module.exports.tests = function (ctx, addressType) {
             .query({id: 'non-existing-cart-id'})
             .set('Accept-Language', 'en-US')
             .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
-            .catch(function (err) {
-                expect(err.response).to.have.status(HttpStatus.NOT_FOUND);
-                expect(err.response).to.be.json;
-                requiredFields.verifyErrorResponse(err.response.body);
+            .then(function (res) {
+                expect(res).to.have.status(HttpStatus.NOT_FOUND);
+                expect(res).to.be.json;
+                requiredFields.verifyErrorResponse(res.body);
             });
     };
     /**
@@ -113,10 +110,10 @@ module.exports.tests = function (ctx, addressType) {
             .query({id: cartId, title: 'Home'})
             .set('Accept-Language', 'en-US')
             .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
-            .catch(function (err) {
-                expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
-                expect(err.response).to.be.json;
-                requiredFields.verifyErrorResponse(err.response.body);
+            .then(function (res) {
+                expect(res).to.have.status(HttpStatus.BAD_REQUEST);
+                expect(res).to.be.json;
+                requiredFields.verifyErrorResponse(res.body);
             });
     };
 
@@ -229,7 +226,8 @@ module.exports.tests = function (ctx, addressType) {
                     .query({id: cartId})
                     .set('Accept-Language', 'en-US')
                     .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`);
-            }).then(function (res) {
+            })
+            .then(function (res) {
                 expect(res).to.be.json;
                 expect(res).to.have.status(HttpStatus.OK);
                 expect(res.body).to.not.have.property(that.addressPropertyName);

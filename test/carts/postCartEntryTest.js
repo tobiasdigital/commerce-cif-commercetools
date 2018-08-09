@@ -54,6 +54,7 @@ describe('commercetools postCartEntry', () => {
                     id: '12345',
                     currency: 'USD',
                     productVariantId: invalidProductVariantId,
+                    quantity: 1,
                     __ow_headers: {
                         'accept-language': 'en-US'
                     }

@@ -50,9 +50,6 @@ describe('commercetools getCustomerById', function() {
                     requiredFields.verifyCustomer(res.body);
                     expect(res.body.id).to.equal(customerId);
                     expect(res.body).to.have.own.property('createdAt');
-                })
-                .catch(function(err) {
-                    throw err;
                 });
         });
 
@@ -61,10 +58,10 @@ describe('commercetools getCustomerById', function() {
                 .get(env.customersPackage + 'getCustomerById')
                 .set('Cache-Control', 'no-cache')
                 .query({id: 'does-not-exist'})
-                .catch(function(err) {
-                    expect(err.response).to.have.status(HttpStatus.NOT_FOUND);
-                    expect(err.response).to.be.json;
-                    requiredFields.verifyErrorResponse(err.response.body);
+                .then(function(res) {
+                    expect(res).to.have.status(HttpStatus.NOT_FOUND);
+                    expect(res).to.be.json;
+                    requiredFields.verifyErrorResponse(res.body);
                 });
         });
 

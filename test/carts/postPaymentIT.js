@@ -69,9 +69,6 @@ describe('commercetools postPayment', function () {
                     cartId = res.body.id;
                     // Store token to access the anonymous session
                     accessToken = extractToken(res);
-                })
-                .catch(function (err) {
-                    throw err;
                 });
         });
 
@@ -86,10 +83,10 @@ describe('commercetools postPayment', function () {
                 })
                 .set('Accept-Language', 'en-US')
                 .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
-                .catch(function (err) {
-                    expect(err.response).to.have.status(HttpStatus.NOT_FOUND);
-                    expect(err.response).to.be.json;
-                    requiredFields.verifyErrorResponse(err.response.body);
+                .then(function (res) {
+                    expect(res).to.have.status(HttpStatus.NOT_FOUND);
+                    expect(res).to.be.json;
+                    requiredFields.verifyErrorResponse(res.body);
                 });
         });
 
@@ -101,10 +98,10 @@ describe('commercetools postPayment', function () {
                 })
                 .set('Accept-Language', 'en-US')
                 .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
-                .catch(function (err) {
-                    expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
-                    expect(err.response).to.be.json;
-                    requiredFields.verifyErrorResponse(err.response.body);
+                .then(function (res) {
+                    expect(res).to.have.status(HttpStatus.BAD_REQUEST);
+                    expect(res).to.be.json;
+                    requiredFields.verifyErrorResponse(res.body);
                 });
         });
 
@@ -153,10 +150,10 @@ describe('commercetools postPayment', function () {
                         .query(args)
                         .set('Accept-Language', 'en-US');
                 })
-                .catch(err => {
-                    expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
-                    expect(err.response).to.be.json;
-                    requiredFields.verifyErrorResponse(err.response.body);
+                .then(res => {
+                    expect(res).to.have.status(HttpStatus.BAD_REQUEST);
+                    expect(res).to.be.json;
+                    requiredFields.verifyErrorResponse(res.body);
                 });
         });
     });

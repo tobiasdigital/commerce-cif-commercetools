@@ -63,9 +63,6 @@ describe('commercetools putCartEntry', function() {
                     cartEntryId = res.body.entries[0].id;
                     // Store token to access the anonymous session
                     accessToken = extractToken(res);
-                })
-                .catch(function(err) {
-                    throw err;
                 });
         });
 
@@ -97,9 +94,6 @@ describe('commercetools putCartEntry', function() {
                     expect(ccifResId.getCommerceToolsVersion()).not.to.equal(ccifParamId.getCommerceToolsVersion());
                     expect(res.body).to.have.own.property('lastModifiedAt');
                     expect(res.body).to.have.own.property('createdAt');
-                })
-                .catch(function(err) {
-                    throw err;
                 });
         });
 
@@ -119,9 +113,6 @@ describe('commercetools putCartEntry', function() {
                     requiredFields.verifyCart(res.body);
 
                     expect(res.body.entries).to.have.lengthOf(0);
-                })
-                .catch(function(err) {
-                    throw err;
                 });
         });
 
@@ -135,10 +126,10 @@ describe('commercetools putCartEntry', function() {
                 })
                 .set('Accept-Language', 'en-US')
                 .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
-                .catch(function(err) {
-                    expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
-                    expect(err.response).to.be.json;
-                    requiredFields.verifyErrorResponse(err.response.body);
+                .then(function(res) {
+                    expect(res).to.have.status(HttpStatus.BAD_REQUEST);
+                    expect(res).to.be.json;
+                    requiredFields.verifyErrorResponse(res.body);
                 });
         })
 
@@ -152,10 +143,10 @@ describe('commercetools putCartEntry', function() {
                 })
                 .set('Accept-Language', 'en-US')
                 .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
-                .catch(function(err) {
-                    expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
-                    expect(err.response).to.be.json;
-                    requiredFields.verifyErrorResponse(err.response.body);
+                .then(function(res) {
+                    expect(res).to.have.status(HttpStatus.BAD_REQUEST);
+                    expect(res).to.be.json;
+                    requiredFields.verifyErrorResponse(res.body);
                 });
         });
 
@@ -169,10 +160,10 @@ describe('commercetools putCartEntry', function() {
                 })
                 .set('Accept-Language', 'en-US')
                 .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
-                .catch(function(err) {
-                    expect(err.response).to.have.status(HttpStatus.NOT_FOUND);
-                    expect(err.response).to.be.json;
-                    requiredFields.verifyErrorResponse(err.response.body);
+                .then(function(res) {
+                    expect(res).to.have.status(HttpStatus.NOT_FOUND);
+                    expect(res).to.be.json;
+                    requiredFields.verifyErrorResponse(res.body);
                 });
         });
 
@@ -181,10 +172,10 @@ describe('commercetools putCartEntry', function() {
                 .post(env.cartsPackage + 'putCartEntry')
                 .set('Accept-Language', 'en-US')
                 .set('cookie', `${OAUTH_TOKEN_NAME}=${accessToken};`)
-                .catch(function(err) {
-                    expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
-                    expect(err.response).to.be.json;
-                    requiredFields.verifyErrorResponse(err.response.body);
+                .then(function(res) {
+                    expect(res).to.have.status(HttpStatus.BAD_REQUEST);
+                    expect(res).to.be.json;
+                    requiredFields.verifyErrorResponse(res.body);
                 });
         });
 

@@ -52,9 +52,6 @@ describe('commercetools common', function() {
                     expect(res).to.have.header('perf-backend-req-url-my-id-0');
                     expect(res).to.have.header('perf-ow-seq-end-my-id');
                     expect(res).to.have.header('perf-ow-seq-start-my-id');
-                })
-                .catch(function(err) {
-                    throw err;
                 });
         });
     });

@@ -57,16 +57,13 @@ describe('commercetools getCategories', function() {
                     expect(res.body.results).to.have.lengthOf(3);
 
                     // Verify structure
-                    for(let category of res.body.results) {
+                    for (let category of res.body.results) {
                         requiredFields.verifyCategory(category);
                         expect(category).to.have.own.property('children');
-                        for(let subCategory of category.children) {
+                        for (let subCategory of category.children) {
                             expect(subCategory).to.have.own.property('parents');
                         }
                     }
-                })
-                .catch(function(err) {
-                    throw err;
                 });
         });
 
@@ -86,13 +83,10 @@ describe('commercetools getCategories', function() {
                     expect(res.body.results).to.have.lengthOf(24);
 
                     // Verify structure
-                    for(let category of res.body.results) {
+                    for (let category of res.body.results) {
                         requiredFields.verifyCategory(category);
                         expect(category).to.not.have.own.property('children');
                     }
-                })
-                .catch(function(err) {
-                    throw err;
                 });
         });
 
@@ -117,9 +111,6 @@ describe('commercetools getCategories', function() {
                     expect(category).to.have.own.property('description');
                     expect(category).to.have.own.property('lastModifiedAt');
                     expect(category).to.have.own.property('createdAt');
-                })
-                .catch(function(err) {
-                    throw err;
                 });
         });
 
@@ -144,13 +135,10 @@ describe('commercetools getCategories', function() {
                     expect(ids).to.have.members(rootCategories);
 
                     // Verify structure
-                    for(let category of res.body.results) {
+                    for (let category of res.body.results) {
                         requiredFields.verifyCategory(category);
                         expect(category).to.not.have.own.property('children');
                     }
-                })
-                .catch(function(err) {
-                    throw err;
                 });
         });
 
@@ -175,13 +163,10 @@ describe('commercetools getCategories', function() {
                     expect(ids).to.have.members(rootCategories);
 
                     // Verify structure
-                    for(let category of res.body.results) {
+                    for (let category of res.body.results) {
                         requiredFields.verifyCategory(category);
                         expect(category).to.not.have.own.property('children');
                     }
-                })
-                .catch(function(err) {
-                    throw err;
                 });
         });
 
@@ -205,9 +190,6 @@ describe('commercetools getCategories', function() {
                     // Verfiy sorting
                     const names = res.body.results.map(r => r.name.en);
                     expect(names).to.have.ordered.members(names.sort().reverse());
-                })
-                .catch(function(err) {
-                    throw err;
                 });
         });
 
@@ -226,14 +208,11 @@ describe('commercetools getCategories', function() {
                     requiredFields.verifyPagedResponse(res.body);
 
                     // Verify sorting of subcategories
-                    for(let category of res.body.results) {
+                    for (let category of res.body.results) {
                         requiredFields.verifyCategory(category);
                         const subnames = category.children.map(r => r.name.en);
                         expect(subnames).to.have.ordered.members(subnames.sort().reverse());
                     }
-                })
-                .catch(function(err) {
-                    throw err;
                 });
         });
 
@@ -257,9 +236,6 @@ describe('commercetools getCategories', function() {
                     // Verfiy sorting
                     const names = res.body.results.map(r => r.name.en);
                     expect(names).to.have.ordered.members(names.sort().reverse());
-                })
-                .catch(function(err) {
-                    throw err;
                 });
         });
 
@@ -271,10 +247,10 @@ describe('commercetools getCategories', function() {
                 .query({
                     sort: 'abc.asc'
                 })
-                .catch(function(err) {
-                    expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
-                    expect(err.response).to.be.json;
-                    requiredFields.verifyErrorResponse(err.response.body);
+                .then(function(res) {
+                    expect(res).to.have.status(HttpStatus.BAD_REQUEST);
+                    expect(res).to.be.json;
+                    requiredFields.verifyErrorResponse(res.body);
                 });
         });
 
@@ -299,9 +275,7 @@ describe('commercetools getCategories', function() {
                     expect(res.body.count).to.equal(5);
                     expect(res.body.total).to.equal(24);
                     expect(res.body.results).to.have.lengthOf(5);
-                })
-                .catch(function(err) {
-                    throw err;
+
                 });
         });
 
@@ -326,9 +300,7 @@ describe('commercetools getCategories', function() {
                     expect(res.body.count).to.equal(7);
                     expect(res.body.total).to.equal(24);
                     expect(res.body.results).to.have.lengthOf(7);
-                })
-                .catch(function(err) {
-                    throw err;
+
                 });
         });
 
@@ -339,10 +311,10 @@ describe('commercetools getCategories', function() {
                     limit: -7,
                 })
                 .set('Cache-Control', 'no-cache')
-                .catch(function(err) {
-                    expect(err.response).to.have.status(HttpStatus.BAD_REQUEST);
-                    expect(err.response).to.be.json;
-                    requiredFields.verifyErrorResponse(err.response.body);
+                .then(function(res) {
+                    expect(res).to.have.status(HttpStatus.BAD_REQUEST);
+                    expect(res).to.be.json;
+                    requiredFields.verifyErrorResponse(res.body);
                 });
         });
 
@@ -351,10 +323,10 @@ describe('commercetools getCategories', function() {
                 .get(env.categoriesPackage + 'getCategories')
                 .set('Cache-Control', 'no-cache')
                 .query({id: '526dc571-104f-XXXX-b761-71781a97910b'})
-                .catch(function(err) {
-                    expect(err.response).to.have.status(HttpStatus.NOT_FOUND);
-                    expect(err.response).to.be.json;
-                    requiredFields.verifyErrorResponse(err.response.body);
+                .then(function(res) {
+                    expect(res).to.have.status(HttpStatus.NOT_FOUND);
+                    expect(res).to.be.json;
+                    requiredFields.verifyErrorResponse(res.body);
                 });
         });
 
