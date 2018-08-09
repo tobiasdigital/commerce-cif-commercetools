@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@commercetools/sdk-client": "1.4.1",
-    "@adobe/commerce-cif-commercetools-common": "1.0.0",
+    "@adobe/commerce-cif-commercetools-common": "1.0.1",
     "@adobe/commerce-cif-commercetools-cart": "0.1.18",
     "@adobe/commerce-cif-common": "1.0.0",
     "@adobe/commerce-cif-model": "1.0.0"
