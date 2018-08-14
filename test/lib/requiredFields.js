@@ -234,6 +234,11 @@ class RequiredFields {
         this.verifyPrice(o.cost);
     }
 
+    verifyPaymentMethod(o) {
+        expect(o).to.have.own.property("id");
+        expect(o).to.have.own.property("name");
+    }
+
 }
 
 module.exports = new RequiredFields();

@@ -149,6 +149,14 @@ functions:
     annotations:
       web-export: true
 
+  getPaymentMethods:
+    name: ${self:custom.customer-package}/getPaymentMethods
+    sequence:
+      - ${self:custom.carts-actions}/getPaymentMethodsService
+      - ${self:custom.common-actions}/webActionTransformer
+    annotations:
+      web-export: true
+
   postPayment:
     name: ${self:custom.customer-package}/postPayment
     sequence:

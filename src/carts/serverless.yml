@@ -72,6 +72,10 @@ functions:
     name: ${self:custom.ow-package}/getShippingMethodsService
     handler: getShippingMethods.main
 
+  getPaymentMethodsService:
+    name: ${self:custom.ow-package}/getPaymentMethodsService
+    handler: getPaymentMethods.main
+
   postPaymentService:
     name: ${self:custom.ow-package}/postPaymentService
     handler: postPayment.main
