@@ -22,8 +22,13 @@ module.exports = {
         return function (next) {
             return function (request, response) {
 
-                if (headers && headers['cookie']) {
-                    let cookies = headers.cookie.split(';');
+                if (headers && (headers['cookie'] || headers['ccs-token'])) {
+                    let cookies;
+                    if (headers['ccs-token']) {
+                        cookies = headers['ccs-token'].split(';');
+                    } else {
+                        cookies = headers.cookie.split(';');
+                    }
                     for (let i = 0, length = cookies.length; i < length; i++) {
                         let parts = cookies[i].trim().split('=');
                         if (parts[0].trim() === OAUTH_TOKEN_NAME) {
