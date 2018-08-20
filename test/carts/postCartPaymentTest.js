@@ -29,11 +29,11 @@ describe('commercetools post payment test', () => {
     describe('Unit Tests', () => {
 
         //build the helper in the context of '.this' suite
-        setup(this, __dirname, 'postPayment');
+        setup(this, __dirname, 'postCartPayment');
 
         let paymentMapper = new PaymentMapper();
 
-        it('PUT /cart/{id}/payment HTTP 400 - missing cart id', () => {
+        it('PUT /cart/{id}/payments HTTP 400 - missing cart id', () => {
             return this.execute()
                        .then(result => {
                            assert.isDefined(result.response);
@@ -42,7 +42,7 @@ describe('commercetools post payment test', () => {
                        });
         });
 
-        it('POST /cart/{id}/payment HTTP 400 - missing payment', () => {
+        it('POST /cart/{id}/payments HTTP 400 - missing payment', () => {
             return this.execute({id: '12345'})
                        .then(result => {
                            assert.isDefined(result.response);
@@ -51,37 +51,7 @@ describe('commercetools post payment test', () => {
                        });
         });
 
-        it('POST /cart/{id}/payment HTTP 400 - payment already exists', () => {
-            const args = {
-                id: '12345-7',
-                payment: {}
-            };
-            const expectedArgs = [{
-                uri: encodeURI(
-                    `/${config.CT_PROJECTKEY}/me/carts/12345?${config.CART_EXPAND_QS}`),
-                method: 'GET',
-                headers: undefined
-            }, {
-                uri: encodeURI(
-                    `/${config.CT_PROJECTKEY}/me/carts/12345?${config.CART_EXPAND_QS}`),
-                method: 'POST',
-                body: `{"actions":[{"action":"setShippingMethod","shippingMethod":{"typeId":"shipping-method","id":"6f0b3638-73a5-4d80-8455-081d3e9f98bb"}}],"version":7}`,
-                headers: undefined
-            }];
-            return this
-                .prepareResolve(samplecart1, expectedArgs)
-                .execute(args)
-                .then(result => {
-                    assert.isDefined(result.response.error);
-                    let error = result.response.error;
-                    assert.strictEqual(error.name, 'CommerceServiceBadRequestError');
-                    assert.strictEqual(error.message, 'Bad CommerceTools Request');
-                    assert.strictEqual(error.cause.code, 400);
-                    assert.strictEqual(error.cause.message, 'Cart payment already exists.');
-                });
-        });
-
-        it('POST /cart/{id}/payment HTTP 200', () => {
+        it('POST /cart/{id}/payments HTTP 200', () => {
             let payment = {
                 token: '1234',
                 method: 'credit-card',

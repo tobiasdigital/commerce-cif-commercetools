@@ -17,23 +17,19 @@
 const assert = require('chai').assert;
 const setup = require('../lib/setupTest').setup;
 const samplecart1 = require('../resources/sample-cart');
-const samplePayment = require('../resources/sample-payment');
 const config = require('../lib/config').config;
-const PaymentMapper = require('../../src/carts/PaymentMapper');
 
 /**
- * Describes the unit tests for commerce tools put cart entry operation.
+ * Describes the unit tests for commerce tools cart payment method delete operation.
  */
-describe('commercetools post payment test', () => {
+describe('commercetools deleteCartPayment', () => {
 
     describe('Unit Tests', () => {
 
         //build the helper in the context of '.this' suite
-        setup(this, __dirname, 'postPayment');
+        setup(this, __dirname, 'deleteCartPayment');
 
-        let paymentMapper = new PaymentMapper();
-
-        it('PUT /cart/{id}/payment HTTP 400 - missing cart id', () => {
+        it('DELETE /cart/{id}/payments HTTP 400 - missing cart id', () => {
             return this.execute()
                        .then(result => {
                            assert.isDefined(result.response);
@@ -42,62 +38,10 @@ describe('commercetools post payment test', () => {
                        });
         });
 
-        it('POST /cart/{id}/payment HTTP 400 - missing payment', () => {
-            return this.execute({id: '12345'})
-                       .then(result => {
-                           assert.isDefined(result.response);
-                           assert.isDefined(result.response.error);
-                           assert.strictEqual(result.response.error.message, 'Parameter \'payment\' is missing.');
-                       });
-        });
-
-        it('POST /cart/{id}/payment HTTP 400 - payment already exists', () => {
+        it('DELETE /cart/{id}/payments HTTP 400 - payment does not exist. ', () => {
             const args = {
                 id: '12345-7',
-                payment: {}
-            };
-            const expectedArgs = [{
-                uri: encodeURI(
-                    `/${config.CT_PROJECTKEY}/me/carts/12345?${config.CART_EXPAND_QS}`),
-                method: 'GET',
-                headers: undefined
-            }, {
-                uri: encodeURI(
-                    `/${config.CT_PROJECTKEY}/me/carts/12345?${config.CART_EXPAND_QS}`),
-                method: 'POST',
-                body: `{"actions":[{"action":"setShippingMethod","shippingMethod":{"typeId":"shipping-method","id":"6f0b3638-73a5-4d80-8455-081d3e9f98bb"}}],"version":7}`,
-                headers: undefined
-            }];
-            return this
-                .prepareResolve(samplecart1, expectedArgs)
-                .execute(args)
-                .then(result => {
-                    assert.isDefined(result.response.error);
-                    let error = result.response.error;
-                    assert.strictEqual(error.name, 'CommerceServiceBadRequestError');
-                    assert.strictEqual(error.message, 'Bad CommerceTools Request');
-                    assert.strictEqual(error.cause.code, 400);
-                    assert.strictEqual(error.cause.message, 'Cart payment already exists.');
-                });
-        });
-
-        it('POST /cart/{id}/payment HTTP 200', () => {
-            let payment = {
-                token: '1234',
-                method: 'credit-card',
-                statusCode: '1',
-                status: 'Paid',
-                amount: {
-                    centAmount: 17900,
-                    currency: 'USD'
-                }
-            };
-            
-            let paymentDraft = paymentMapper.mapPaymentDraft(payment);
-        
-            const args = {
-                id: '12345-7',
-                payment: payment,
+                paymentId:'none',
                 __ow_headers: {
                     'accept-language': 'en-US'
                 }
@@ -108,35 +52,72 @@ describe('commercetools post payment test', () => {
                 method: 'GET',
                 headers: undefined
             }, {
-                uri: '/TESTS_PROJECT/payments',
-                headers: undefined,
-                method: 'POST',
-                body: JSON.stringify(paymentDraft)
-            }, {
                 uri: encodeURI(
                     `/${config.CT_PROJECTKEY}/me/carts/12345?${config.CART_EXPAND_QS}`),
                 method: 'POST',
-                body: `{"actions":[{"action":"addPayment","payment":{"id":"efaa7df3-46f2-4116-8170-f1623e78aca7"}}],"version":7}`,
+                body: `{"actions":[{"action":"removePayment","payment":{"id":"7a975b17-4a8e-457b-9338-4229dac84066","version":1}}],"version":7}`,
                 headers: undefined
+            }, {
+                uri: '/${config.CT_PROJECTKEY}/me/payments/7a975b17-4a8e-457b-9338-4229dac84066?version=1',
+                headers: undefined,
+                method: 'DELETE'
             }];
             let sampleCartNoPayment = JSON.parse(JSON.stringify(samplecart1));
             delete sampleCartNoPayment.body.paymentInfo;
             let mockedResponses = [];
             //this needs to be in the same order as the expected Args.
             mockedResponses.push(sampleCartNoPayment);
-            mockedResponses.push(samplePayment);
-            mockedResponses.push(samplecart1);
+            mockedResponses.push(sampleCartNoPayment);
+            mockedResponses.push('{}');
             return this
                 .prepareResolveMultipleResponse(mockedResponses, expectedArgs)
                 .execute(args)
                 .then(result => {
-                    assert.isUndefined(result.response.error, JSON.stringify(result.response.error));
+                    let error = result.response.error;
+                    assert.isDefined(error);
+                    assert.strictEqual(error.cause.code, 400);
+                    assert.strictEqual(error.cause.message, "No cart payment.");
+
+                });
+        });
+
+        it('DELETE /cart/{id}/payments HTTP 200 ', () => {
+            const args = {
+                id: '12345-7',
+                paymentId:'7a975b17-4a8e-457b-9338-4229dac84066',
+                __ow_headers: {
+                    'accept-language': 'en-US'
+                }
+            };
+            const expectedArgs = [{
+                uri: encodeURI(
+                    `/${config.CT_PROJECTKEY}/me/carts/12345?${config.CART_EXPAND_QS}`),
+                method: 'GET',
+                headers: undefined
+            }, {
+                uri: encodeURI(
+                    `/${config.CT_PROJECTKEY}/me/carts/12345?${config.CART_EXPAND_QS}`),
+                method: 'POST',
+                body: `{"actions":[{"action":"removePayment","payment":{"id":"7a975b17-4a8e-457b-9338-4229dac84066","version":1}}],"version":7}`,
+                headers: undefined
+            }, {
+                uri: '/TESTS_PROJECT/payments/7a975b17-4a8e-457b-9338-4229dac84066?version=1',
+                headers: undefined,
+                method: 'DELETE'
+            }];
+            let sampleCartNoPayment = JSON.parse(JSON.stringify(samplecart1));
+            delete sampleCartNoPayment.body.paymentInfo;
+            let mockedResponses = [];
+            //this needs to be in the same order as the expected Args.
+            mockedResponses.push(samplecart1);
+            mockedResponses.push(sampleCartNoPayment);
+            mockedResponses.push('{}');
+            return this
+                .prepareResolveMultipleResponse(mockedResponses, expectedArgs)
+                .execute(args)
+                .then(result => {
                     assert.isDefined(result.response);
                     assert.strictEqual(result.response.statusCode, 200);
-                    assert.isDefined(result.response.body);
-                    assert.isDefined(result.response.body.id);
-                    assert.isDefined(result.response.body.entries);
-                    assert.isDefined(result.response.body.payments);
                 });
         });
 

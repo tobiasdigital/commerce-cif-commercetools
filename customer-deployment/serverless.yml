@@ -164,11 +164,27 @@ functions:
       - ${self:custom.common-actions}/webActionTransformer
     annotations:
       web-export: true
-
+ 
+  postCartPayment:
+    name: ${self:custom.customer-package}/postCartPayment
+    sequence:
+      - ${self:custom.carts-actions}/postCartPaymentService
+      - ${self:custom.common-actions}/webActionTransformer
+    annotations:
+      web-export: true
+      
   deletePayment:
     name: ${self:custom.customer-package}/deletePayment
     sequence:
       - ${self:custom.carts-actions}/deletePaymentService
+      - ${self:custom.common-actions}/webActionTransformer
+    annotations:
+      web-export: true
+
+  deleteCartPayment:
+    name: ${self:custom.customer-package}/deleteCartPayment
+    sequence:
+      - ${self:custom.carts-actions}/deleteCartPaymentService
       - ${self:custom.common-actions}/webActionTransformer
     annotations:
       web-export: true

@@ -19,6 +19,7 @@ const sampleCart1 = require('../resources/sample-cart');
 const sampleCartWithGiftEntry = require('../resources/sample-cart-with-gift-entry');
 const sampleCartWithDiscount = require('../resources/sample-cart-with-cart-discount');
 const sampleCartWithMultipleDiscounts = require('../resources/sample-cart-with-multiple-discounts');
+const sampleCartWithMultiplPayments = require('../resources/sample-cart-multiple-payments');
 const sampleCartWithTax = require('../resources/sample-cart-with-tax');
 const sampleSimpleCart = require('../resources/sample-simple-cart');
 const sampleCartWithCoupon = require('../resources/sample-cart-with-coupon');
@@ -36,6 +37,7 @@ describe('commercetools CartMapper', () => {
         let cartData = null;
         let cartDataWithDiscount = null;
         let cartDataWithMultipleDiscounts = null;
+        let cartDataWithMultiplePayments = null;
         let args = {
             __ow_headers: {
                 'accept-language': 'en-US'
@@ -49,6 +51,7 @@ describe('commercetools CartMapper', () => {
             cartData = utils.clone(sampleCart1);
             cartDataWithDiscount = utils.clone(sampleCartWithDiscount);
             cartDataWithMultipleDiscounts = utils.clone(sampleCartWithMultipleDiscounts);
+            cartDataWithMultiplePayments = utils.clone(sampleCartWithMultiplPayments);
         });
 
         it('cart entries', () => {
@@ -130,6 +133,18 @@ describe('commercetools CartMapper', () => {
             assert.strictEqual(mappedCart.payment.amount.currency, ctPayment.obj.amountPlanned.currencyCode);
             assert.strictEqual(mappedCart.payment.amount.currency, ctPayment.obj.amountPlanned.currencyCode);
 
+            // check that we also have the 'payments' property
+            // which should contain the payment above
+            assert.isDefined(mappedCart.payments);
+            let payment = mappedCart.payments[0];
+            assert.strictEqual(payment.id, ctPayment.id);
+            assert.strictEqual(payment.method, ctPayment.obj.paymentMethodInfo.method);
+            assert.strictEqual(payment.token, ctPayment.interfaceId);
+            assert.strictEqual(payment.statusCode, ctPayment.obj.paymentStatus.interfaceCode);
+            assert.strictEqual(payment.status, ctPayment.obj.paymentStatus.interfaceText);
+            assert.strictEqual(payment.amount.amount, ctPayment.obj.amountPlanned.centAmount);
+            assert.strictEqual(payment.amount.currency, ctPayment.obj.amountPlanned.currencyCode);
+            assert.strictEqual(payment.amount.currency, ctPayment.obj.amountPlanned.currencyCode);
         });
 
         it('cart - check total product price when no shipping info', () => {
@@ -195,6 +210,25 @@ describe('commercetools CartMapper', () => {
                     lineItem.quantity);
                 assert.strictEqual(cartEntry.discounts[0].value.currency,
                                    lineItem.discountedPricePerQuantity[0].discountedPrice.includedDiscounts[0].discountedAmount.currencyCode);
+            });
+        });
+
+        it('cart - checks multiple cart payments', () => {
+            const mappedCart = cartMapper.mapCart(cartDataWithMultiplePayments, args);
+
+            assert.isDefined(mappedCart.payments);
+            let ctPayments = cartDataWithMultiplePayments.body.paymentInfo.payments;
+            assert.equal(mappedCart.payments.length, ctPayments.length);
+
+            mappedCart.payments.forEach((payment, idx) => {
+                assert.strictEqual(payment.id, ctPayments[idx].id);
+                assert.strictEqual(payment.method, ctPayments[idx].obj.paymentMethodInfo.method);
+                assert.strictEqual(payment.token, ctPayments[idx].interfaceId);
+                assert.strictEqual(payment.statusCode, ctPayments[idx].obj.paymentStatus.interfaceCode);
+                assert.strictEqual(payment.status, ctPayments[idx].obj.paymentStatus.interfaceText);
+                assert.strictEqual(payment.amount.amount, ctPayments[idx].obj.amountPlanned.centAmount);
+                assert.strictEqual(payment.amount.currency, ctPayments[idx].obj.amountPlanned.currencyCode);
+                assert.strictEqual(payment.amount.currency, ctPayments[idx].obj.amountPlanned.currencyCode);
             });
         });
 

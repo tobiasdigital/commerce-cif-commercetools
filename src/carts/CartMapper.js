@@ -125,7 +125,8 @@ class CartMapper {
             }
         }
         if (ctCart.paymentInfo && ctCart.paymentInfo.payments) {
-            cart.payment = this._mapPayments(ctCart.paymentInfo.payments);
+            cart.payments = this._mapPayments(ctCart.paymentInfo.payments);
+            cart.payment = cart.payments.length > 0 ? cart.payments[0]: {};
         }
         if (ctCart.taxedPrice) {
             cart.taxInfo = this._mapTaxInfo(ctCart.taxedPrice);
@@ -355,10 +356,7 @@ class CartMapper {
      * @private
      */
     _mapPayments(ctPayments) {
-        if (ctPayments.length > 1) {
-            throw new Error(`Unexpected cart payments array size. Found ${ctPayments.length}!`);
-        }
-        return this.paymentMapper._mapPayment(ctPayments[0].obj);
+        return ctPayments.map(p => this.paymentMapper._mapPayment(p.obj));
 
     }
 

@@ -18,13 +18,13 @@ const CTPerformanceMeasurement = require('@adobe/commerce-cif-commercetools-comm
 const InputValidator = require('@adobe/commerce-cif-common/input-validator');
 const CommerceToolsCartPayment = require('./CommerceToolsCartPayment');
 const createClient = require('@commercetools/sdk-client').createClient;
+const LanguageParser = require('@adobe/commerce-cif-commercetools-common/LanguageParser');
 const CartMapper = require('./CartMapper');
 const PaymentMapper = require('./PaymentMapper');
-const LanguageParser = require('@adobe/commerce-cif-commercetools-common/LanguageParser');
 const ERROR_TYPE = require('./constants').ERROR_TYPE;
 
 /**
- * This action creates a payment and adds it to a cart.
+ * This action removes a payment from the cart and from payments.
  *
  * @param   {string} args.CT_PROJECTKEY        commerceTools project key
  * @param   {string} args.CT_CLIENTID          commerceTools client id
@@ -32,16 +32,15 @@ const ERROR_TYPE = require('./constants').ERROR_TYPE;
  * @param   {string} args.CT_API_HOST          optional commerceTools API host uri
  * @param   {string} args.CT_AUTH_HOST         optional commerceTools AUTH host uri
  *
- * @param   {string}  args.id                  cart id
- * @param   {Payment} args.payment             a CCIF payment object
+ * @param   {string} args.id                   cart id;
  *
  */
-function postPayment(args) {
+function deleteCartPayment(args) {
     const validator = new InputValidator(args, ERROR_TYPE);
     validator
         .checkArguments()
         .mandatoryParameter('id')
-        .mandatoryParameter('payment');
+        .mandatoryParameter('paymentId');
     if (validator.error) {
         return validator.buildErrorResponse();
     }
@@ -49,9 +48,9 @@ function postPayment(args) {
     let languageParser = new LanguageParser(args);
     let cartMapper = new CartMapper(languageParser);
     let paymentMapper = new PaymentMapper();
-    
-    const cartPaymentClient = new CommerceToolsCartPayment(args, createClient, cartMapper.mapCart.bind(cartMapper), paymentMapper.mapPayment.bind(paymentMapper), paymentMapper.mapPaymentDraft.bind(paymentMapper), true);
-    return cartPaymentClient.addCartPayment(args.id, args.payment, true);
+
+    let cartPaymentClient = new CommerceToolsCartPayment(args, createClient, cartMapper.mapCart.bind(cartMapper), paymentMapper.mapPayment.bind(paymentMapper), paymentMapper.mapPaymentDraft.bind(paymentMapper));
+    return cartPaymentClient.deleteCartPayment(args.id, args.paymentId);
 }
 
-module.exports.main = CTPerformanceMeasurement.decorateActionForSequence(postPayment);
+module.exports.main = CTPerformanceMeasurement.decorateActionForSequence(deleteCartPayment);

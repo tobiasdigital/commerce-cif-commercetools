@@ -50,8 +50,9 @@ function postPayment(args) {
     let cartMapper = new CartMapper(languageParser);
     let paymentMapper = new PaymentMapper();
     
-    const cartPaymentClient = new CommerceToolsCartPayment(args, createClient, cartMapper.mapCart.bind(cartMapper), paymentMapper.mapPayment.bind(paymentMapper), paymentMapper.mapPaymentDraft.bind(paymentMapper), true);
-    return cartPaymentClient.addCartPayment(args.id, args.payment, true);
+    const cartPaymentClient = new CommerceToolsCartPayment(args, createClient, cartMapper.mapCart.bind(cartMapper), paymentMapper.mapPayment.bind(paymentMapper), paymentMapper.mapPaymentDraft.bind(paymentMapper), false);
+
+    return cartPaymentClient.addCartPayment(args.id, args.payment);
 }
 
 module.exports.main = CTPerformanceMeasurement.decorateActionForSequence(postPayment);

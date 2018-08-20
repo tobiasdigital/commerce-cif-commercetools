@@ -33,12 +33,14 @@ class CommerceToolsCartPayment extends CommerceToolsCart {
      * @param cartMapper {Function}         commerce tools cif cartMapper handler
      * @param paymentMapper {Function}      commerce tools cif paymentMapper handler
      * @param paymentDraftMapper {Function} commerce tools cif paymentDraftMapper handler
+     * @param singlePayment {Boolean}       a flag to indicate whether we should check that another payment is already associated with the cart.
      */
-    constructor(args, createClient, cartMapper, paymentMapper, paymentDraftMapper) {
+    constructor(args, createClient, cartMapper, paymentMapper, paymentDraftMapper, singlePayment) {
         super(args, createClient, cartMapper);
         this.paymentClient = new CommerceToolsPayment(args, createClient, paymentMapper);
         //need this to avoid a new cart get when sending second cart request (for payment POST or DELETE)
         this.cartVersion = null;
+        this.singlePayment = singlePayment;
         this.paymentDrafMapper = paymentDraftMapper;
     }
 
@@ -49,7 +51,7 @@ class CommerceToolsCartPayment extends CommerceToolsCart {
      * @param payment        a CCIF payment object
      * @return {Promise}
      */
-    addCartPayment(id, payment) {
+    addCartPayment(id, payment) {   
         let ccifId = new CcifIdentifier(id);
         this.requestBuilder.byId(ccifId.getCommerceToolsId());
         const baseUrl = this._buildBaseUrl();
@@ -90,18 +92,19 @@ class CommerceToolsCartPayment extends CommerceToolsCart {
      * @private
      */
     _getCartVersion(baseUrl) {
-        return this._ctCartById(baseUrl).then(result => {
+        return this._ctCartById(baseUrl)
+        .then(result => {
             this.cartVersion = result.body.version;
-            if (result.body.paymentInfo && result.body.paymentInfo.payments.length >= 1) {
+            if (this.singlePayment && result.body.paymentInfo && result.body.paymentInfo.payments.length >= 1) {
                 return Promise.reject(Error.PAYMENT_ALREADY_SET_ERROR());
             } else {
                 return Promise.resolve();
-            }
+            }  
         });
     }
 
     /**
-     * Deletes a payment from cart and from commerce tools payments.
+     * Deletes the payment from cart and from commerce tools payments.
      *
      * @param id                cart id
      * @return {Promise}
@@ -124,6 +127,42 @@ class CommerceToolsCartPayment extends CommerceToolsCart {
         });
     }
 
+     /**
+     * Deletes one of the payments from cart and from commerce tools payments.
+     *
+     * @param id                cart id
+     * @param paymentId         the id of the payment
+     * @return {Promise}
+     */
+    deleteCartPayment(id, paymentId) {
+        let ccifId = new CcifIdentifier(id);
+        this.requestBuilder.byId(ccifId.getCommerceToolsId());
+        const baseUrl = this._buildBaseUrl();
+        let _localPayment;
+        let _localCart;
+        return this._getCartPaymentIdentifier(baseUrl, paymentId)
+            .then(payment => {
+                const data = {
+                    actions: [{action: 'removePayment', payment: {id: payment.id, version: payment.version}}]
+                };
+                _localPayment = payment;
+                data.version = this.cartVersion;
+                return this._handle(baseUrl, 'POST', data);
+            })
+            .then(cartResponse => {
+                // we "clone" the response here because subsquent calls may overwrite it.
+                // we'll fix this properly in the near future
+                _localCart = JSON.stringify(cartResponse);
+                return this.paymentClient.delete(_localPayment.id, _localPayment.version);
+            })
+            .then(() => {
+                return Promise.resolve(JSON.parse(_localCart));
+            })
+            .catch(error => {
+                return this._handleError(error);
+            });
+    }
+
     /**
      *
      * Get's the payment id and version based on cart id. If no payment exists reject the request.
@@ -132,23 +171,27 @@ class CommerceToolsCartPayment extends CommerceToolsCart {
      * @return {Promise}    the payment id and version for the payment
      * @private
      */
-    _getCartPaymentIdentifier(baseUrl) {
-
-        return this._ctCartById(baseUrl).then(result => {
-            const paymentInfo = result.body.paymentInfo;
-            this.cartVersion = result.body.version;
-            if (!paymentInfo || paymentInfo.payments.length != 1) {
-                return Promise.reject(Error.PAYMENT_UNSET_ERROR());
-            } else {
-                let data = {
-                    'id': paymentInfo.payments[0].id,
-                    'version': paymentInfo.payments[0].obj.version
-                };
-                return data;
-            }
+    _getCartPaymentIdentifier(baseUrl, paymentId) {
+        return this._ctCartById(baseUrl)
+            .then(result => {
+                const paymentInfo = result.body.paymentInfo;
+                this.cartVersion = result.body.version;
+                if (!paymentInfo || paymentInfo.payments.length < 1) {
+                    return Promise.reject(Error.PAYMENT_UNSET_ERROR());
+                } else {
+                    let payment;
+                    if (paymentId) {
+                        payment = paymentInfo.payments.find( p => p.id === paymentId)
+                    } else {
+                        payment = paymentInfo.payments[0];
+                    }
+                    return Promise.resolve({
+                        'id':payment.id,
+                        'version':payment.obj.version
+                    });
+                }
         });
     }
-
 }
 
 module.exports = CommerceToolsCartPayment;

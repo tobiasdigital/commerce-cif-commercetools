@@ -22,6 +22,7 @@ describe('commercetools PaymentMapper', () => {
     let ccifPayment = {
         token: '1234',
         method: 'credit-card',
+        methodId: 'credit-card',
         statusCode: '1',
         status: 'Paid',
         amount: {

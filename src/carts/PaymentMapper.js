@@ -55,6 +55,7 @@ class PaymentMapper {
         let ccifPayment = new Payment.Builder()
             .withId(ctPayment.id)
             .withMethod(ctPayment.paymentMethodInfo.method)
+            .withMethodId(ctPayment.paymentMethodInfo.method)
             .build();
 
         ccifPayment.token = ctPayment.externalId;
@@ -82,6 +83,9 @@ class PaymentMapper {
         
         paymentDraft.paymentMethodInfo = {};
         paymentDraft.paymentMethodInfo.method = payment.method;
+        if (payment.methodId) {
+            paymentDraft.paymentMethodInfo.method = payment.methodId;
+        }
         
         paymentDraft.paymentStatus = {};
         paymentDraft.paymentStatus.interfaceCode = payment.statusCode;
