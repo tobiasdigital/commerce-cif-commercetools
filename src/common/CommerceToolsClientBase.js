@@ -19,7 +19,6 @@ const createAuthMiddlewareForPasswordFlow = require('@commercetools/sdk-middlewa
 const createHttpMiddleware = require('@commercetools/sdk-middleware-http').createHttpMiddleware;
 const tokenCookieMiddleware = require('./tokenCookieMiddleware.js');
 const respondWithCommerceToolsError = require('./web-response-utils').respondWithCommerceToolsError;
-const CTPerformanceMeasurement = require('./performance-measurement.js');
 const createRequestBuilder = require('@commercetools/api-request-builder').createRequestBuilder;
 const fetch = require('isomorphic-fetch');
 const HttpStatusCodes = require('http-status-codes');
@@ -68,14 +67,14 @@ class CommerceToolsClientBase {
             createAuthMiddleware = createAuthMiddlewareForAnonymousSessionFlow(authConfig);
         }
 
-        this.client = CTPerformanceMeasurement.decorateCommerceToolsClient(createClient({
+        this.client = createClient({
             middlewares: [
                 tokenCookieMiddleware.extractOauthTokenMiddleware(args.__ow_headers),
                 createAuthMiddleware,
                 tokenCookieMiddleware.setOauthTokenMiddleware(args.response),
                 createHttpMiddleware({host: args.CT_API_HOST})
             ]
-        }), args);
+        });
 
     }
 
@@ -93,6 +92,11 @@ class CommerceToolsClientBase {
         if (data !== 'undefined' && data) {
             config.body = JSON.stringify(data);
         }
+
+        if (this.args.DEBUG) {
+            return this._profileRequest(config);
+        }
+
         return this.client.execute(config);
     }
 
@@ -107,13 +111,38 @@ class CommerceToolsClientBase {
      * @protected
      */
     _handleSuccess(response) {
-        Object.assign(this.args.response, {'statusCode': 200, 'body': response});
+        let headers = this.args.response.headers || {};
+        if (this.args.DEBUG) {
+            headers['OW-Activation-Id'] = process.env.__OW_ACTIVATION_ID;
+        }
+        Object.assign(this.args.response, {'statusCode': 200, 'body': response, 'headers': headers});
         for (let name in this.responseArgs) {
             if (typeof this.responseArgs[name] !== 'function') {
                 this.args[name] = this.responseArgs[name];
             }
         }
         return Promise.resolve(this.args);
+    }
+
+    /**
+     * Wraps a request and prints out debug information to the log.
+     * 
+     * @param {Object} config  Request options.
+     */
+    _profileRequest(config) {
+        let s = process.hrtime();
+         // Create a reference to the _logRequest function with the class context
+        // bound, so it can be used within the request Promise.
+        let logRequest = this._logRequest.bind(this);
+         return this.client.execute(config)
+            .then((res) => {
+                logRequest(config, s, true);
+                return Promise.resolve(res);
+            })
+            .catch((res) => {
+                logRequest(config, s, false);
+                return Promise.reject(res);
+            });
     }
 
     /**
@@ -132,6 +161,19 @@ class CommerceToolsClientBase {
             }
             return this._handleError(error);
         });
+    }
+
+    /**
+     * Logs a request to Commercetools.
+     * 
+     * @param {Object} options      Request options.
+     * @param {Array} start         HR starting time of request.
+     * @param {Boolean} passed      true, if request returned with 2xx status.
+     */
+    _logRequest(options, start, passed) {
+        let end = process.hrtime(start);
+        let duration = Math.round(((end[0] * 1e9) + end[1]) / 1e6);
+        console.log("BACKEND-CALL", options.method, options.uri, duration, passed ? "PASS" : "FAIL");
     }
 
     /**

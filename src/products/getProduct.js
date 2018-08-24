@@ -15,7 +15,6 @@
 'use strict';
 
 const createClient = require('@commercetools/sdk-client').createClient;
-const CTPerformanceMeasurement = require('@adobe/commerce-cif-commercetools-common/performance-measurement.js');
 const InputValidator = require('@adobe/commerce-cif-common/input-validator');
 const CommerceToolsProduct = require('./CommerceToolsProduct');
 const ProductMapper = require('./ProductMapper');
@@ -64,4 +63,4 @@ function getProduct(args) {
 
 }
 
-module.exports.main = CTPerformanceMeasurement.decorateActionForSequence(getProduct);
+module.exports.main = getProduct;

@@ -14,7 +14,6 @@
 
 'use strict';
 
-const CTPerformanceMeasurement = require('@adobe/commerce-cif-commercetools-common/performance-measurement.js');
 const createClient = require('@commercetools/sdk-client').createClient;
 const CartMapper = require('./CartMapper');
 const LanguageParser = require('@adobe/commerce-cif-commercetools-common/LanguageParser');
@@ -67,4 +66,4 @@ function postCoupon(args) {
         .postCartData(args.id, data);
 }
 
-module.exports.main = CTPerformanceMeasurement.decorateActionForSequence(postCoupon);
+module.exports.main = postCoupon;

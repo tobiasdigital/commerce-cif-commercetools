@@ -48,6 +48,11 @@ function respondWithCommerceToolsError(error, args, resolve, errorType) {
         args['response'] = {'error': new UnexpectedError('Unknown error while communicating with CommerceTools', cause)};
     }
 
+    if (args.DEBUG) {
+        args.response.headers = args.response.headers || {};
+        args.response.headers['OW-Activation-Id'] = process.env.__OW_ACTIVATION_ID;
+    }
+
     args.response.errorType = errorType;
     return resolve(args);
 }

@@ -15,7 +15,6 @@
 'use strict';
 
 const InputValidator = require('@adobe/commerce-cif-common/input-validator');
-const CTPerformanceMeasurement = require('@adobe/commerce-cif-commercetools-common/performance-measurement.js');
 const ERROR_TYPE = require('./constants').ERROR_TYPE;
 const PaymentMethod = require('@adobe/commerce-cif-model').PaymentMethod;
 
@@ -87,4 +86,4 @@ function getPaymentMethods(args) {
     return Promise.resolve(_generateMockResponse());
 }
 
-module.exports.main = CTPerformanceMeasurement.decorateActionForSequence(getPaymentMethods);
+module.exports.main = getPaymentMethods;

@@ -14,7 +14,6 @@
 
 'use strict';
 
-const CTPerformanceMeasurement = require('@adobe/commerce-cif-commercetools-common/performance-measurement.js');
 const CommerceToolsAddressHelper = require('./CommerceToolsAddressHelper');
 const createClient = require('@commercetools/sdk-client').createClient;
 const CartMapper = require('./CartMapper');
@@ -42,4 +41,4 @@ function postBillingAddress(args) {
     return CommerceToolsAddressHelper.postBillingAddress(createClient, args, cartMapper.mapCart.bind(cartMapper));
 }
 
-module.exports.main = CTPerformanceMeasurement.decorateActionForSequence(postBillingAddress);
+module.exports.main = postBillingAddress;

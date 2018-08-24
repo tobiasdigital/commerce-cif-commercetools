@@ -15,7 +15,6 @@
 'use strict';
 
 const createClient = require('@commercetools/sdk-client').createClient;
-const CTPerformanceMeasurement = require('@adobe/commerce-cif-commercetools-common/performance-measurement.js');
 const InputValidator = require('@adobe/commerce-cif-common/input-validator');
 const CommerceToolsProductSearch = require('./CommerceToolsProductSearch');
 const ProductMapper = require('./ProductMapper');
@@ -136,4 +135,4 @@ function _setQueryCriteria(client, language, text, filters, selectedFacets, sort
     });
 }
 
-module.exports.main = CTPerformanceMeasurement.decorateActionForSequence(searchProducts);
+module.exports.main = searchProducts;

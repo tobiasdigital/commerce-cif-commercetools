@@ -16,7 +16,6 @@
 
 const InputValidator = require('@adobe/commerce-cif-common/input-validator');
 const CommerceToolsCart = require('./CommerceToolsCart');
-const CTPerformanceMeasurement = require('@adobe/commerce-cif-commercetools-common/performance-measurement.js');
 const createClient = require('@commercetools/sdk-client').createClient;
 const CartMapper = require('./CartMapper');
 const LanguageParser = require('@adobe/commerce-cif-commercetools-common/LanguageParser');
@@ -71,6 +70,6 @@ function putCartEntry(args) {
     return cart.postCartData(args.id, data);
 }
 
-module.exports.main = CTPerformanceMeasurement.decorateActionForSequence(putCartEntry);
+module.exports.main = putCartEntry;
 
 

@@ -14,7 +14,6 @@
 
 'use strict';
 
-const CTPerformanceMeasurement = require('@adobe/commerce-cif-commercetools-common/performance-measurement.js');
 const CommerceToolsAddressHelper = require('./CommerceToolsAddressHelper');
 const createClient = require('@commercetools/sdk-client').createClient;
 const LanguageParser = require('@adobe/commerce-cif-commercetools-common/LanguageParser');
@@ -41,6 +40,6 @@ function deleteBillingAddress(args) {
     return CommerceToolsAddressHelper.deleteBillingAddress(createClient, args, cartMapper.mapCart.bind(cartMapper));
 }
 
-module.exports.main = CTPerformanceMeasurement.decorateActionForSequence(deleteBillingAddress);
+module.exports.main = deleteBillingAddress;
 
 

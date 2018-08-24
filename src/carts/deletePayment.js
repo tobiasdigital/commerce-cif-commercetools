@@ -14,7 +14,6 @@
 
 'use strict';
 
-const CTPerformanceMeasurement = require('@adobe/commerce-cif-commercetools-common/performance-measurement.js');
 const InputValidator = require('@adobe/commerce-cif-common/input-validator');
 const CommerceToolsCartPayment = require('./CommerceToolsCartPayment');
 const createClient = require('@commercetools/sdk-client').createClient;
@@ -52,4 +51,4 @@ function deletePayment(args) {
     return cartPaymentClient.deletePayment(args.id);
 }
 
-module.exports.main = CTPerformanceMeasurement.decorateActionForSequence(deletePayment);
+module.exports.main = deletePayment;

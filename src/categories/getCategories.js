@@ -15,7 +15,6 @@
 'use strict';
 
 const createClient = require('@commercetools/sdk-client').createClient;
-const CTPerformanceMeasurement = require('@adobe/commerce-cif-commercetools-common/performance-measurement.js');
 const CommerceToolsCategory = require('./CommerceToolsCategory');
 const CategoryMapper = require('./CategoryMapper');
 const LanguageParser = require('@adobe/commerce-cif-commercetools-common/LanguageParser');
@@ -88,4 +87,4 @@ function getCategories(args) {
     return categories.getCategories(type, depth);
 }
 
-module.exports.main = CTPerformanceMeasurement.decorateActionForSequence(getCategories);
+module.exports.main = getCategories;

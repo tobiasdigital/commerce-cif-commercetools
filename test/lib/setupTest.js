@@ -55,7 +55,8 @@ module.exports.setup = function (ctx, testDirName, actionName) {
         });
 
         mockRequire('@commercetools/sdk-middleware-auth', {
-            createAuthMiddlewareForAnonymousSessionFlow: () => sinon.stub().returns({})
+            createAuthMiddlewareForAnonymousSessionFlow: () => sinon.stub().returns({}),
+            createAuthMiddlewareForPasswordFlow: () => sinon.stub().returns({})
         });
 
         mockRequire('@commercetools/sdk-middleware-http', {
