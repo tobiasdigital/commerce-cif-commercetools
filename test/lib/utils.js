@@ -15,9 +15,10 @@
 'use strict';
 
 const fs = require('fs');
+const path = require('path');
 
 module.exports.getPathForAction = function (testDirName, action) {
-    return testDirName.replace('/test/', '/src/').concat('/').concat(action);
+    return testDirName.replace(path.sep + 'test' + path.sep, path.sep + 'src' + path.sep).concat(path.sep).concat(action);
 };
 
 module.exports.parseJsonFile = function(path) {
