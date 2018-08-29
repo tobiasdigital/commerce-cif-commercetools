@@ -87,8 +87,8 @@ describe('commercetools post payment test', () => {
                 method: 'credit-card',
                 statusCode: '1',
                 status: 'Paid',
-                amount: {
-                    centAmount: 17900,
+                value: {
+                    amount: 17900,
                     currency: 'USD'
                 }
             };

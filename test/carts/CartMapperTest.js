@@ -129,9 +129,9 @@ describe('commercetools CartMapper', () => {
             assert.strictEqual(mappedCart.payment.token, ctPayment.interfaceId);
             assert.strictEqual(mappedCart.payment.statusCode, ctPayment.obj.paymentStatus.interfaceCode);
             assert.strictEqual(mappedCart.payment.status, ctPayment.obj.paymentStatus.interfaceText);
-            assert.strictEqual(mappedCart.payment.amount.amount, ctPayment.obj.amountPlanned.centAmount);
-            assert.strictEqual(mappedCart.payment.amount.currency, ctPayment.obj.amountPlanned.currencyCode);
-            assert.strictEqual(mappedCart.payment.amount.currency, ctPayment.obj.amountPlanned.currencyCode);
+            assert.strictEqual(mappedCart.payment.value.amount, ctPayment.obj.amountPlanned.centAmount);
+            assert.strictEqual(mappedCart.payment.value.currency, ctPayment.obj.amountPlanned.currencyCode);
+            assert.strictEqual(mappedCart.payment.value.currency, ctPayment.obj.amountPlanned.currencyCode);
 
             // check that we also have the 'payments' property
             // which should contain the payment above
@@ -142,9 +142,9 @@ describe('commercetools CartMapper', () => {
             assert.strictEqual(payment.token, ctPayment.interfaceId);
             assert.strictEqual(payment.statusCode, ctPayment.obj.paymentStatus.interfaceCode);
             assert.strictEqual(payment.status, ctPayment.obj.paymentStatus.interfaceText);
-            assert.strictEqual(payment.amount.amount, ctPayment.obj.amountPlanned.centAmount);
-            assert.strictEqual(payment.amount.currency, ctPayment.obj.amountPlanned.currencyCode);
-            assert.strictEqual(payment.amount.currency, ctPayment.obj.amountPlanned.currencyCode);
+            assert.strictEqual(payment.value.amount, ctPayment.obj.amountPlanned.centAmount);
+            assert.strictEqual(payment.value.currency, ctPayment.obj.amountPlanned.currencyCode);
+            assert.strictEqual(payment.value.currency, ctPayment.obj.amountPlanned.currencyCode);
         });
 
         it('cart - check total product price when no shipping info', () => {
@@ -226,9 +226,9 @@ describe('commercetools CartMapper', () => {
                 assert.strictEqual(payment.token, ctPayments[idx].interfaceId);
                 assert.strictEqual(payment.statusCode, ctPayments[idx].obj.paymentStatus.interfaceCode);
                 assert.strictEqual(payment.status, ctPayments[idx].obj.paymentStatus.interfaceText);
-                assert.strictEqual(payment.amount.amount, ctPayments[idx].obj.amountPlanned.centAmount);
-                assert.strictEqual(payment.amount.currency, ctPayments[idx].obj.amountPlanned.currencyCode);
-                assert.strictEqual(payment.amount.currency, ctPayments[idx].obj.amountPlanned.currencyCode);
+                assert.strictEqual(payment.value.amount, ctPayments[idx].obj.amountPlanned.centAmount);
+                assert.strictEqual(payment.value.currency, ctPayments[idx].obj.amountPlanned.currencyCode);
+                assert.strictEqual(payment.value.currency, ctPayments[idx].obj.amountPlanned.currencyCode);
             });
         });
 

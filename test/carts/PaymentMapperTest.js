@@ -25,7 +25,7 @@ describe('commercetools PaymentMapper', () => {
         methodId: 'credit-card',
         statusCode: '1',
         status: 'Paid',
-        amount: {
+        value: {
             amount: 17900,
             currency: 'USD'
         }

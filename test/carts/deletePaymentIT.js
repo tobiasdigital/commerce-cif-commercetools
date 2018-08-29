@@ -44,7 +44,7 @@ describe('commercetools deletePayment', function () {
             method: 'credit-card',
             statusCode: '1',
             status: 'Paid',
-            amount: {
+            value: {
                 amount: 17900,
                 currency: 'USD'
             }
@@ -131,9 +131,9 @@ describe('commercetools deletePayment', function () {
                     requiredFields.verifyCart(res.body);
                     let payment = res.body.payment;
                     requiredFields.verifyPayment(payment);
-                    expect(payment).to.have.property('amount');
-                    expect(payment.amount).to.have.property('currency');
-                    expect(payment.amount).to.have.property('amount');
+                    expect(payment).to.have.property('value');
+                    expect(payment.value).to.have.property('currency');
+                    expect(payment.value).to.have.property('amount');
                     expect(payment).to.have.property('createdAt');
                     expect(payment).to.have.property('lastModifiedAt');
 

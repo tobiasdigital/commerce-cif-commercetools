@@ -63,7 +63,7 @@ class PaymentMapper {
         ccifPayment.status = ctPayment.paymentStatus.interfaceText;
         ccifPayment.createdAt = ctPayment.createdAt;
         ccifPayment.lastModifiedAt = ctPayment.lastModifiedAt;
-        ccifPayment.amount = new MoneyValue.Builder()
+        ccifPayment.value = new MoneyValue.Builder()
             .withAmount(ctPayment.amountPlanned.centAmount)
             .withCurrency(ctPayment.amountPlanned.currencyCode)
             .build();
@@ -91,10 +91,10 @@ class PaymentMapper {
         paymentDraft.paymentStatus.interfaceCode = payment.statusCode;
         paymentDraft.paymentStatus.interfaceText = payment.status;
         
-        if (payment.amount) {
+        if (payment.value) {
             paymentDraft.amountPlanned = {};
-            paymentDraft.amountPlanned.centAmount = payment.amount.amount;
-            paymentDraft.amountPlanned.currencyCode = payment.amount.currency;
+            paymentDraft.amountPlanned.centAmount = payment.value.amount;
+            paymentDraft.amountPlanned.currencyCode = payment.value.currency;
         }
         
         if (payment.customer) {

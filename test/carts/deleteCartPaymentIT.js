@@ -45,7 +45,7 @@ describe('commercetools deleteCartPayment', function () {
                 method: 'credit-card',
                 statusCode: '1',
                 status: 'Paid',
-                amount: {
+                value: {
                     amount: 17900,
                     currency: 'USD'
                 }
@@ -55,7 +55,7 @@ describe('commercetools deleteCartPayment', function () {
                 method: 'bank-transfer',
                 statusCode: '1',
                 status: 'Paid',
-                amount: {
+                value: {
                     amount: 17900,
                     currency: 'USD'
                 }
@@ -145,9 +145,9 @@ describe('commercetools deleteCartPayment', function () {
                     requiredFields.verifyCart(res.body);
                     let payment = res.body.payments[0];
                     requiredFields.verifyPayment(payment);
-                    expect(payment).to.have.property('amount');
-                    expect(payment.amount).to.have.property('currency');
-                    expect(payment.amount).to.have.property('amount');
+                    expect(payment).to.have.property('value');
+                    expect(payment.value).to.have.property('currency');
+                    expect(payment.value).to.have.property('amount');
                     expect(payment).to.have.property('createdAt');
                     expect(payment).to.have.property('lastModifiedAt');
 

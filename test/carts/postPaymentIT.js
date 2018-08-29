@@ -45,7 +45,7 @@ describe('commercetools postPayment', function () {
             method: 'credit-card',
             statusCode: '1',
             status: 'Paid',
-            amount: {
+            value: {
                 amount: 17900,
                 currency: 'USD'
             }
@@ -123,8 +123,8 @@ describe('commercetools postPayment', function () {
                     requiredFields.verifyCart(res.body);
                     let payment = res.body.payment;
                     requiredFields.verifyPayment(payment);
-                    expect(payment).to.have.property('amount');
-                    requiredFields.verifyPrice(payment.amount);
+                    expect(payment).to.have.property('value');
+                    requiredFields.verifyPrice(payment.value);
                     expect(payment).to.have.property('createdAt');
                     expect(payment).to.have.property('lastModifiedAt');
                 });
