@@ -56,7 +56,8 @@ class ProductMapper {
             .withResults(results)
             .build();
         if (result.body.facets) {
-            pr.facets = this._mapFacets(result.body.facets, args);
+            let availableFacets = this.getProductFacets(result);
+            pr.facets = this._mapFacets(result.body.facets, availableFacets, args);
         }
 
         return pr;
@@ -314,14 +315,15 @@ class ProductMapper {
     /**
      * @private
      */
-    _mapFacets(ctFacets, args) {
-        if (!ctFacets) {
+    _mapFacets(ctFacets, availableFacets, args) {
+        if (!ctFacets || !availableFacets) {
             return;
         }
-        let cifFacet;
-        let ctFacetNames = Object.keys(ctFacets);
-        return ctFacetNames.map(facetName => {
 
+        let cifFacet;
+        const ctFacetLabels = new Map(availableFacets.map(facet => [facet.id, facet.name]));
+        const ctFacetNames = Object.keys(ctFacets);
+        return ctFacetNames.map(facetName => {
             let type = null;
             let values = null;
             if (ctFacets[facetName].type === 'range') {
@@ -339,7 +341,7 @@ class ProductMapper {
 
             cifFacet = new Facet.Builder()
                 .withId(facetName)
-                .withName(this.languageParser.pickLanguage(ctFacets[facetName].label) || facetName)
+                .withName(this.languageParser.pickLanguage(ctFacets[facetName].label) || ctFacetLabels.get(facetName) || facetName)
                 .withType(type)
                 .withValues(values)
                 .build();

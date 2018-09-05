@@ -150,10 +150,12 @@ describe('commercetools searchProducts', () => {
                 assert.isDefined(result.response.body.facets);
                 assert.strictEqual(result.response.body.facets.length, 1);
                 let colorFacet = result.response.body.facets[0];
+                assert.isDefined(colorFacet.id);
                 assert.strictEqual(colorFacet.type, 'text');
+                assert.strictEqual(colorFacet.name, 'Color');
                 colorFacet.values.forEach(facetValue => {
                     assert.isDefined(facetValue.id);
-                    assert.equal(facetValue.id, `${colorFacet.name}.${facetValue.value}`);
+                    assert.equal(facetValue.id, `${colorFacet.id}.${facetValue.value}`);
                     assert.isDefined(facetValue.value);
                     assert.isDefined(facetValue.occurrences);
                 });
@@ -188,10 +190,12 @@ describe('commercetools searchProducts', () => {
                 assert.isDefined(result.response.body.facets);
                 assert.strictEqual(result.response.body.facets.length, 1);
                 let colorFacet = result.response.body.facets[0];
+                assert.isDefined(colorFacet.id);
                 assert.strictEqual(colorFacet.type, 'text');
+                assert.strictEqual(colorFacet.name, 'Color');
                 colorFacet.values.forEach(facetValue => {
                     assert.isDefined(facetValue.id);
-                    assert.equal(facetValue.id, `${colorFacet.name}.${facetValue.value}`);
+                    assert.equal(facetValue.id, `${colorFacet.id}.${facetValue.value}`);
                     assert.isDefined(facetValue.value);
                     assert.isDefined(facetValue.occurrences);
                     if (facetValue.value === 'purple') {

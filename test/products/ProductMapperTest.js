@@ -130,7 +130,7 @@ describe('commercetools ProductMapper', () => {
             assert.isDefined(mappedProduct.facets.length);
             mappedProduct.facets.forEach((facet) => {
                 assert.isDefined(facet.name);
-                let sampleFacet = sampleFacets[facet.name];
+                let sampleFacet = sampleFacets[facet.id];
                 assert.isDefined(sampleFacet.type);
                 if (sampleFacet.type === 'range') {
                     assert.strictEqual(facet.missed, sampleFacet.missing);
@@ -162,7 +162,7 @@ describe('commercetools ProductMapper', () => {
             assert.isDefined(mappedProduct.facets);
             assert.isDefined(mappedProduct.facets.length);
             mappedProduct.facets.forEach((facet) => {
-                let sampleFacet = sampleFacets[facet.name];
+                let sampleFacet = sampleFacets[facet.id];
                 if (sampleFacet.type === 'range') {
                     facet.values.forEach((facetValue) => {
                         if (facetValue.value === '5000-15000') {
