@@ -4,5 +4,6 @@ test/*
 test-results-xunit.xml
 .npmignore
 .serverless/*
-web-action-transformer*
+@adobe/*
 serverless.yml
+webpack.config.js
