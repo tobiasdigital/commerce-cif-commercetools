@@ -28,7 +28,9 @@ class LanguageParser {
      * @param {Object} args OpenWhisk action arguments
      */
     constructor(args) {
-        this.acceptedLanguage = this.parseAcceptedLanguages(args.__ow_headers[HEADER_ACCEPT_LANGUAGE.toLowerCase()]);
+        // Extract accepted languages from the header and fall back to the default value in case none was sent.
+        const languageHeader = args.__ow_headers[HEADER_ACCEPT_LANGUAGE.toLowerCase()] || args.DEFAULT_ACCEPT_LANGUAGE_HEADER;
+        this.acceptedLanguage = this.parseAcceptedLanguages(languageHeader);
         this.hasWildcard = this.acceptedLanguage.find(o => o.code == '*') !== undefined;
     }
 

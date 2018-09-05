@@ -103,5 +103,21 @@ describe('commercetools LanguageParser', () => {
             let languageParser = new LanguageParser(args);
             assert.isUndefined(languageParser.pickLanguage(localizedString));
         });
+
+        it('uses the default accept language in case the header is missing from the request', () => {
+            const args = {
+                DEFAULT_ACCEPT_LANGUAGE_HEADER: 'en-US',
+                __ow_headers: {}
+            };
+
+            const localizedString = {
+                de: "Blume",
+                fr: "Fleur",
+                en: "Flower"
+            }
+
+            const languageParser = new LanguageParser(args);
+            assert.strictEqual(languageParser.pickLanguage(localizedString), "Flower");
+        });
     });
 });
