@@ -20,6 +20,7 @@ custom:
   customers-actions: /${self:custom.customer-namespace}/commerce-cif-commercetools-customer@latest
   orders-actions: /${self:custom.customer-namespace}/commerce-cif-commercetools-order@latest
   products-actions: /${self:custom.customer-namespace}/commerce-cif-commercetools-product@latest
+  graphql-actions: /${self:custom.customer-namespace}/commerce-cif-commercetools-graphql@latest
 
 plugins:
   - '@cruglobal/serverless-merge-config'
@@ -50,6 +51,10 @@ resources:
       parameters: ${file(credentials.json)}
     commerce-cif-commercetools-common@latest:
       binding: /${self:custom.bindings-namespace}/commerce-cif-commercetools-common@latest
+    commerce-cif-commercetools-graphql@latest:
+      binding: /${self:custom.bindings-namespace}/commerce-cif-commercetools-graphql@latest
+      parameters: ${file(credentials.json)}
+
 
 functions:
 
@@ -249,6 +254,14 @@ functions:
     name: ${self:custom.customer-package}/searchProducts
     sequence:
       - ${self:custom.products-actions}/searchProductsService
+      - ${self:custom.common-actions}/webActionTransformer
+    annotations:
+      web-export: true
+
+  graphql:
+    name: ${self:custom.customer-package}/graphql
+    sequence:
+      - ${self:custom.graphql-actions}/graphqlService
       - ${self:custom.common-actions}/webActionTransformer
     annotations:
       web-export: true

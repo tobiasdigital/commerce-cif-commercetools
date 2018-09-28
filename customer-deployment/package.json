@@ -10,9 +10,9 @@
     "serverless": "1.29.0",
     "serverless-openwhisk": "0.13.0"
   },
-  "customer-namespace": "cif-customer",
+  "customer-namespace": "cif-demo",
   "customer-package": "commercetools",
-  "bindings-namespace": "cif-core",
+  "bindings-namespace": "adobe-cif-catalog",
   "scripts": {
     "postinstall": "node ./postinstall.js",
     "fix-serverless-permission": "chmod +x $(npm bin)/serverless",
