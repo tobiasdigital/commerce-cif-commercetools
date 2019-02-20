@@ -56,7 +56,7 @@ describe('commercetools LanguageParser', () => {
             assert.isUndefined(languageParser.pickLanguage(undefined));
         });
 
-        it('returns the language with the highest quality', () => {
+        it('returns the language and tag with the highest quality', () => {
             let args = {
                 __ow_headers: {
                     'accept-language': 'en-US;q=0.9,fr-FR;q=0.7,de-DE;q=0.8'
@@ -64,6 +64,7 @@ describe('commercetools LanguageParser', () => {
             };
             let languageParser = new LanguageParser(args);
             assert.equal(languageParser.getFirstLanguage(), "en");
+            assert.equal(languageParser.getFirstLanguageTag(), "en-US");
         });
 
         it('returns undefined for an empty accept-language string', () => {
@@ -74,6 +75,7 @@ describe('commercetools LanguageParser', () => {
             };
             let languageParser = new LanguageParser(args);
             assert.isUndefined(languageParser.getFirstLanguage());
+            assert.isUndefined(languageParser.getFirstLanguageTag());
         });
 
         it('returns a fallback value for an accept-language string with wildcard', () => {

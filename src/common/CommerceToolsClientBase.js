@@ -107,6 +107,14 @@ class CommerceToolsClientBase {
         return respondWithCommerceToolsError(error, this.args, Promise.resolve.bind(Promise), this.errorType);
     }
 
+    handleInternalError(internalError) {
+        this.args.response = {
+            error: internalError,
+            errorType: this.errorType
+        };
+        return Promise.resolve(this.args);
+    }
+
     /**
      * @protected
      */
@@ -263,6 +271,13 @@ class CommerceToolsClientBase {
         return this;
     }
 
+    /**
+     * query predicate.
+     */
+    where(predicate) {
+        this.requestBuilder.where(predicate);
+        return this;
+    }
 }
 
 module.exports = CommerceToolsClientBase;

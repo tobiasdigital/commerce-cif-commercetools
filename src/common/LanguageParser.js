@@ -67,6 +67,22 @@ class LanguageParser {
         return this.acceptedLanguage[0].code;
     }
 
+    /**
+     * Returns the BCP47 language tag for the language with the highest quality.
+     */
+    getFirstLanguageTag() {
+        if (!this.acceptedLanguage || this.acceptedLanguage.length == 0) {
+            return;
+        }
+
+        if (this.acceptedLanguage[0].code && this.acceptedLanguage[0].region) {
+            return this.acceptedLanguage[0].code + "-" + this.acceptedLanguage[0].region;
+        } else if (this.acceptedLanguage[0].code) {
+            return this.acceptedLanguage[0].code;
+        } else {
+            return this.acceptedLanguage[0].region;
+        }
+    }
 }
 
 module.exports = LanguageParser;

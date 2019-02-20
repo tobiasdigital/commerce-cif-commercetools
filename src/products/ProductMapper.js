@@ -109,6 +109,7 @@ class ProductMapper {
         if (ctProduct.description) {
             product.description = this.languageParser.pickLanguage(ctProduct.description);
         }
+        product.slug = this.languageParser.pickLanguage(ctProduct.slug);
         product.createdAt = ctProduct.createdAt;
         product.lastModifiedAt = ctProduct.lastModifiedAt;
         product.categories = this._mapProductCategories(ctProduct.categories);

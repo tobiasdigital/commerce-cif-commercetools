@@ -69,6 +69,7 @@ describe('commercetools ProductMapper', () => {
             assert.strictEqual(mappedProduct.id, productData.body.id);
             assert.strictEqual(mappedProduct.masterVariantId, productData.body.id + '-' + productData.body.masterVariant.id);
             assert.strictEqual(mappedProduct.name, productData.body.name.en);
+            assert.strictEqual(mappedProduct.slug, productData.body.slug.en);
             assert.strictEqual(mappedProduct.description, productData.body.description.en);
             assert.strictEqual(mappedProduct.createdAt, productData.body.createdAt);
             assert.strictEqual(mappedProduct.lastModifiedAt, productData.body.lastModifiedAt);

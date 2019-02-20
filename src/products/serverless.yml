@@ -31,3 +31,7 @@ functions:
   searchProductsService:
     name: ${self:custom.ow-package}/searchProductsService
     handler: searchProducts.main
+
+  getProductBySlugService:
+    name: ${self:custom.ow-package}/getProductBySlugService
+    handler: getProductBySlug.main
