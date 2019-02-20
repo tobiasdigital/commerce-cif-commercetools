@@ -142,10 +142,8 @@ class CategoryMapper {
             .build();
         
         category.name = this.languageParser.pickLanguage(ctCategory.name);
-
-        if (ctCategory.description) {
-            category.description = this.languageParser.pickLanguage(ctCategory.description);
-        }
+        category.description = this.languageParser.pickLanguage(ctCategory.description);
+        category.slug = this.languageParser.pickLanguage(ctCategory.slug);
         
         if (ctCategory.parent) {
             let parentCategory = new Category.Builder()

@@ -27,3 +27,7 @@ functions:
   getCategoriesService:
     name: ${self:custom.ow-package}/getCategoriesService
     handler: getCategories.main
+
+  getCategoryBySlugService:
+    name: ${self:custom.ow-package}/getCategoryBySlugService
+    handler: getCategoryBySlug.main

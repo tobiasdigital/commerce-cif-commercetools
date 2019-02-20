@@ -45,6 +45,14 @@ class CommerceToolsCategory extends CommerceToolsClientBase {
         this.mapperArgs.push(depth);
         return this._handle(this._buildBaseUrl(), 'GET');
     }
+
+    /**
+     * Returns the category/categories based on the request builder configured in the action.
+     * @return {*}
+     */
+    get() {
+        return this._handle(this._buildBaseUrl(), 'GET');
+    }
 }
 
 module.exports = CommerceToolsCategory;
