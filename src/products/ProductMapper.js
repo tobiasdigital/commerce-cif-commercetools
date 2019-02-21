@@ -142,6 +142,7 @@ class ProductMapper {
             .withSku(ctLineItem.variant.sku)
             .build();
 
+        v.slug = this.languageParser.pickLanguage(ctLineItem.productSlug);
         v.assets = this._mapImages(ctLineItem.variant.images);
         v.attributes = this._mapAttributes(attributesTypes, ctLineItem.variant.attributes);
         return v;

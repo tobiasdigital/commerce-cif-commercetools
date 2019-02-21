@@ -113,6 +113,7 @@ describe('commercetools CartMapper', () => {
                 assert.strictEqual(cartEntry.productVariant.sku, lineItem.variant.sku);
                 assert.strictEqual(cartEntry.productVariant.id, lineItem.productId + '-' + lineItem.variant.id);
                 assert.strictEqual(cartEntry.productVariant.name, lineItem.name.en);
+                assert.strictEqual(cartEntry.productVariant.slug, lineItem.productSlug.en);
                 assert.strictEqual(cartEntry.unitPrice.amount, lineItem.price.value.centAmount);
                 assert.strictEqual(cartEntry.unitPrice.currency, lineItem.price.value.currencyCode);
                 assert.strictEqual(cartEntry.price.amount, lineItem.totalPrice.centAmount);
