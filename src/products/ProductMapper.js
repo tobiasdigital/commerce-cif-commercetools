@@ -246,7 +246,8 @@ class ProductMapper {
                 return {
                     id: attribute.name,
                     name: this.languageParser.pickLanguage(attribute.label),
-                    isVariantAxis: this._isVariantAttributeConstraint(attribute.attributeConstraint)
+                    isVariantAxis: this._isVariantAttributeConstraint(attribute.attributeConstraint),
+                    isLocalizedString: attribute.type && attribute.type.name == 'ltext'
                 }
             });
     }
@@ -294,14 +295,15 @@ class ProductMapper {
     _mapAttributes(attributesTypes, attributes) {
         if (attributesTypes && attributes) {
             return attributes.map(attribute => {
-                let types = attributesTypes.filter(attributeType => attributeType.id == attribute.name);
-                if (types.length) {
+                let type = attributesTypes.find(attributeType => attributeType.id == attribute.name);
+                if (type) {
+                    let value = type.isLocalizedString ? this.languageParser.pickLanguage(attribute.value) : attribute.value;
                     let attr = new Attribute.Builder()
-                        .withId(types[0].id)
-                        .withName(types[0].name)
-                        .withValue(this.languageParser.pickLanguage(attribute.value))
+                        .withId(type.id)
+                        .withName(type.name)
+                        .withValue(value)
                         .build();
-                    attr.isVariantAxis = types[0].isVariantAxis;
+                    attr.isVariantAxis = type.isVariantAxis;
                     return attr;
                 } else {
                     return new Attribute.Builder()

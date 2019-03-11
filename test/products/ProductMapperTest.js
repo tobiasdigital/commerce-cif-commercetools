@@ -105,6 +105,11 @@ describe('commercetools ProductMapper', () => {
             assert.lengthOf(mappedVariant.assets, productData.body.masterVariant.images.length);   
             assert.lengthOf(mappedVariant.attributes, productData.body.masterVariant.attributes.length);
             
+            // Test a localized attribute
+            assert.strictEqual(mappedVariant.attributes.find(a => a.id == 'color').value, 'green');
+            // Test a non-localized attribute
+            assert.strictEqual(mappedVariant.attributes.find(a => a.id == 'testNumber').value, 42);
+            
             let length = productData.body.productType.obj.attributes.filter(attr => !simpleConstraints.includes(attr.attributeConstraint)).length;
             assert.lengthOf(mappedVariant.attributes.filter(attr => attr.isVariantAxis), length);
         });

@@ -111,6 +111,20 @@ module.exports = {
                         'isSearchable': true,
                         'inputHint': 'SingleLine',
                         'displayGroup': 'Other'
+                    },
+                    {
+                        'name': 'testNumber',
+                        'label': {
+                            'en': 'Test Number type'
+                        },
+                        'isRequired': false,
+                        'type': {
+                            'name': 'number'
+                        },
+                        'attributeConstraint': 'None',
+                        'isSearchable': true,
+                        'inputHint': 'SingleLine',
+                        'displayGroup': 'Other'
                     }
                 ],
                 'createdAt': '2016-10-27T15:14:14.046Z',
@@ -233,6 +247,10 @@ module.exports = {
                     'value': {
                         'en': 'Orphan attribute without ProductType'
                     }
+                },
+                {
+                    'name': 'testNumber',
+                    'value': 42
                 }
             ],
             'assets': [],
