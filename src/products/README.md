@@ -1,4 +1,4 @@
-# CCIF products services for commercetools
+# CIF REST products services for commercetools
 
 This package contains the actions of the `/products` API endpoints.
 

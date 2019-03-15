@@ -1,4 +1,4 @@
-# CCIF customers services for commercetools
+# CIF REST customers services for commercetools
 
 This package contains the actions of the `/customers` API endpoints.
 

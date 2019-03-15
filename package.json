@@ -2,7 +2,7 @@
   "name": "@adobe/commerce-cif-commercetools-umbrella",
   "private": true,
   "version": "0.1.0",
-  "description": "Adobe Commerce Integration Framework (CIF) Commercetools Integration Umbrella Project",
+  "description": "Adobe Commerce Integration Framework (CIF REST) Commercetools Integration Umbrella Project",
   "author": "Adobe Systems Inc.",
   "license": "Apache-2.0",
   "repository": {

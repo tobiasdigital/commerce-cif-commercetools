@@ -1,4 +1,4 @@
-# CCIF carts services for commercetools
+# CIF REST carts services for commercetools
 
 This package contains the actions of the `/carts` API endpoints.
 

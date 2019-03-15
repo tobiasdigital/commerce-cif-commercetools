@@ -1,4 +1,4 @@
-# CCIF categories services for commercetools
+# CIF REST categories services for commercetools
 
 This package contains the actions of the `/categories` API endpoints.
 

@@ -1,4 +1,4 @@
-# CCIF orders services for commercetools
+# CIF REST orders services for commercetools
 
 This package contains the actions of the `/orders` API endpoints.
 
