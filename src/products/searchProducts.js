@@ -61,17 +61,17 @@ function searchProducts(args) {
     let queryFacets = args.queryFacets ? args.queryFacets.split('|') : [];
 
     let text = args.text;
-    let language = languageParser.getFirstLanguage();
+    let tag = languageParser.getFirstLanguageTag();
     let limit = Number(args.limit) || 25;
     let offset = Number(args.offset) || 0;
 
     const commerceToolsProductSearch = new CommerceToolsProductSearch(args, createClient, productMapper.mapPagedProductResponse.bind(productMapper));
     const commerceToolsFacetSearch = new CommerceToolsProductSearch(args, createClient, productMapper.getProductFacets.bind(productMapper));
 
-    _setQueryCriteria(commerceToolsProductSearch, language, text, filters, selectedFacets, sorts);
+    _setQueryCriteria(commerceToolsProductSearch, tag, text, filters, selectedFacets, sorts);
 
     if (queryFacets.length === 1 && queryFacets[0] === 'auto') {
-        _setQueryCriteria(commerceToolsFacetSearch, language, text, [], [], []);
+        _setQueryCriteria(commerceToolsFacetSearch, tag, text, [], [], []);
         return commerceToolsFacetSearch.perPage(1).expand('productType').search().then(result => {
             if (result.response.statusCode !== 200) {
                 return result;
@@ -104,14 +104,14 @@ function _executeSearch(commerceToolsProductSearch, limit, offset) {
     }
 }
 
-function _setQueryCriteria(client, language, text, filters, selectedFacets, sorts) {
+function _setQueryCriteria(client, languageTag, text, filters, selectedFacets, sorts) {
     //apply regular filter
     filters.forEach(filter => client.filterByQuery(filter));
     //apply facets filter
     selectedFacets.forEach(facet => client.filter(facet));
     // full-text search
     if (typeof text !== 'undefined' && text !== null) {
-        client.text(text, language);
+        client.text(text, languageTag);
     }
     // sort orders
     sorts.forEach(sortString => {
@@ -128,7 +128,7 @@ function _setQueryCriteria(client, language, text, filters, selectedFacets, sort
 
         // Add localization for name and description fields
         if (field.startsWith("name") || field.startsWith("description")) {
-            field += `.${language}`
+            field += `.${languageTag}`
         }
 
         client.sort(field, direction);

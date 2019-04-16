@@ -36,7 +36,7 @@ describe('commercetools searchProducts', () => {
                 offset: 10,
                 sort: 'name.desc|variants.sku',
                 __ow_headers: {
-                    'accept-language': 'en-US'
+                    'accept-language': 'en'
                 }
             };
 
@@ -68,7 +68,7 @@ describe('commercetools searchProducts', () => {
                 filter: '',
                 text: undefined,
                 __ow_headers: {
-                    'accept-language': 'en-US'
+                    'accept-language': 'en'
                 }
             };
 
@@ -88,7 +88,7 @@ describe('commercetools searchProducts', () => {
                 sort: 'name.desc|variants.sku',
                 queryFacets: 'auto',
                 __ow_headers: {
-                    'accept-language': 'en-US'
+                    'accept-language': 'en'
                 }
             };
 
@@ -133,7 +133,7 @@ describe('commercetools searchProducts', () => {
                 sort: 'name.desc|variants.sku',
                 queryFacets: 'variants.attributes.color.en',
                 __ow_headers: {
-                    'accept-language': 'en-US'
+                    'accept-language': 'en'
                 }
             };
 
@@ -173,7 +173,7 @@ describe('commercetools searchProducts', () => {
                 queryFacets: 'variants.attributes.color.en',
                 selectedFacets: 'variants.attributes.color.en:"purple"',
                 __ow_headers: {
-                    'accept-language': 'en-US'
+                    'accept-language': 'en'
                 }
             };
 
@@ -212,7 +212,7 @@ describe('commercetools searchProducts', () => {
                 text: 'jacket',
                 limit: -1,
                 __ow_headers: {
-                    'accept-language': 'en-US'
+                    'accept-language': 'en'
                 }
             };
             return this.execute(args).then(function(result) {
@@ -222,6 +222,31 @@ describe('commercetools searchProducts', () => {
             })
         });
 
+        it('Language tag is correctly forwarded to CT backend', () => {
+            let args = {
+                text: 'coat',
+                limit: 5,
+                offset: 10,
+                __ow_headers: {
+                    'accept-language': 'en-US'
+                }
+            };
+
+            // The important check here is the 'text.en-US' part
+            const expectedArgs = {
+                uri: `/${config.CT_PROJECTKEY}/product-projections/search?expand=productType&limit=5&offset=10&text.en-US=coat&markMatchingVariants=false`,
+                method: 'GET',
+                headers: undefined
+            };
+
+            let response = {body: {offset: 10, count: 1, total: 11, results: [sampleProduct1.body]}};
+            return this.prepareResolve(response, expectedArgs).execute(args).then(result => {
+                // We only check the response to ensure that the request was properly processed
+                assert.isDefined(result);
+                assert.isDefined(result.response);
+                assert.isDefined(result.response.body);
+            });
+        });
     });
 });
 

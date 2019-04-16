@@ -55,7 +55,7 @@ class ProductMapper {
             .withTotal(result.body.total)
             .withResults(results)
             .build();
-        if (result.body.facets) {
+        if (result.body.facets && Object.keys(result.body.facets).length > 0) {
             let availableFacets = this.getProductFacets(result);
             pr.facets = this._mapFacets(result.body.facets, availableFacets, args);
         }
@@ -161,7 +161,7 @@ class ProductMapper {
                 if (attribute.isSearchable === true) {
                     let facet = new Facet.Builder()
                         .withId(`variants.attributes.${attribute.name}.en`)
-                        .withName(this.languageParser.pickLanguage(attribute.label) || facet.id)
+                        .withName(this.languageParser.pickLanguage(attribute.label) || attribute.id)
                         .withType(null)
                         .withValues(null)
                         .build();

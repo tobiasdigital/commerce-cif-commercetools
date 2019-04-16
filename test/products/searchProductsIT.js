@@ -131,7 +131,7 @@ describe('commercetools searchProducts', function() {
                 .query({
                     text: searchTerm
                 })
-                .set('Accept-Language', 'en-US')
+                .set('Accept-Language', 'en')
                 .set('Cache-Control', 'no-cache')
                 .then(function (res) {
                     expect(res).to.be.json;
@@ -155,7 +155,7 @@ describe('commercetools searchProducts', function() {
                     sort: 'name.desc',
                     limit: 5
                 })
-                .set('Accept-Language', 'en-US')
+                .set('Accept-Language', 'en')
                 .set('Cache-Control', 'no-cache')
                 .then(function (res) {
                     expect(res).to.be.json;
@@ -263,7 +263,7 @@ describe('commercetools searchProducts', function() {
                     text: 'jacket',
                     queryFacets: 'auto'
                 })
-                .set('Accept-Language', 'en-US')
+                .set('Accept-Language', 'en')
                 .set('Cache-Control', 'no-cache')
                 .then(res => {
                     expect(res).to.be.json;
@@ -331,7 +331,7 @@ describe('commercetools searchProducts', function() {
                     selectedFacets: 'variants.attributes.color.en:"red"',
                     productTypeId: '87238665-3388-4cf7-8a3f-bc3dd63724f4'
                 })
-                .set('Accept-Language', 'en-US')
+                .set('Accept-Language', 'en')
                 .set('Cache-Control', 'no-cache')
                 .then(res => {
                     expect(res).to.be.json;

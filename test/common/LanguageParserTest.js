@@ -121,5 +121,21 @@ describe('commercetools LanguageParser', () => {
             const languageParser = new LanguageParser(args);
             assert.strictEqual(languageParser.pickLanguage(localizedString), "Flower");
         });
+
+        it('successfully extracts a string based on a BCP47 language tag', () => {
+            const args = {
+                DEFAULT_ACCEPT_LANGUAGE_HEADER: 'en-US',
+                __ow_headers: {}
+            };
+
+            const localizedString = {
+                "de-DE": "Blume",
+                "fr-FR": "Fleur",
+                "en-US": "Flower"
+            }
+
+            const languageParser = new LanguageParser(args);
+            assert.strictEqual(languageParser.pickLanguage(localizedString), "Flower");
+        });
     });
 });
