@@ -1,7 +1,7 @@
 {
-  "name": "@adobe/commerce-cif-commercetools-cart",
-  "version": "1.0.2",
-  "description": "Adobe Commerce Integration Framework (CIF REST) Commercetools Integration Cart Project",
+  "name": "@adobe/commerce-cif-commercetools-healthcheck",
+  "version": "0.0.1",
+  "description": "Adobe Commerce Integration Framework (CIF REST) Commercetools Integration Healthchecks Project",
   "author": "Adobe Systems Inc.",
   "license": "Apache-2.0",
   "repository": {
@@ -11,7 +11,6 @@
   "dependencies": {
     "@commercetools/sdk-client": "1.4.1",
     "@adobe/commerce-cif-commercetools-common": "1.0.2",
-    "@adobe/commerce-cif-commercetools-product": "1.1.1",
     "@adobe/commerce-cif-common": "1.0.0",
     "@adobe/commerce-cif-model": "1.4.0"
   },
@@ -32,13 +31,13 @@
     "lint": "eslint -f table --ignore-path ../../.eslintignore .",
     "deploy": "serverless deploy",
     "remove": "serverless remove",
-    "deploy-current": "npm run deploy -- --ow-package commerce-cif-commercetools-cart@$npm_package_version --shared",
-    "deploy-latest": "npm run deploy -- --ow-package commerce-cif-commercetools-cart@latest --shared",
-    "deploy-suffix": "npm run deploy -- --ow-package commerce-cif-commercetools-cart@${OW_PACKAGE_SUFFIX} --shared",
+    "deploy-current": "npm run deploy -- --ow-package commerce-cif-commercetools-healhcheck@$npm_package_version --shared",
+    "deploy-latest": "npm run deploy -- --ow-package commerce-cif-commercetools-healhcheck@latest --shared",
+    "deploy-suffix": "npm run deploy -- --ow-package commerce-cif-commercetools-healhcheck@${OW_PACKAGE_SUFFIX} --shared",
     "deploy-package": "npm run deploy-current; npm run deploy-latest",
-    "remove-current": "npm run remove -- --ow-package commerce-cif-commercetools-cart@$npm_package_version",
-    "remove-latest": "npm run remove -- --ow-package commerce-cif-commercetools-cart@latest",
-    "remove-suffix": "npm run remove -- --ow-package commerce-cif-commercetools-cart@${OW_PACKAGE_SUFFIX}",
+    "remove-current": "npm run remove -- --ow-package commerce-cif-commercetools-healhcheck@$npm_package_version",
+    "remove-latest": "npm run remove -- --ow-package commerce-cif-commercetools-healhcheck@latest",
+    "remove-suffix": "npm run remove -- --ow-package commerce-cif-commercetools-healhcheck@${OW_PACKAGE_SUFFIX}",
     "remove-package": "npm run remove-current; npm run remove-latest"
   }
 }
