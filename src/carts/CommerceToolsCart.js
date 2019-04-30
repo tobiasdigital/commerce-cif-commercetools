@@ -18,6 +18,7 @@ const CommerceToolsClientBase = require('@adobe/commerce-cif-commercetools-commo
 const HttpStatusCodes = require('http-status-codes');
 const CcifIdentifier = require('@adobe/commerce-cif-commercetools-common/CcifIdentifier');
 const ERROR_TYPE = require('./constants').ERROR_TYPE;
+const logger = require('@adobe/commerce-cif-commercetools-common/logger');
 
 /**
  * Commerce Tools cart API implementation.
@@ -79,10 +80,12 @@ class CommerceToolsCart extends CommerceToolsClientBase {
                 data.version = result.body.version;
                 return this._handlePostCart(baseUrl, data);
             }).catch(error => {
+                logger.error({ err: error, baseUrl, data }, "Received error when updating uncached cart");
                 return this._handleError(error);
             });
         } else {
             return this._handlePostCart(baseUrl, data).catch(error => {
+                logger.error({ err: error, baseUrl, data }, "Received error when updating cached cart");
                 return this._handleError(error);
             });
         }
@@ -99,6 +102,7 @@ class CommerceToolsCart extends CommerceToolsClientBase {
         return this._handle(baseUrl, 'POST', data).catch((error) => {
             //check again for error code conflict. could be customer not allowed error.
             if (error && error.code === HttpStatusCodes.CONFLICT) {
+                logger.info(error, "Cart is outdated, fetch latest cart");
                 return this._ctCartById(baseUrl).then(result => {
                     data.version = result.body.version;
                     return this._handle(baseUrl, 'POST', data);
@@ -122,6 +126,7 @@ class CommerceToolsCart extends CommerceToolsClientBase {
         return this._ctCartById(baseUrl).then(result => {
             return this._handleSuccess(this.mapper(result, args));
         }).catch(error => {
+            logger.error({ baseUrl, err: error }, "Could not retrieve cart");
             return this._handleError(error);
         });
     }

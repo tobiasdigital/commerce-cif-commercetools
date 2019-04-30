@@ -19,6 +19,8 @@ const CommerceToolsCategory = require('./CommerceToolsCategory');
 const CategoryMapper = require('./CategoryMapper');
 const LanguageParser = require('@adobe/commerce-cif-commercetools-common/LanguageParser');
 const InvalidArgumentError = require('@adobe/commerce-cif-common/exception').InvalidArgumentError;
+const logger = require('@adobe/commerce-cif-commercetools-common/logger');
+
 
 /**
  * This action returns the entire category structure, a given category, or a subset of the categories depending on pagination.
@@ -80,6 +82,7 @@ function getCategories(args) {
             categories.sort(field, direction);
         });
     } catch(err) {
+        logger.error({ id, limit, offset, depth, type, sorts, err }, "Received invalid arguments");
         args['response'] = { 'error': new InvalidArgumentError(err.message), 'errorType': categories.errorType };
         return Promise.resolve(args);
     }
