@@ -53,6 +53,7 @@ resources:
             binding: /${self:custom.bindings-namespace}/commerce-cif-commercetools-common@latest
         commerce-cif-commercetools-healthcheck@latest:
             binding: /${self:custom.bindings-namespace}/commerce-cif-commercetools-healhcheck@latest
+            parameters: ${file(credentials.json)}
 
 functions:
     getCart:

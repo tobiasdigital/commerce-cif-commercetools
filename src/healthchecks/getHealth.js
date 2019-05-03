@@ -1,6 +1,6 @@
 /*******************************************************************************
  *
- *    Copyright 2019 Adobe. All rights reserved.
+ *    Copyright 2018 Adobe. All rights reserved.
  *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License. You may obtain a copy
  *    of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -13,10 +13,30 @@
  ******************************************************************************/
 
 "use strict";
+const createClient = require("@commercetools/sdk-client").createClient;
+const CommerceToolsHealthcheck = require("./CommerceToolsHealthcheck");
 
 function getHealth(args) {
-    console.log(`Calling getHealth everyone. Here's some arguments ${args}`);
-    return Promise.resolve();
+    const commerceToolsHealth = new CommerceToolsHealthcheck(
+        args,
+        createClient
+    );
+
+    return commerceToolsHealth
+        .checkHealth()
+        .then(result => {
+            console.log(JSON.stringify(result));
+            return {
+                body: result
+            };
+        })
+        .catch(err => {
+            console.log(JSON.stringify(err));
+            return {
+                body: err,
+                statusCode: 503
+            };
+        });
 }
 
 module.exports.main = getHealth;
