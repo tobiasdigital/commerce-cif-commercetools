@@ -18,6 +18,8 @@ const Customer = require('@adobe/commerce-cif-model').Customer;
 const LoginResult = require('@adobe/commerce-cif-model').LoginResult;
 const MissingPropertyException = require('@adobe/commerce-cif-common/exception').MissingPropertyException;
 const CartMapper = require('@adobe/commerce-cif-commercetools-cart/CartMapper');
+const logger = require('@adobe/commerce-cif-commercetools-common/logger');
+
 
 /**
  * Utility class to map commercetools customer objects to CCIF objects. Private marked methods should not be used outside
@@ -43,6 +45,7 @@ class CustomerMapper {
      */
     mapCustomer(ctCustomer) {
         if (!ctCustomer || !ctCustomer.body || !ctCustomer.body.id) {
+            logger.error({ ctCustomer }, 'invalid customer response received from commerce tools');
             throw new MissingPropertyException('invalid customer response received from commerce tools');
         }
 
@@ -54,6 +57,7 @@ class CustomerMapper {
      */
     _mapCustomer(ctCustomer) {
         if (!ctCustomer || !ctCustomer.id) {
+            logger.error({ ctCustomer }, 'invalid customer object received from commerce tools');
             throw new MissingPropertyException('invalid customer object received from commerce tools');
         }
 
@@ -77,6 +81,7 @@ class CustomerMapper {
      */
     mapCustomerLogin(ctResult) {
         if (!ctResult || !ctResult.body || !ctResult.body.customer) {
+            logger.error({ ctResult }, 'invalid customer response received from commerce tools');
             throw new MissingPropertyException('invalid customer response received from commerce tools');
         }
 

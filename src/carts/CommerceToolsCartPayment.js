@@ -18,6 +18,8 @@ const CommerceToolsCart = require('./CommerceToolsCart');
 const CommerceToolsPayment = require('./CommerceToolsPayment');
 const CcifIdentifier = require('@adobe/commerce-cif-commercetools-common/CcifIdentifier');
 const Error = require('@adobe/commerce-cif-commercetools-common/Error');
+const logger = require('@adobe/commerce-cif-commercetools-common/logger');
+
 
 /**
  * Commerce Tools cart API implementation for the payment.
@@ -64,6 +66,7 @@ class CommerceToolsCartPayment extends CommerceToolsCart {
             this._setExpandConfiguration();
             return this._handle(baseUrl, 'POST', data);
         }).catch(error => {
+            logger.error({ baseUrl, payment, err: error }, "Failed to add cart payment");
             return this._handleError(error);
         });
     }
@@ -123,6 +126,7 @@ class CommerceToolsCartPayment extends CommerceToolsCart {
                 return Promise.resolve(cart);
             });
         }).catch(error => {
+            logger.error({ baseUrl, err: error }, "Failed to delete payment");
             return this._handleError(error);
         });
     }
@@ -159,6 +163,7 @@ class CommerceToolsCartPayment extends CommerceToolsCart {
                 return Promise.resolve(JSON.parse(_localCart));
             })
             .catch(error => {
+                logger.error({ baseUrl, paymentId, err: error }, "Failed to delete cart payment");
                 return this._handleError(error);
             });
     }

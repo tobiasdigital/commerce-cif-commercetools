@@ -18,6 +18,8 @@ const CommerceToolsCartVersion = require('./CommerceToolsCartVersion');
 const CommerceToolsOrder = require('./CommerceToolsOrder');
 const CcifIdentifier = require('@adobe/commerce-cif-commercetools-common/CcifIdentifier');
 const HttpStatusCodes = require('http-status-codes');
+const logger = require('@adobe/commerce-cif-commercetools-common/logger');
+
 
 /**
  * Commerce Tools cart API implementation for the order.
@@ -57,10 +59,12 @@ class CommerceToolsCartOrder extends CommerceToolsCartVersion {
                 data.version = result.body.version;
                 return this._handlePostOrder(baseUrl, data);
             }).catch(error => {
+                logger.error({ baseUrl, data, err: error }, "Received error for uncached postOrder request");
                 return this._handleError(error);
             });
         } else {
             return this._handlePostOrder(baseUrl, data).catch((error) => {
+                logger.error({ baseUrl, data, err: error }, "Received error for cached postOrder request");
                 return this._handleError(error);
             });
         }
@@ -75,6 +79,7 @@ class CommerceToolsCartOrder extends CommerceToolsCartVersion {
     _handlePostOrder(baseUrl, data) {
         return this.orderClient.post(data).catch((error) => {
             if (error && error.code === HttpStatusCodes.CONFLICT) {
+                logger.info(error, "Cart is outdated, fetch latest cart");
                 return this._ctCartById(baseUrl).then(result => {
                     data.version = result.body.version;
                     return this.orderClient.post(data);

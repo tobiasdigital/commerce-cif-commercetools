@@ -24,6 +24,8 @@ const PagedResponse = require('@adobe/commerce-cif-model').PagedResponse;
 const Facet = require('@adobe/commerce-cif-model').Facet;
 const FacetValue = require('@adobe/commerce-cif-model').FacetValue;
 const MissingPropertyException = require('@adobe/commerce-cif-common/exception').MissingPropertyException;
+const logger = require('@adobe/commerce-cif-commercetools-common/logger');
+
 
 /**
  * Utility class to map commercetools objects to CCIF objects. Private marked methods should not be used outside
@@ -91,9 +93,11 @@ class ProductMapper {
      */
     _mapProduct(ctProduct) {
         if (ctProduct.id === undefined) {
+            logger.error({ ctProduct }, 'id missing for commercetools product');
             throw new MissingPropertyException('id missing for commercetools product');
         }
         if (ctProduct.masterVariant === undefined || ctProduct.masterVariant.id === undefined) {
+            logger.error({ ctProduct }, 'master variant missing for commercetools product');
             throw new MissingPropertyException('master variant missing for commercetools product');
         }
 

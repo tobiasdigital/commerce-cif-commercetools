@@ -22,6 +22,8 @@ const respondWithCommerceToolsError = require('./web-response-utils').respondWit
 const createRequestBuilder = require('@commercetools/api-request-builder').createRequestBuilder;
 const fetch = require('isomorphic-fetch');
 const HttpStatusCodes = require('http-status-codes');
+const logger = require('./logger.js');
+
 
 /**
  * Base class for commerce tools client. This should be extended for each implemented business domain api like catalog,
@@ -167,6 +169,7 @@ class CommerceToolsClientBase {
             if (error && error.code === HttpStatusCodes.CONFLICT) {
                 throw error;
             }
+            logger.error({ baseUrl, method, data, err: error }, "Received error for request");
             return this._handleError(error);
         });
     }
@@ -181,7 +184,7 @@ class CommerceToolsClientBase {
     _logRequest(options, start, passed) {
         let end = process.hrtime(start);
         let duration = Math.round(((end[0] * 1e9) + end[1]) / 1e6);
-        console.log("BACKEND-CALL", options.method, options.uri, duration, passed ? "PASS" : "FAIL");
+        logger.debug({ method: options.method, uri: options.uri, duration, passed: passed ? "PASS" : "FAIL" }, "BACKEND-CALL");
     }
 
     /**

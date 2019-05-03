@@ -15,6 +15,7 @@
 'use strict';
 
 const Order = require('@adobe/commerce-cif-model').Order;
+const logger = require('@adobe/commerce-cif-commercetools-common/logger');
 
 /**
  * Utility class to map commercetools order objects to CCIF objects.
@@ -29,6 +30,7 @@ class OrderMapper {
      */
     mapOrder(ctOrder) {
         if(!ctOrder.body.id) {
+            logger.error({ ctOrder }, "No order id in Commerce Tools response");
             throw new Error("No order id in Commerce Tools response.");
         }
         const ccifOrder = new Order.Builder()

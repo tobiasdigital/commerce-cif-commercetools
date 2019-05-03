@@ -29,6 +29,7 @@ const MoneyValue = require('@adobe/commerce-cif-model').MoneyValue;
 const TaxInfo = require('@adobe/commerce-cif-model').TaxInfo;
 const TaxPortion = require('@adobe/commerce-cif-model').TaxPortion;
 const ProductMapper = require('@adobe/commerce-cif-commercetools-product/ProductMapper');
+const logger = require('@adobe/commerce-cif-commercetools-common/logger');
 
 /**
  * Utility class to map commercetools cart objects to CCIF objects. Private marked methods should not be used outside
@@ -60,9 +61,11 @@ class CartMapper {
      */
     mapCart(ctCart) {
         if (!ctCart || !ctCart.body) {
+            logger.error({ ctCart }, 'invalid cart response received from commerce tools');
             throw new MissingPropertyException('invalid cart response received from commerce tools');
         }
         if (!ctCart.body.id) {
+            logger.error({ ctCart }, 'id missing for commercetools cart');
             throw new MissingPropertyException('id missing for commercetools cart');
         }
 
