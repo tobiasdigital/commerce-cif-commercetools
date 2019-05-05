@@ -12,9 +12,9 @@
  *
  ******************************************************************************/
 
-"use strict";
+'use strict';
 
-const expect = require("chai").expect;
+const expect = require('chai').expect;
 
 module.exports.setup = function() {
     let env = {};
@@ -25,12 +25,12 @@ module.exports.setup = function() {
     env.openwhiskEndpoint = process.env.OW_ENDPOINT;
 
     // Abort if no OpenWhisk endpoint was set
-    expect(env.openwhiskEndpoint).to.have.string("http");
+    expect(env.openwhiskEndpoint).to.have.string('http');
 
     // Sets the name of the package where all web actions are deployed
     // To make it very flexible, we create one entry per microservice but still
     // only use one single package for all actions
-    let mainPackage = "/commercetools/";
+    let mainPackage = '/commercetools/';
     if (process.env.OW_PACKAGE_SUFFIX) {
         mainPackage = `/commercetools@${process.env.OW_PACKAGE_SUFFIX}/`;
     }
@@ -45,14 +45,14 @@ module.exports.setup = function() {
 };
 
 module.exports.extractToken = function(res) {
-    let headers = res.header["set-cookie"];
+    let headers = res.header['set-cookie'];
     let accessToken = null;
     if (headers) {
         headers.forEach(header => {
             accessToken = header.match(/ccs-ct-token=(.*);P/)[1];
         });
     } else {
-        throw "NO HEADERS";
+        throw 'NO HEADERS';
     }
     return accessToken;
 };
