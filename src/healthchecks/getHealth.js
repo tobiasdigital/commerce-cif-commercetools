@@ -15,24 +15,33 @@
 'use strict';
 const createClient = require('@commercetools/sdk-client').createClient;
 const CommerceToolsHealthcheck = require('./CommerceToolsHealthcheck');
+const logger = require('@adobe/commerce-cif-commercetools-common/logger');
 
 function getHealth(args) {
     const commerceToolsHealth = new CommerceToolsHealthcheck(args, createClient);
+    logger.info('Checking commerce backend service health...');
+
+    const response = {
+        'Content-Type': 'application/json'
+    };
+
+    const buildErrorResponse = body => {
+        return Object.assign({}, response, { body, statusCode: 503 });
+    };
+
+    const buildSuccessResponse = body => {
+        return Object.assign({}, response, { body });
+    };
 
     return commerceToolsHealth
         .checkHealth()
         .then(result => {
-            console.log(JSON.stringify(result));
-            return {
-                body: result
-            };
+            logger.info(JSON.stringify(result));
+            return buildSuccessResponse(result);
         })
         .catch(err => {
-            console.log(JSON.stringify(err));
-            return {
-                body: err,
-                statusCode: 503
-            };
+            logger.info(JSON.stringify(err));
+            return buildErrorResponse(err);
         });
 }
 
