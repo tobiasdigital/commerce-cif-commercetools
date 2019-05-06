@@ -12,15 +12,12 @@
  *
  ******************************************************************************/
 
-"use strict";
-const createClient = require("@commercetools/sdk-client").createClient;
-const CommerceToolsHealthcheck = require("./CommerceToolsHealthcheck");
+'use strict';
+const createClient = require('@commercetools/sdk-client').createClient;
+const CommerceToolsHealthcheck = require('./CommerceToolsHealthcheck');
 
 function getHealth(args) {
-    const commerceToolsHealth = new CommerceToolsHealthcheck(
-        args,
-        createClient
-    );
+    const commerceToolsHealth = new CommerceToolsHealthcheck(args, createClient);
 
     return commerceToolsHealth
         .checkHealth()
