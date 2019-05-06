@@ -11,49 +11,49 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-const chai = require("chai");
-const chaiHttp = require("chai-http");
-const HttpStatus = require("http-status-codes");
-const setup = require("../lib/setupIT.js").setup;
-const requiredFields = require("../lib/requiredFields");
+'use strict';
+const chai = require('chai');
+const chaiHttp = require('chai-http');
+const HttpStatus = require('http-status-codes');
+const setup = require('../lib/setupIT.js').setup;
 
 const expect = chai.expect;
 
 chai.use(chaiHttp);
 
-describe("commercetools getHealth", () => {
-    describe("Integration tests", () => {
-        // Get environment
-        let env = setup();
+describe('commercetools getHealth', () => {
+  describe('Integration tests', () => {
+    // Get environment
+    let env = setup();
 
-        it("returns the correct response for a healthy service", () => {
-            return chai
-                .request(env.openwhiskEndpoint)
-                .get(`${env.healthchecksPackage}getHealth`)
-                .set("Cache-Control", "no-cache")
-                .then(res => {
-                    expect(res).to.have.status(HttpStatus.OK);
-                    expect(res.body).to.exist;
-                    expect(res.body.reports).to.exist;
-                    let reports = res.body.reports;
-                    expect(reports).to.have.lengthOf(1);
-                    expect(reports[0].healthy).to.be.true;
-                });
-        });
-
-        it("return an error response for a non-healthy service", () => {
-            return chai
-                .request(env.openwhiskEndpoint)
-                .get(`${env.healthchecksPackage}getHealth`)
-                .set("Cache-Control", "no-cache")
-                .query({ CT_API_HOST: "https://unknown.host/" })
-                .then(res => {
-                    expect(res).to.have.status(HttpStatus.SERVICE_UNAVAILABLE);
-                    expect(res.body.reports).to.exist;
-                    let reports = res.body.reports;
-                    expect(reports).to.have.lengthOf(1);
-                    expect(reports[0].healthy).to.be.false;
-                });
+    it('returns the correct response for a healthy service', () => {
+      return chai
+        .request(env.openwhiskEndpoint)
+        .get(`${env.healthchecksPackage}getHealth`)
+        .set('Cache-Control', 'no-cache')
+        .then(res => {
+          expect(res).to.have.status(HttpStatus.OK);
+          expect(res.body).to.exist;
+          expect(res.body.reports).to.exist;
+          let reports = res.body.reports;
+          expect(reports).to.have.lengthOf(1);
+          expect(reports[0].healthy).to.be.true;
         });
     });
+
+    it('return an error response for a non-healthy service', () => {
+      return chai
+        .request(env.openwhiskEndpoint)
+        .get(`${env.healthchecksPackage}getHealth`)
+        .set('Cache-Control', 'no-cache')
+        .query({ CT_API_HOST: 'https://unknown.host/' })
+        .then(res => {
+          expect(res).to.have.status(HttpStatus.SERVICE_UNAVAILABLE);
+          expect(res.body.reports).to.exist;
+          let reports = res.body.reports;
+          expect(reports).to.have.lengthOf(1);
+          expect(reports[0].healthy).to.be.false;
+        });
+    });
+  });
 });
