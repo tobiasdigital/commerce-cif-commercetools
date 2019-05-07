@@ -36,11 +36,11 @@ function getHealth(args) {
     return commerceToolsHealth
         .checkHealth()
         .then(result => {
-            logger.info(JSON.stringify(result));
+            logger.info(JSON.stringify(result), `Healthcheck successful`);
             return buildSuccessResponse(result);
         })
         .catch(err => {
-            logger.info(JSON.stringify(err));
+            logger.err(JSON.stringify(err), `Healthcheck failed`);
             return buildErrorResponse(err);
         });
 }
