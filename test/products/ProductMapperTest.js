@@ -101,10 +101,15 @@ describe('commercetools ProductMapper', () => {
             assert.strictEqual(mappedVariant.name, (mappedProduct.name || ""));
             assert.strictEqual(mappedVariant.description, (productData.body.masterVariant.description || {}).en);
             assert.lengthOf(mappedVariant.prices, productData.body.masterVariant.prices.length);
+            assert.lengthOf(mappedVariant.assets, productData.body.masterVariant.images.length);
 
-            assert.lengthOf(mappedVariant.assets, productData.body.masterVariant.images.length);   
-            assert.lengthOf(mappedVariant.attributes, productData.body.masterVariant.attributes.length);
-            
+            // The test product has one 'SameForAll' attribute
+            assert.lengthOf(mappedProduct.attributes, 1);
+            assert.strictEqual(mappedProduct.attributes[0].id, 'designer');
+            assert.strictEqual(mappedProduct.attributes[0].value, 'Patagonia');
+
+            // The master variant has one less attribute (that is, the 'SameForAll' attribute) compared to CT
+            assert.lengthOf(mappedVariant.attributes, productData.body.masterVariant.attributes.length - 1);
             // Test a localized attribute
             assert.strictEqual(mappedVariant.attributes.find(a => a.id == 'color').value, 'green');
             // Test a non-localized attribute
@@ -126,6 +131,13 @@ describe('commercetools ProductMapper', () => {
                     }
                 });
             })
+        });
+
+        it('only maps common attributes to the base product', () => {
+            let pagedResponse = productMapper.mapPagedProductResponse(sampleProductSearch, args);
+            let mappedProduct = pagedResponse.results[0];
+            // The sample search result product does not contain any 'SameForAll' attribute
+            assert.isUndefined(mappedProduct.attributes);
         });
 
         it('maps a product search with query facets', () => {

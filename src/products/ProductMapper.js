@@ -101,6 +101,11 @@ class ProductMapper {
             throw new MissingPropertyException('master variant missing for commercetools product');
         }
 
+        let attributesTypes = [];
+        if (ctProduct.productType.obj) {
+            attributesTypes = this._extractAttributesTypes(ctProduct);
+        }
+
         let masterVariantId = ctProduct.id + '-' + ctProduct.masterVariant.id;
         let name = this.languageParser.pickLanguage(ctProduct.name) || "";
         let product = new Product.Builder()
@@ -108,7 +113,7 @@ class ProductMapper {
             .withMasterVariantId(masterVariantId)
             .withName(name)
             .withPrices([])
-            .withVariants(this._mapProductVariants(ctProduct))
+            .withVariants(this._mapProductVariants(ctProduct, attributesTypes))
             .build();
         if (ctProduct.description) {
             product.description = this.languageParser.pickLanguage(ctProduct.description);
@@ -117,7 +122,35 @@ class ProductMapper {
         product.createdAt = ctProduct.createdAt;
         product.lastModifiedAt = ctProduct.lastModifiedAt;
         product.categories = this._mapProductCategories(ctProduct.categories);
+        product.attributes = this._mapCommonAttributes(ctProduct, attributesTypes);
         return product;
+    }
+
+    /**
+     * @private
+     */
+    _mapCommonAttributes(ctProduct, attributesTypes) {
+        // Collect all variant attributes ids with 'SameForAll' constraint
+        let ids = new Set(attributesTypes.filter(type => type.isSameForAll).map(type => type.id));
+
+        // Collect all attributes of the master variant and all variants
+        let allAttributes = ctProduct.masterVariant.attributes || [];
+        ctProduct.variants.forEach(variant => allAttributes.concat(variant.attributes));
+        
+        let commonAttributes = new Map();
+        allAttributes
+            .filter(attr => ids.has(attr.name))
+            .forEach(attr => {
+                if (!commonAttributes.has(attr.name)) {
+                    commonAttributes.set(attr.name, attr);
+                }
+            });
+        
+        if (commonAttributes.size == 0) {
+            return undefined;
+        }
+
+        return this._mapAttributes(attributesTypes, Array.from(commonAttributes.values()), false);
     }
 
     /**
@@ -126,7 +159,6 @@ class ProductMapper {
      * @param ctLineItem            A CommerceTools cart line item.
      * @returns {ProductVariant}    A CCIF product variant.
      */
-
     mapProductVariant(ctLineItem) {
         let attributesTypes = [];
         if (ctLineItem.productType.obj) {
@@ -148,7 +180,7 @@ class ProductMapper {
 
         v.slug = this.languageParser.pickLanguage(ctLineItem.productSlug);
         v.assets = this._mapImages(ctLineItem.variant.images);
-        v.attributes = this._mapAttributes(attributesTypes, ctLineItem.variant.attributes);
+        v.attributes = this._mapAttributes(attributesTypes, ctLineItem.variant.attributes, false);
         return v;
     }
 
@@ -183,12 +215,7 @@ class ProductMapper {
     /**
      * @private
      */
-    _mapProductVariants(ctProduct) {
-        let attributesTypes = [];
-        if (ctProduct.productType.obj) {
-            attributesTypes = this._extractAttributesTypes(ctProduct);
-        }
-
+    _mapProductVariants(ctProduct, attributesTypes) {
         let variants = [];
         // make sure the default variant is included in the variants;
         variants.push(this._mapProductVariant(ctProduct, ctProduct.masterVariant, attributesTypes));
@@ -219,7 +246,7 @@ class ProductMapper {
         }
 
         v.assets = this._mapImages(variant.images);
-        v.attributes = this._mapAttributes(attributesTypes, variant.attributes);
+        v.attributes = this._mapAttributes(attributesTypes, variant.attributes, true);
         return v;
     }
 
@@ -251,7 +278,8 @@ class ProductMapper {
                     id: attribute.name,
                     name: this.languageParser.pickLanguage(attribute.label),
                     isVariantAxis: this._isVariantAttributeConstraint(attribute.attributeConstraint),
-                    isLocalizedString: attribute.type && attribute.type.name == 'ltext'
+                    isLocalizedString: attribute.type && attribute.type.name == 'ltext',
+                    isSameForAll: attribute.attributeConstraint === 'SameForAll'
                 }
             });
     }
@@ -296,11 +324,15 @@ class ProductMapper {
     /**
      * @private
      */
-    _mapAttributes(attributesTypes, attributes) {
+    _mapAttributes(attributesTypes, attributes, skipSameForAll) {
         if (attributesTypes && attributes) {
             return attributes.map(attribute => {
                 let type = attributesTypes.find(attributeType => attributeType.id == attribute.name);
                 if (type) {
+                    if (skipSameForAll && type.isSameForAll) {
+                        return null;
+                    }
+
                     let value = type.isLocalizedString ? this.languageParser.pickLanguage(attribute.value) : attribute.value;
                     let attr = new Attribute.Builder()
                         .withId(type.id)
@@ -316,7 +348,7 @@ class ProductMapper {
                         .withValue(this.languageParser.pickLanguage(attribute.value))
                         .build();
                 }
-            });
+            }).filter(attr => attr); // filter null values
         }
     }
 
