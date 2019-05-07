@@ -40,7 +40,7 @@ function getHealth(args) {
             return buildSuccessResponse(result);
         })
         .catch(err => {
-            logger.err(JSON.stringify(err), `Healthcheck failed`);
+            logger.error(JSON.stringify(err), `Healthcheck failed`);
             return buildErrorResponse(err);
         });
 }
