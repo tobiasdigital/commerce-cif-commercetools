@@ -30,30 +30,30 @@ resources:
   packages:
     commercetools:
       parameters:
-        commerce-cif-commercetools-cart@latest:
-          binding: /${self:custom.bindings-namespace}/commerce-cif-commercetools-cart@latest
-          parameters: ${file(credentials.json)}
-        commerce-cif-commercetools-category@latest:
-          binding: /${self:custom.bindings-namespace}/commerce-cif-commercetools-category@latest
-          parameters:
-            cachetime: 300
-            $<<: ${file(credentials.json)}
-        commerce-cif-commercetools-customer@latest:
-          binding: /${self:custom.bindings-namespace}/commerce-cif-commercetools-customer@latest
-          parameters: ${file(credentials.json)}
-        commerce-cif-commercetools-product@latest:
-          binding: /${self:custom.bindings-namespace}/commerce-cif-commercetools-product@latest
-          parameters:
-            cachetime: 300
-            $<<: ${file(credentials.json)}
-        commerce-cif-commercetools-order@latest:
-          binding: /${self:custom.bindings-namespace}/commerce-cif-commercetools-order@latest
-          parameters: ${file(credentials.json)}
-        commerce-cif-commercetools-common@latest:
-          binding: /${self:custom.bindings-namespace}/commerce-cif-commercetools-common@latest
-        commerce-cif-commercetools-healthcheck@latest:
-          binding: /${self:custom.bindings-namespace}/commerce-cif-commercetools-healhcheck@latest
-          parameters: ${file(credentials.json)}
+    commerce-cif-commercetools-cart@latest:
+      binding: /${self:custom.bindings-namespace}/commerce-cif-commercetools-cart@latest
+      parameters: ${file(credentials.json)}
+    commerce-cif-commercetools-category@latest:
+      binding: /${self:custom.bindings-namespace}/commerce-cif-commercetools-category@latest
+      parameters:
+        cachetime: 300
+        $<<: ${file(credentials.json)}
+    commerce-cif-commercetools-customer@latest:
+      binding: /${self:custom.bindings-namespace}/commerce-cif-commercetools-customer@latest
+      parameters: ${file(credentials.json)}
+    commerce-cif-commercetools-product@latest:
+      binding: /${self:custom.bindings-namespace}/commerce-cif-commercetools-product@latest
+      parameters:
+        cachetime: 300
+        $<<: ${file(credentials.json)}
+    commerce-cif-commercetools-order@latest:
+      binding: /${self:custom.bindings-namespace}/commerce-cif-commercetools-order@latest
+      parameters: ${file(credentials.json)}
+    commerce-cif-commercetools-common@latest:
+      binding: /${self:custom.bindings-namespace}/commerce-cif-commercetools-common@latest
+    commerce-cif-commercetools-healthcheck@latest:
+      binding: /${self:custom.bindings-namespace}/commerce-cif-commercetools-healhcheck@latest
+      parameters: ${file(credentials.json)}
 
 functions:
   getCart:
