@@ -19,3 +19,4 @@ credentials.json
 *-credentials.json
 dev-test
 audit.json
+.prettierrc

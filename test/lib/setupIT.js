@@ -16,8 +16,7 @@
 
 const expect = require('chai').expect;
 
-module.exports.setup = function () {
-
+module.exports.setup = function() {
     let env = {};
     env.slow = 10000;
     env.timeout = 30000;
@@ -33,19 +32,19 @@ module.exports.setup = function () {
     // only use one single package for all actions
     let mainPackage = '/commercetools/';
     if (process.env.OW_PACKAGE_SUFFIX) {
-        mainPackage = `/commercetools@${process.env.OW_PACKAGE_SUFFIX}/`
+        mainPackage = `/commercetools@${process.env.OW_PACKAGE_SUFFIX}/`;
     }
     env.cartsPackage = mainPackage;
     env.categoriesPackage = mainPackage;
     env.customersPackage = mainPackage;
     env.productsPackage = mainPackage;
     env.ordersPackage = mainPackage;
-    
-    return env;
+    env.healthchecksPackage = mainPackage;
 
+    return env;
 };
 
-module.exports.extractToken = function (res) {
+module.exports.extractToken = function(res) {
     let headers = res.header['set-cookie'];
     let accessToken = null;
     if (headers) {

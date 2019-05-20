@@ -20,6 +20,7 @@ custom:
   customers-actions: /${self:custom.customer-namespace}/commerce-cif-commercetools-customer@latest
   orders-actions: /${self:custom.customer-namespace}/commerce-cif-commercetools-order@latest
   products-actions: /${self:custom.customer-namespace}/commerce-cif-commercetools-product@latest
+  healthchecks-actions: /${self:custom.customer-namespace}/commerce-cif-commercetools-healthcheck@latest
 
 plugins:
   - '@cruglobal/serverless-merge-config'
@@ -50,9 +51,11 @@ resources:
       parameters: ${file(credentials.json)}
     commerce-cif-commercetools-common@latest:
       binding: /${self:custom.bindings-namespace}/commerce-cif-commercetools-common@latest
+    commerce-cif-commercetools-healthcheck@latest:
+      binding: /${self:custom.bindings-namespace}/commerce-cif-commercetools-healhcheck@latest
+      parameters: ${file(credentials.json)}
 
 functions:
-
   getCart:
     name: ${self:custom.customer-package}/getCart
     sequence:
@@ -164,7 +167,7 @@ functions:
       - ${self:custom.common-actions}/webActionTransformer
     annotations:
       web-export: true
- 
+
   postCartPayment:
     name: ${self:custom.customer-package}/postCartPayment
     sequence:
@@ -172,7 +175,7 @@ functions:
       - ${self:custom.common-actions}/webActionTransformer
     annotations:
       web-export: true
-      
+
   deletePayment:
     name: ${self:custom.customer-package}/deletePayment
     sequence:
@@ -266,5 +269,12 @@ functions:
     sequence:
       - ${self:custom.products-actions}/getProductBySlugService
       - ${self:custom.common-actions}/webActionTransformer
+    annotations:
+      web-export: true
+
+  getHealth:
+    name: ${self:custom.customer-package}/getHealth
+    sequence:
+      - ${self:custom.healthchecks-actions}/getHealthService
     annotations:
       web-export: true
