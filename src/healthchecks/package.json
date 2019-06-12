@@ -1,6 +1,6 @@
 {
   "name": "@adobe/commerce-cif-commercetools-healthcheck",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Adobe Commerce Integration Framework (CIF REST) Commercetools Integration Healthchecks Project",
   "author": "Adobe Systems Inc.",
   "license": "Apache-2.0",
