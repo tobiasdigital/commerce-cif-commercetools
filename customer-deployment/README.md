@@ -32,6 +32,10 @@ These parameters can be passed to the deployment file via npm, like for example 
 ## The credentials.json file
 
 This file contains the Commercetools credentials of the customer's project. Simply copy the file `credentials-example.json` and name it `credentials.json`, and add your Commercetools project credentials to the file.
+
+### Scopes support
+
+If your client id is limited to scopes other than "manage_project" you can provide a list of scopes (separated by blanks) in the CT_SCOPES parameter. Please see the `credentials-scopes-example.json`for an example.
  
 ## Deployment
 
