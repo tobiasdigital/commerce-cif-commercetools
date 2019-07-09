@@ -66,6 +66,8 @@ class CommerceToolsClientBase {
             authConfig.scopes = [`manage_project:${args.CT_PROJECTKEY}`];
             createAuthMiddleware = createAuthMiddlewareForPasswordFlow(authConfig);
         } else {
+            // set scope(s) if provided in the package binding
+            authConfig.scopes = args.CT_SCOPES ? [`${args.CT_SCOPES}`] : [`manage_project:${args.CT_PROJECTKEY}`];
             createAuthMiddleware = createAuthMiddlewareForAnonymousSessionFlow(authConfig);
         }
 
